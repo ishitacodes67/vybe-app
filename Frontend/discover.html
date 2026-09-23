@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VYBE — Discover</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/discover.css">
+    <link rel="stylesheet" href="css/vix.css">
+
+</head>
+
+<body class="member-page discover-page">
+
+<header class="topbar">
+
+    <a class="brand" href="home.html">
+        VYBE<span>✦</span>
+    </a>
+
+    <nav>
+        <a href="home.html">Home</a>
+        <a class="active" href="discover.html">Discover</a>
+        <a href="tracker.html">Tracker</a>
+        <a href="voice.html">Voice</a>
+        <a href="profile.html">Profile</a>
+    </nav>
+
+</header>
+
+
+<main class="discover-main">
+
+    <section class="discover-hero">
+
+        <div>
+
+            <p class="eyebrow">
+                CAMPUS DISCOVERY ✦
+            </p>
+
+            <h1>
+                events worth
+                <em>leaving your room for.</em>
+            </h1>
+
+            <p>
+                Find the rooms, people, ideas and experiences
+                that make campus feel a little less predictable.
+            </p>
+
+        </div>
+
+
+        <div class="discover-hero-stats">
+
+            <span>
+                <strong>12+</strong>
+                campus experiences
+            </span>
+
+            <span>
+                <strong>08</strong>
+                VYBE categories
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <section class="discovery-tools">
+
+        <div class="search-box">
+
+            <span>⌕</span>
+
+            <input
+                id="searchInput"
+                type="search"
+                placeholder="Search your next thing..."
+            >
+
+            <kbd>⌘ K</kbd>
+
+        </div>
+
+
+        <div class="filters">
+
+            <button class="filter active" data-filter="All">
+                <span>✦</span> All
+            </button>
+
+            <button class="filter" data-filter="Tech">
+                <span>⌁</span> Tech
+            </button>
+
+            <button class="filter" data-filter="Design">
+                <span>◈</span> Design
+            </button>
+
+            <button class="filter" data-filter="Music">
+                <span>♫</span> Music
+            </button>
+
+            <button class="filter" data-filter="Sports">
+                <span>↯</span> Sports
+            </button>
+
+            <button class="filter" data-filter="Business">
+                <span>◎</span> Business
+            </button>
+
+            <button class="filter" data-filter="Culture">
+                <span>○</span> Culture
+            </button>
+
+            <button class="filter" data-filter="Social">
+                <span>∞</span> Social
+            </button>
+
+            <button class="filter" data-filter="Wellness">
+                <span>⌁</span> Wellness
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <section class="spotlight-section">
+
+        <div class="spotlight-label">
+            <span>🔥</span>
+            TRENDING RIGHT NOW
+        </div>
+
+        <div id="discoverSpotlight"></div>
+
+    </section>
+
+
+    <section class="calendar-section">
+
+        <div class="discover-heading">
+
+            <div>
+
+                <p class="eyebrow">
+                    THE CAMPUS FEED
+                </p>
+
+                <h2>
+                    pick your
+                    <em>thing.</em>
+                </h2>
+
+            </div>
+
+            <span id="resultCount">
+                0 events
+            </span>
+
+        </div>
+
+
+        <div
+            id="discoverGrid"
+            class="discover-grid"
+        ></div>
+
+
+        <div
+            class="empty-state"
+            id="emptyState"
+            hidden
+        >
+
+            <div>◌</div>
+
+            <h3>
+                nothing matched.
+            </h3>
+
+            <p>
+                Try another search or switch your VYBE.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <section class="discover-footer-card">
+
+        <div>
+
+            <p class="eyebrow">
+                CAN'T DECIDE?
+            </p>
+
+            <h2>
+                ask
+                <em>Vix.</em>
+            </h2>
+
+            <p>
+                Your slightly chaotic campus AI friend
+                has opinions.
+            </p>
+
+        </div>
+
+        <button
+            type="button"
+            data-vix-open
+        >
+            Ask Vix
+            <span>✦</span>
+        </button>
+
+    </section>
+
+</main>
+
+
+<button
+    class="vix-floating-button"
+    type="button"
+    data-vix-open
+    aria-label="Open Vix"
+>
+    <span>✦</span>
+    <strong>Vix</strong>
+</button>
+
+
+<script src="js/events-data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/discover.js"></script>
+<script src="js/vix.js"></script>
+
+</body>
+</html>

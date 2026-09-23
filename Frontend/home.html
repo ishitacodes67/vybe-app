@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VYBE — Home</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/vix.css">
+</head>
+
+<body class="member-page home-page">
+
+<header class="topbar">
+
+    <a class="brand" href="home.html">
+        VYBE<span>✦</span>
+    </a>
+
+    <nav>
+        <a class="active" href="home.html">Home</a>
+        <a href="discover.html">Discover</a>
+        <a href="tracker.html">Tracker</a>
+        <a href="voice.html">Voice</a>
+        <a href="profile.html">Profile</a>
+    </nav>
+
+</header>
+
+
+<main class="home-main">
+
+    <!-- HERO -->
+
+    <section class="home-hero">
+
+        <div class="hero-copy-block">
+
+            <p class="eyebrow">YOUR VYBE ✦</p>
+
+            <h1 id="greeting">
+                hey, you.
+            </h1>
+
+            <p class="hero-description">
+                Your campus is doing more than
+                you think. Let's find your next thing.
+            </p>
+
+            <div class="hero-actions">
+
+                <a
+                    href="discover.html"
+                    class="hero-primary"
+                >
+                    Discover something
+                    <span>↗</span>
+                </a>
+
+                <button
+                    type="button"
+                    class="hero-vix-button"
+                    data-vix-open
+                >
+                    Ask Vix
+                    <span>✦</span>
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-visual">
+
+            <div class="hero-orbit orbit-one"></div>
+            <div class="hero-orbit orbit-two"></div>
+
+            <div class="hero-sticker sticker-one">
+                <span>✦</span>
+                MADE FOR<br>YOUR VYBE
+            </div>
+
+            <div class="hero-sticker sticker-two">
+                <strong>∞</strong>
+                <small>things<br>to try</small>
+            </div>
+
+            <div class="hero-image-card">
+
+                <img
+                    src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=85"
+                    alt="Students connecting on campus"
+                >
+
+                <div class="hero-image-overlay">
+
+                    <span>LIVE CAMPUS PULSE</span>
+
+                    <strong>
+                        there's always
+                        something happening.
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- VIBE CHIPS -->
+
+    <section class="vibe-section">
+
+        <div class="vibe-heading">
+
+            <p class="eyebrow">
+                WHAT'S YOUR VYBE TODAY?
+            </p>
+
+            <span>
+                Pick a mood.
+            </span>
+
+        </div>
+
+
+        <div class="vibe-grid">
+
+            <a href="discover.html?category=Tech" class="vibe-chip vibe-tech">
+                <span>⌁</span>
+                <strong>DISCOVER</strong>
+                <small>find something new</small>
+            </a>
+
+            <a href="discover.html?category=Business" class="vibe-chip vibe-create">
+                <span>✦</span>
+                <strong>CREATE</strong>
+                <small>build something</small>
+            </a>
+
+            <a href="discover.html?category=Sports" class="vibe-chip vibe-compete">
+                <span>↯</span>
+                <strong>COMPETE</strong>
+                <small>bring your A-game</small>
+            </a>
+
+            <a href="discover.html?category=Tech" class="vibe-chip vibe-learn">
+                <span>◉</span>
+                <strong>LEARN</strong>
+                <small>level yourself up</small>
+            </a>
+
+            <a href="discover.html?category=Social" class="vibe-chip vibe-network">
+                <span>∞</span>
+                <strong>NETWORK</strong>
+                <small>meet your people</small>
+            </a>
+
+            <a href="discover.html?category=Wellness" class="vibe-chip vibe-chill">
+                <span>○</span>
+                <strong>CHILL</strong>
+                <small>slow it down</small>
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- PERSONALIZATION -->
+
+    <section class="personal-strip">
+
+        <div>
+
+            <p class="eyebrow">
+                YOUR INTERESTS
+            </p>
+
+            <div
+                id="interestTags"
+                class="interest-tags"
+            ></div>
+
+        </div>
+
+        <button
+            type="button"
+            class="vix-mini-trigger"
+            data-vix-open
+        >
+            <span>✦</span>
+            Vix has ideas for you
+            <strong>→</strong>
+        </button>
+
+    </section>
+
+
+    <!-- MADE FOR YOU -->
+
+    <section class="home-section featured-section">
+
+        <div class="section-intro">
+
+            <div>
+
+                <p class="eyebrow">
+                    ✦ MADE FOR YOU
+                </p>
+
+                <h2>
+                    events that feel
+                    <em>very you.</em>
+                </h2>
+
+                <p>
+                    Based on what you're into,
+                    what you're chasing and what's
+                    happening around campus.
+                </p>
+
+            </div>
+
+            <a href="discover.html" class="see-all">
+                See everything
+                <span>↗</span>
+            </a>
+
+        </div>
+
+
+        <div
+            id="featuredEvents"
+            class="featured-events"
+        ></div>
+
+    </section>
+
+
+    <!-- EVERYONE'S TALKING -->
+
+    <section class="home-section">
+
+        <div class="section-intro compact">
+
+            <div>
+
+                <p class="eyebrow">
+                    🔥 EVERYONE'S TALKING ABOUT
+                </p>
+
+                <h2>
+                    don't hear about it
+                    <em>after.</em>
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="trendingEvents"
+            class="horizontal-events"
+        ></div>
+
+    </section>
+
+
+    <!-- JUST DROPPED -->
+
+    <section class="home-section dropped-section">
+
+        <div class="section-intro compact">
+
+            <div>
+
+                <p class="eyebrow">
+                    🆕 JUST DROPPED
+                </p>
+
+                <h2>
+                    fresh on
+                    <em>VYBE.</em>
+                </h2>
+
+            </div>
+
+            <a href="discover.html" class="see-all">
+                Explore
+                <span>↗</span>
+            </a>
+
+        </div>
+
+
+        <div
+            id="droppedEvents"
+            class="dropped-grid"
+        ></div>
+
+    </section>
+
+
+    <!-- BIG CTA -->
+
+    <section class="home-end-card">
+
+        <div class="end-card-noise"></div>
+
+        <div class="end-card-content">
+
+            <p class="eyebrow">
+                YOUR CAMPUS IS BIGGER THAN YOUR TIMETABLE.
+            </p>
+
+            <h2>
+                go make a
+                <em>chapter.</em>
+            </h2>
+
+            <a href="discover.html">
+                Explore VYBE
+                <span>↗</span>
+            </a>
+
+        </div>
+
+        <div class="end-card-orb"></div>
+
+    </section>
+
+</main>
+
+
+<!-- FLOATING VIX -->
+
+<button
+    class="vix-floating-button"
+    type="button"
+    data-vix-open
+    aria-label="Open Vix"
+>
+    <span>✦</span>
+    <strong>Vix</strong>
+</button>
+
+
+<script src="js/events-data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/home.js"></script>
+<script src="js/vix.js"></script>
+
+</body>
+</html>

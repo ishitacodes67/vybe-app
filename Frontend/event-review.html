@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Review Event — VYBE</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="authority.css">
+    <link rel="stylesheet" href="cursor.css">
+
+</head>
+
+<body class="authority-page review-page">
+
+<header class="authority-nav">
+
+    <a href="authority-dashboard.html" class="brand">
+        VYBE<span>.</span>
+    </a>
+
+    <div class="authority-context">
+        <span class="verification-dot"></span>
+        Event Review
+    </div>
+
+    <nav class="authority-nav-actions">
+
+        <a href="notifications.html" class="nav-icon-btn">
+            ◔
+        </a>
+
+        <a href="authority-dashboard.html" class="back-link">
+            ← Dashboard
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main class="review-main">
+
+    <!-- BREADCRUMB -->
+
+    <div class="review-breadcrumb">
+        <a href="authority-dashboard.html">Authority Desk</a>
+        <span>→</span>
+        <span>Event Review</span>
+    </div>
+
+
+    <!-- REVIEW HEADER -->
+
+    <section class="review-header">
+
+        <div>
+
+            <span class="section-kicker">
+                SUBMISSION REVIEW
+            </span>
+
+            <h1 id="reviewTitle">
+                Event title
+            </h1>
+
+            <div class="review-meta">
+
+                <span id="reviewOrganizer">
+                    Hosted by Organizer
+                </span>
+
+                <span>•</span>
+
+                <span id="reviewStatus">
+                    Pending review
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="review-status-pill">
+            <span></span>
+            <strong id="statusText">PENDING</strong>
+        </div>
+
+    </section>
+
+
+    <!-- CONTENT -->
+
+    <section class="review-layout">
+
+        <!-- EVENT PREVIEW -->
+
+        <article class="event-preview-card">
+
+            <div class="event-cover" id="eventCover">
+
+                <div class="cover-gradient"></div>
+
+                <div class="cover-category" id="eventCategory">
+                    EVENT
+                </div>
+
+            </div>
+
+
+            <div class="event-preview-content">
+
+                <div class="event-date-large">
+
+                    <span id="eventDay">
+                        24
+                    </span>
+
+                    <small id="eventMonth">
+                        SEP
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <h2 id="eventName">
+                        Event name
+                    </h2>
+
+                    <p id="eventDescription">
+                        Event description.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="event-information-grid">
+
+                <div>
+                    <span>DATE</span>
+                    <strong id="eventDate">—</strong>
+                </div>
+
+                <div>
+                    <span>TIME</span>
+                    <strong id="eventTime">—</strong>
+                </div>
+
+                <div>
+                    <span>LOCATION</span>
+                    <strong id="eventLocation">—</strong>
+                </div>
+
+                <div>
+                    <span>MODE</span>
+                    <strong id="eventMode">—</strong>
+                </div>
+
+                <div>
+                    <span>ENTRY</span>
+                    <strong id="eventPrice">—</strong>
+                </div>
+
+                <div>
+                    <span>CAPACITY</span>
+                    <strong id="eventCapacity">—</strong>
+                </div>
+
+            </div>
+
+
+            <div class="event-tags" id="eventTags">
+                <!-- JS -->
+            </div>
+
+        </article>
+
+
+        <!-- DECISION PANEL -->
+
+        <aside class="decision-panel">
+
+            <div class="decision-header">
+
+                <span class="section-kicker">
+                    YOUR DECISION
+                </span>
+
+                <h2>
+                    Ready to publish?
+                </h2>
+
+                <p>
+                    Check the event details carefully before approving.
+                </p>
+
+            </div>
+
+
+            <div class="review-checklist">
+
+                <label>
+                    <input type="checkbox" class="review-check">
+                    <span>
+                        Event information is complete
+                    </span>
+                </label>
+
+                <label>
+                    <input type="checkbox" class="review-check">
+                    <span>
+                        Organizer information is appropriate
+                    </span>
+                </label>
+
+                <label>
+                    <input type="checkbox" class="review-check">
+                    <span>
+                        Venue / online details are clear
+                    </span>
+                </label>
+
+                <label>
+                    <input type="checkbox" class="review-check">
+                    <span>
+                        Registration information is accurate
+                    </span>
+                </label>
+
+            </div>
+
+
+            <div class="decision-actions">
+
+                <button
+                    class="decision-btn approve"
+                    id="approveEvent"
+                >
+                    <span>✓</span>
+                    Approve & Publish
+                </button>
+
+
+                <button
+                    class="decision-btn changes"
+                    id="requestChanges"
+                >
+                    <span>↻</span>
+                    Request Changes
+                </button>
+
+
+                <button
+                    class="decision-btn reject"
+                    id="rejectEvent"
+                >
+                    <span>×</span>
+                    Reject Event
+                </button>
+
+            </div>
+
+
+            <div class="decision-note">
+
+                <span>ⓘ</span>
+
+                <p>
+                    Organizers will receive a notification
+                    about your decision.
+                </p>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</main>
+
+
+<!-- DECISION MODAL -->
+
+<div class="decision-modal" id="decisionModal">
+
+    <div class="modal-card">
+
+        <button class="modal-close" id="closeModal">
+            ×
+        </button>
+
+        <span class="modal-icon" id="modalIcon">
+            !
+        </span>
+
+        <h2 id="modalTitle">
+            Request changes
+        </h2>
+
+        <p id="modalDescription">
+            Tell the organizer what needs to be changed.
+        </p>
+
+
+        <textarea
+            id="decisionReason"
+            placeholder="Write your reason..."
+            rows="5"
+        ></textarea>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary-btn"
+                id="cancelDecision"
+            >
+                Cancel
+            </button>
+
+            <button
+                class="primary-btn"
+                id="confirmDecision"
+            >
+                Confirm
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="authorityToast" class="authority-toast">
+    <span>✓</span>
+    <p></p>
+</div>
+
+
+<script src="app.js"></script>
+<script src="authority.js"></script>
+<script src="cursor.js"></script>
+
+</body>
+</html>

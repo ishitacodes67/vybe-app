@@ -1,0 +1,141 @@
+.registration-shell {
+    width: min(900px, calc(100% - 40px));
+    margin: auto;
+    padding: 35px 0 100px;
+}
+
+.registration-shell > .brand {
+    font-weight: 900;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.registration-shell > .brand span {
+    color: #7c3aed;
+}
+
+.registration-shell > section {
+    display: flex;
+    justify-content: center;
+}
+
+.registration-card {
+    width: min(720px, 100%);
+    margin-top: 70px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 28px;
+    padding: 38px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.06);
+}
+
+.registration-card h1 {
+    font-size: clamp(45px, 7vw, 70px);
+    line-height: .94;
+    margin: 10px 0 25px;
+}
+
+.registration-card h1 em {
+    font-family: Georgia, serif;
+    font-weight: 500;
+}
+
+.summary {
+    display: grid;
+    gap: 1px;
+    background: #ddd;
+    border: 1px solid #ddd;
+    margin: 25px 0;
+}
+
+.summary div {
+    background: #f7f7f4;
+    padding: 17px;
+}
+
+.summary small {
+    display: block;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.summary strong {
+    font-size: 13px;
+}
+
+.notice {
+    background: #f1efff;
+    border: 1px solid #ddd5ff;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 12px;
+    color: #4c3c80;
+    margin-bottom: 18px;
+}
+
+.fine-print {
+    font-size: 10px;
+    color: #999;
+    text-align: center;
+    margin: 15px 0 0;
+}
+
+.success-card {
+    text-align: center;
+}
+
+.success-icon {
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+
+.button-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    padding: 0 22px;
+    border-radius: 100px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 12px;
+}
+
+.back-link {
+    display: block;
+    color: #666;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 80px;
+    color: #777;
+}
+
+@media (max-width: 600px) {
+
+    .registration-card {
+        padding: 24px;
+        margin-top: 45px;
+    }
+
+    .button-row {
+        flex-direction: column;
+    }
+
+}

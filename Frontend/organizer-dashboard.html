@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VYBE — Host Dashboard</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/organizer.css">
+    <link rel="stylesheet" href="css/cursor.css">
+</head>
+
+<body class="organizer-page">
+
+    <div class="organizer-shell">
+
+        <!-- SIDEBAR -->
+        <aside class="organizer-sidebar">
+
+            <a href="organizer-dashboard.html" class="brand">
+                <span class="brand-mark">V</span>
+                <span>VYBE</span>
+            </a>
+
+            <div class="host-label">
+                VYBE HOST
+            </div>
+
+            <nav class="organizer-nav">
+
+                <a
+                    href="organizer-dashboard.html"
+                    class="nav-item active"
+                >
+                    <span>⌂</span>
+                    Dashboard
+                </a>
+
+                <a
+                    href="create-event.html"
+                    class="nav-item"
+                >
+                    <span>＋</span>
+                    Create Event
+                </a>
+
+                <a
+                    href="event.html"
+                    class="nav-item"
+                >
+                    <span>◫</span>
+                    Your Events
+                </a>
+
+            </nav>
+
+            <div class="sidebar-bottom">
+
+                <div class="host-mini-card">
+                    <div class="host-avatar" id="sidebarAvatar">
+                        V
+                    </div>
+
+                    <div>
+                        <strong id="sidebarName">
+                            VYBE Host
+                        </strong>
+
+                        <span>
+                            Organizer
+                        </span>
+                    </div>
+                </div>
+
+                <button
+                    class="logout-button"
+                    id="logoutButton"
+                    type="button"
+                >
+                    Log out ↗
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN -->
+        <main class="organizer-main">
+
+            <!-- TOP BAR -->
+            <header class="organizer-topbar">
+
+                <div>
+                    <span class="eyebrow">
+                        VYBE HOST / DASHBOARD
+                    </span>
+
+                    <h1>
+                        Your campus,<br>
+                        <em>your stage.</em>
+                    </h1>
+                </div>
+
+                <div class="topbar-actions">
+
+                    <button
+                        class="icon-button"
+                        id="refreshDashboard"
+                        type="button"
+                        title="Refresh"
+                    >
+                        ↻
+                    </button>
+
+                    <a
+                        href="create-event.html"
+                        class="primary-button"
+                    >
+                        Create event
+                        <span>＋</span>
+                    </a>
+
+                </div>
+
+            </header>
+
+
+            <!-- GREETING -->
+            <section class="host-intro">
+
+                <div>
+                    <p class="muted-label">
+                        GOOD TO SEE YOU
+                    </p>
+
+                    <h2>
+                        Hey,
+                        <span id="organizerName">
+                            Host
+                        </span>
+                        👋
+                    </h2>
+
+                    <p>
+                        Turn your next idea into a VYBE.
+                    </p>
+                </div>
+
+                <div class="verification-chip">
+                    ✓ HOST ACCOUNT
+                </div>
+
+            </section>
+
+
+            <!-- STATS -->
+            <section class="stats-grid">
+
+                <article class="stat-card">
+                    <span class="stat-label">
+                        EVENTS
+                    </span>
+
+                    <strong id="totalEvents">
+                        0
+                    </strong>
+
+                    <span class="stat-description">
+                        Created by you
+                    </span>
+                </article>
+
+
+                <article class="stat-card">
+                    <span class="stat-label">
+                        UPCOMING
+                    </span>
+
+                    <strong id="upcomingEvents">
+                        0
+                    </strong>
+
+                    <span class="stat-description">
+                        Events ahead
+                    </span>
+                </article>
+
+
+                <article class="stat-card">
+                    <span class="stat-label">
+                        ATTENDEES
+                    </span>
+
+                    <strong id="totalAttendees">
+                        0
+                    </strong>
+
+                    <span class="stat-description">
+                        Across your events
+                    </span>
+                </article>
+
+
+                <article class="stat-card accent-stat">
+                    <span class="stat-label">
+                        PENDING
+                    </span>
+
+                    <strong id="pendingEvents">
+                        0
+                    </strong>
+
+                    <span class="stat-description">
+                        Awaiting approval
+                    </span>
+                </article>
+
+            </section>
+
+
+            <!-- VIX -->
+            <section class="organizer-vix-card">
+
+                <div class="vix-icon">
+                    ✦
+                </div>
+
+                <div class="vix-content">
+                    <span class="vix-label">
+                        VIX FOR HOSTS
+                    </span>
+
+                    <h3 id="vixMessage">
+                        Your next event starts with an idea.
+                    </h3>
+
+                    <p id="vixSubmessage">
+                        Create something your campus wants to experience.
+                    </p>
+                </div>
+
+            </section>
+
+
+            <!-- EVENTS -->
+            <section class="events-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="eyebrow">
+                            YOUR EVENTS
+                        </span>
+
+                        <h2>
+                            What you're hosting.
+                        </h2>
+                    </div>
+
+                    <a
+                        href="event.html"
+                        class="text-link"
+                    >
+                        View all →
+                    </a>
+
+                </div>
+
+
+                <!-- FILTERS -->
+                <div class="event-tabs" id="eventTabs">
+
+                    <button
+                        class="event-tab active"
+                        data-filter="all"
+                        type="button"
+                    >
+                        All
+                    </button>
+
+                    <button
+                        class="event-tab"
+                        data-filter="upcoming"
+                        type="button"
+                    >
+                        Upcoming
+                    </button>
+
+                    <button
+                        class="event-tab"
+                        data-filter="live"
+                        type="button"
+                    >
+                        Live
+                    </button>
+
+                    <button
+                        class="event-tab"
+                        data-filter="completed"
+                        type="button"
+                    >
+                        Completed
+                    </button>
+
+                    <button
+                        class="event-tab"
+                        data-filter="pending"
+                        type="button"
+                    >
+                        Pending
+                    </button>
+
+                    <button
+                        class="event-tab"
+                        data-filter="rejected"
+                        type="button"
+                    >
+                        Rejected
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="organizer-events-grid"
+                    id="organizerEvents"
+                >
+                </div>
+
+
+                <div
+                    class="empty-state hidden"
+                    id="emptyState"
+                >
+                    <div class="empty-icon">
+                        ✦
+                    </div>
+
+                    <h3>
+                        Nothing here yet.
+                    </h3>
+
+                    <p>
+                        Your next event could be the one.
+                    </p>
+
+                    <a
+                        href="create-event.html"
+                        class="primary-button"
+                    >
+                        Create your first event
+                    </a>
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script src="js/storage.js"></script>
+    <script src="js/vix.js"></script>
+    <script src="js/organizer.js"></script>
+    <script src="js/cursor.js"></script>
+
+</body>
+</html>

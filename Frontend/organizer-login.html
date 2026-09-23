@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VYBE — Host Access</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/cursor.css">
+
+</head>
+
+
+<body class="auth-page host-auth">
+
+    <main class="auth-layout">
+
+
+        <section class="auth-visual">
+
+            <a
+                href="role-select.html"
+                class="brand"
+                data-cursor="BACK"
+            >
+                VYBE<span>✦</span>
+            </a>
+
+
+            <div class="auth-visual-content">
+
+                <span class="auth-kicker">
+                    VYBE HOST
+                </span>
+
+                <h1>
+                    don't just<br>
+                    <em>host.</em>
+                </h1>
+
+                <p>
+                    Build a community around
+                    what you're creating.
+                </p>
+
+            </div>
+
+
+            <div class="auth-visual-footer">
+                CREATE · HOST · GROW
+            </div>
+
+        </section>
+
+
+        <section class="auth-form-section">
+
+            <div class="auth-form-wrap">
+
+                <a
+                    href="role-select.html"
+                    class="auth-back"
+                    data-cursor="BACK"
+                >
+                    ← choose another world
+                </a>
+
+
+                <div class="auth-form-kicker">
+                    HOST ACCESS
+                </div>
+
+
+                <h2>
+                    ready to<br>
+                    <em>make noise?</em>
+                </h2>
+
+
+                <p class="auth-intro">
+                    Create experiences, bring people together
+                    and build your VYBE Host presence.
+                </p>
+
+
+                <form
+                    id="organizerLoginForm"
+                    class="auth-form"
+                    data-login-role="organizer"
+                    novalidate
+                >
+
+
+                    <div class="field">
+
+                        <label for="organizerName">
+                            YOUR NAME
+                        </label>
+
+                        <input
+                            id="organizerName"
+                            name="name"
+                            type="text"
+                            placeholder="e.g. Ananya Sharma"
+                            autocomplete="name"
+                            minlength="2"
+                            required
+                        >
+
+                        <small
+                            class="field-error"
+                            data-error-for="name"
+                        ></small>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="organizerEmail">
+                            ORGANIZER EMAIL
+                        </label>
+
+                        <input
+                            id="organizerEmail"
+                            name="email"
+                            type="email"
+                            placeholder="you@college.edu"
+                            autocomplete="email"
+                            required
+                        >
+
+                        <small
+                            class="field-error"
+                            data-error-for="email"
+                        ></small>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="organizerPhone">
+                            PHONE
+                        </label>
+
+                        <div class="phone-input">
+
+                            <span>+91</span>
+
+                            <input
+                                id="organizerPhone"
+                                name="phone"
+                                type="tel"
+                                inputmode="numeric"
+                                maxlength="10"
+                                placeholder="9876543210"
+                                autocomplete="tel"
+                                required
+                            >
+
+                        </div>
+
+                        <small
+                            class="field-error"
+                            data-error-for="phone"
+                        ></small>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="organizerInstitution">
+                            INSTITUTION
+                        </label>
+
+                        <input
+                            id="organizerInstitution"
+                            name="institution"
+                            type="text"
+                            placeholder="Your college / organization"
+                            minlength="2"
+                            required
+                        >
+
+                        <small
+                            class="field-error"
+                            data-error-for="institution"
+                        ></small>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="auth-submit"
+                        data-cursor="HOST"
+                    >
+                        ENTER HOST MODE
+                        <span>↗</span>
+                    </button>
+
+
+                    <p class="auth-note">
+                        Events submitted by hosts enter the
+                        campus review process before publication.
+                    </p>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/cursor.js"></script>
+
+</body>
+</html>

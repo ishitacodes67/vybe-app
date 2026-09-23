@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VYBE — Voice</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/voice.css">
+
+</head>
+
+
+<body class="member-page">
+
+
+<header class="topbar">
+
+    <a
+        class="brand"
+        href="home.html"
+    >
+        VYBE<span>✦</span>
+    </a>
+
+
+    <nav>
+
+        <a href="home.html">
+            Home
+        </a>
+
+        <a href="discover.html">
+            Discover
+        </a>
+
+        <a href="tracker.html">
+            Tracker
+        </a>
+
+        <a
+            class="active"
+            href="voice.html"
+        >
+            Voice
+        </a>
+
+        <a href="profile.html">
+            Profile
+        </a>
+
+    </nav>
+
+</header>
+
+
+
+<main class="voice-main">
+
+
+    <!-- ================================================
+         HERO
+    ================================================= -->
+
+    <section class="voice-hero">
+
+        <p class="voice-kicker">
+            VYBE VOICE
+        </p>
+
+        <h1>
+            your campus.
+            <em>your say.</em>
+        </h1>
+
+        <p>
+            Good experiences should be celebrated.
+            Bad ones should be fixed.
+            Ideas should have somewhere to go.
+        </p>
+
+    </section>
+
+
+
+    <!-- ================================================
+         ACTIONS
+    ================================================= -->
+
+    <section class="voice-actions">
+
+
+        <button
+            type="button"
+            class="voice-card feedback-card"
+            data-type="feedback"
+        >
+
+            <span class="voice-number">
+                01
+            </span>
+
+            <span class="voice-icon">
+                ↗
+            </span>
+
+            <strong>
+                EVENT FEEDBACK
+            </strong>
+
+            <small>
+                Tell us what worked,
+                what didn't and how
+                the experience actually felt.
+            </small>
+
+            <span class="voice-arrow">
+                →
+            </span>
+
+        </button>
+
+
+
+        <button
+            type="button"
+            class="voice-card report-card"
+            data-type="report"
+        >
+
+            <span class="voice-number">
+                02
+            </span>
+
+            <span class="voice-icon">
+                !
+            </span>
+
+            <strong>
+                REPORT SOMETHING
+            </strong>
+
+            <small>
+                Something went wrong?
+                Flag it and give the
+                campus team context.
+            </small>
+
+            <span class="voice-arrow">
+                →
+            </span>
+
+        </button>
+
+
+
+        <button
+            type="button"
+            class="voice-card suggestion-card"
+            data-type="suggestion"
+        >
+
+            <span class="voice-number">
+                03
+            </span>
+
+            <span class="voice-icon">
+                +
+            </span>
+
+            <strong>
+                SUGGEST A VYBE
+            </strong>
+
+            <small>
+                Have an idea for an event,
+                feature, club or campus experience?
+            </small>
+
+            <span class="voice-arrow">
+                →
+            </span>
+
+        </button>
+
+    </section>
+
+
+
+    <!-- ================================================
+         FORM
+    ================================================= -->
+
+    <section
+        id="voiceFormContainer"
+        class="voice-form-container"
+    ></section>
+
+
+</main>
+
+
+
+<!-- CRITICAL: EVENTS MUST LOAD BEFORE VOICE JS -->
+
+<script src="js/events-data.js"></script>
+<script src="js/voice.js"></script>
+
+</body>
+</html>

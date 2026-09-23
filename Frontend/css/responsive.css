@@ -1,0 +1,574 @@
+/* =========================================================
+   VYBE — GLOBAL RESPONSIVE SYSTEM
+   PHASE 6
+   ========================================================= */
+
+
+/* =========================================================
+   LARGE TABLETS / SMALL LAPTOPS
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .content {
+
+        width:
+            min(
+                calc(100% - 32px),
+                900px
+            );
+    }
+
+    .hero {
+
+        padding-left:
+            24px;
+
+        padding-right:
+            24px;
+    }
+
+    .for-you-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   TABLETS
+   ========================================================= */
+
+@media (max-width: 820px) {
+
+    .content {
+
+        width:
+            calc(100% - 28px);
+
+        padding-bottom:
+            105px;
+    }
+
+    .hero {
+
+        padding:
+            28px 14px;
+        }
+
+    .section-head {
+
+        align-items:
+            flex-start;
+    }
+
+    .stats {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+        gap:
+            10px;
+    }
+
+    .stat-card {
+
+        padding:
+            16px 12px;
+    }
+
+    .for-you-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .bottom-nav {
+
+        left:
+            12px;
+
+        right:
+            12px;
+
+        bottom:
+            12px;
+
+        width:
+            auto;
+    }
+
+    .bottom-nav .nav-item {
+
+        min-width:
+            0;
+
+        flex:
+            1;
+    }
+
+    .profile-stats {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .growth-chart {
+
+        min-height:
+            220px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+    body {
+
+        overflow-x:
+            hidden;
+    }
+
+    .content {
+
+        width:
+            calc(100% - 22px);
+
+        padding-bottom:
+            100px;
+    }
+
+    section {
+
+        margin-bottom:
+            34px;
+    }
+
+
+    /* ---------- TYPOGRAPHY ---------- */
+
+    h1 {
+
+        font-size:
+            2.2rem;
+    }
+
+    h2 {
+
+        font-size:
+            1.35rem;
+    }
+
+    h3 {
+
+        font-size:
+            1.05rem;
+    }
+
+
+    /* ---------- HEADER ---------- */
+
+    .hero {
+
+        padding:
+            20px 11px;
+    }
+
+    .hero-top {
+
+        gap:
+            12px;
+    }
+
+    .hero-actions {
+
+        gap:
+            6px;
+    }
+
+    .icon-btn {
+
+        width:
+            40px;
+
+        height:
+            40px;
+    }
+
+
+    /* ---------- STATS ---------- */
+
+    .stats {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            9px;
+    }
+
+    .stat-card {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            space-between;
+
+        padding:
+            15px 18px;
+    }
+
+
+    /* ---------- FEATURED ---------- */
+
+    .featured-card {
+
+        border-radius:
+            20px;
+    }
+
+    .featured-media {
+
+        height:
+            230px;
+    }
+
+
+    /* ---------- FOR YOU ---------- */
+
+    .for-you-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ---------- DISCOVER ---------- */
+
+    .search-bar {
+
+        width:
+            100%;
+    }
+
+    .filters {
+
+        overflow-x:
+            auto;
+
+        flex-wrap:
+            nowrap;
+
+        padding-bottom:
+            5px;
+
+        scrollbar-width:
+            none;
+    }
+
+    .filters::-webkit-scrollbar {
+        display:
+            none;
+    }
+
+    .category-chip {
+
+        flex:
+            0 0 auto;
+    }
+
+
+    /* ---------- EVENT DETAILS ---------- */
+
+    .event-hero {
+
+        min-height:
+            360px;
+    }
+
+    .event-info-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ---------- REGISTRATION ---------- */
+
+    .registration-card {
+
+        padding:
+            22px;
+    }
+
+
+    /* ---------- TRACKER ---------- */
+
+    .tracker-grid {
+
+        grid-template-columns:
+            1fr !important;
+    }
+
+    .tracker-stats {
+
+        grid-template-columns:
+            1fr !important;
+    }
+
+
+    /* ---------- VOICE ---------- */
+
+    .mood-grid {
+
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+    .feedback-textarea {
+
+        min-height:
+            130px;
+    }
+
+
+    /* ---------- PROFILE ---------- */
+
+    .profile-stats {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            9px;
+    }
+
+    .pstat-card {
+
+        display:
+            flex;
+
+        justify-content:
+            space-between;
+
+        align-items:
+            center;
+    }
+
+    .growth-card {
+
+        padding:
+            18px;
+    }
+
+    .growth-chart {
+
+        min-height:
+            180px;
+    }
+
+
+    /* ---------- BOTTOM NAV ---------- */
+
+    .bottom-nav {
+
+        padding:
+            8px;
+
+        border-radius:
+            20px;
+    }
+
+    .bottom-nav .nav-item {
+
+        padding:
+            7px 4px;
+
+        gap:
+            3px;
+
+        font-size:
+            0.65rem;
+    }
+
+    .bottom-nav svg {
+
+        width:
+            19px;
+
+        height:
+            19px;
+    }
+
+
+    /* ---------- VIX ---------- */
+
+    .vix-panel-content {
+
+        width:
+            100%;
+
+        padding:
+            25px 20px;
+    }
+
+
+    /* ---------- PROFILE EDIT ---------- */
+
+    .profile-edit-dialog {
+
+        padding:
+            24px 18px;
+
+        border-radius:
+            22px;
+    }
+
+    .edit-choice-grid {
+
+        max-height:
+            180px;
+
+        overflow-y:
+            auto;
+    }
+
+
+    /* ---------- COMMON BUTTONS ---------- */
+
+    .primary-button,
+    .submit-btn,
+    .profile-save-btn {
+
+        width:
+            100%;
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+    .content {
+
+        width:
+            calc(100% - 18px);
+    }
+
+    .hero {
+
+        padding:
+            18px 9px;
+    }
+
+    .bottom-nav {
+
+        left:
+            6px;
+
+        right:
+            6px;
+
+        bottom:
+            6px;
+    }
+
+    .bottom-nav .nav-item span {
+
+        font-size:
+            0.58rem;
+    }
+
+    .mood-grid {
+
+        gap:
+            5px;
+    }
+
+    .mood-option {
+
+        padding:
+            9px 4px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior:
+            auto !important;
+
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+    }
+}
+
+
+/* =========================================================
+   VERY TALL / SHORT SCREENS
+   ========================================================= */
+
+@media (max-height: 650px) {
+
+    .bottom-nav {
+
+        bottom:
+            7px;
+    }
+
+    .vix-panel-content {
+
+        padding-top:
+            22px;
+    }
+}
+
+
+/* =========================================================
+   LANDSCAPE PHONES
+   ========================================================= */
+
+@media (
+    max-height: 500px
+) and (
+    orientation: landscape
+) {
+
+    .bottom-nav {
+
+        display:
+            none;
+    }
+
+    .content {
+
+        padding-bottom:
+            25px;
+    }
+}

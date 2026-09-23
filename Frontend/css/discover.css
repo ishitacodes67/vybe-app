@@ -1,0 +1,678 @@
+/* =========================================================
+   VYBE DISCOVER
+   ========================================================= */
+
+.discover-page {
+    background:
+        radial-gradient(
+            circle at 10% 15%,
+            rgba(223,255,39,.10),
+            transparent 22%
+        ),
+        #f7f6f2;
+}
+
+.discover-main {
+    width: min(1280px, calc(100% - 48px));
+    margin: auto;
+    padding-bottom: 90px;
+}
+
+
+/* HERO */
+
+.discover-hero {
+    min-height: 430px;
+
+    padding: 80px 0 45px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 50px;
+}
+
+.discover-hero h1 {
+    max-width: 850px;
+
+    margin: 13px 0 20px;
+
+    font-size: clamp(62px, 8vw, 110px);
+    line-height: .82;
+
+    letter-spacing: -.075em;
+}
+
+.discover-hero h1 em {
+    font-family: Georgia, serif;
+    font-weight: 500;
+}
+
+.discover-hero > div:first-child > p:last-child {
+    max-width: 570px;
+
+    color: #74716b;
+
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+.discover-hero-stats {
+    display: flex;
+    gap: 25px;
+    flex-shrink: 0;
+}
+
+.discover-hero-stats span {
+    display: flex;
+    flex-direction: column;
+
+    color: #77736d;
+
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.discover-hero-stats strong {
+    margin-bottom: 4px;
+
+    color: #111;
+
+    font-family: var(--sans);
+    font-size: 28px;
+    letter-spacing: -.05em;
+}
+
+
+/* TOOLS */
+
+.discovery-tools {
+    padding: 20px 0 70px;
+}
+
+.search-box {
+    height: 68px;
+
+    padding: 0 20px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    background: white;
+
+    border: 1px solid #dedbd3;
+    border-radius: 21px;
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.045);
+}
+
+.search-box > span {
+    font-size: 28px;
+    color: #777;
+}
+
+.search-box input {
+    width: 100%;
+
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+
+    font-size: 15px;
+}
+
+.search-box kbd {
+    padding: 5px 8px;
+
+    border: 1px solid #ddd8cf;
+    border-radius: 7px;
+
+    color: #8a857c;
+
+    font-family: var(--mono);
+    font-size: 8px;
+}
+
+.filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    margin-top: 16px;
+}
+
+.filter {
+    padding: 10px 14px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    border: 1px solid #ddd9d0;
+    border-radius: 999px;
+
+    background: rgba(255,255,255,.72);
+
+    color: #333;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        color .2s ease;
+}
+
+.filter span {
+    font-size: 14px;
+}
+
+.filter:hover {
+    transform: translateY(-2px);
+}
+
+.filter.active {
+    background: #111;
+    color: white;
+    border-color: #111;
+}
+
+
+/* SPOTLIGHT */
+
+.spotlight-section {
+    margin-bottom: 80px;
+}
+
+.spotlight-label {
+    margin-bottom: 15px;
+
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .14em;
+}
+
+.spotlight-label span {
+    margin-right: 5px;
+}
+
+.spotlight-card {
+    min-height: 460px;
+
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 35px;
+
+    color: white;
+
+    cursor: pointer;
+
+    background: #111;
+
+    box-shadow:
+        0 30px 70px rgba(0,0,0,.15);
+}
+
+.spotlight-card img {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    transition: transform .7s ease;
+}
+
+.spotlight-card:hover img {
+    transform: scale(1.05);
+}
+
+.spotlight-card::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,0,0,.78),
+            rgba(0,0,0,.10)
+        );
+}
+
+.spotlight-content {
+    position: absolute;
+    z-index: 2;
+
+    left: 42px;
+    bottom: 40px;
+
+    max-width: 620px;
+}
+
+.spotlight-content .category {
+    display: inline-flex;
+
+    padding: 8px 11px;
+
+    border-radius: 999px;
+
+    background: rgba(255,255,255,.16);
+    backdrop-filter: blur(10px);
+
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: .13em;
+}
+
+.spotlight-content h3 {
+    margin: 18px 0 10px;
+
+    font-size: clamp(38px, 5vw, 70px);
+    line-height: .88;
+    letter-spacing: -.06em;
+}
+
+.spotlight-content p {
+    max-width: 500px;
+
+    color: rgba(255,255,255,.76);
+
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.spotlight-bottom {
+    margin-top: 20px;
+
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.spotlight-bottom small {
+    color: rgba(255,255,255,.72);
+    font-size: 10px;
+}
+
+.spotlight-bottom button {
+    padding: 12px 17px;
+
+    border: 0;
+    border-radius: 999px;
+
+    background: #dfff27;
+    color: #111;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+
+/* GRID */
+
+.discover-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    margin-bottom: 27px;
+}
+
+.discover-heading h2 {
+    margin: 8px 0 0;
+
+    font-size: clamp(40px, 5vw, 65px);
+    line-height: .9;
+    letter-spacing: -.06em;
+}
+
+.discover-heading h2 em {
+    font-family: Georgia, serif;
+    font-weight: 500;
+}
+
+.discover-heading > span {
+    color: #77736d;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .1em;
+}
+
+.discover-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+
+/* EVENT CARD */
+
+.discover-card {
+    min-height: 455px;
+
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 27px;
+
+    background: white;
+    border: 1px solid #e1ddd5;
+
+    cursor: pointer;
+
+    transition:
+        transform .3s ease,
+        box-shadow .3s ease;
+}
+
+.discover-card:hover {
+    transform: translateY(-7px);
+    box-shadow:
+        0 25px 50px rgba(0,0,0,.10);
+}
+
+.discover-card-image {
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+}
+
+.discover-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    transition: transform .5s ease;
+}
+
+.discover-card:hover .discover-card-image img {
+    transform: scale(1.07);
+}
+
+.discover-card-image::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent 50%,
+            rgba(0,0,0,.2)
+        );
+}
+
+.card-floating-tag {
+    position: absolute;
+    z-index: 2;
+
+    top: 13px;
+    left: 13px;
+
+    padding: 7px 9px;
+
+    border-radius: 999px;
+
+    background: rgba(255,255,255,.88);
+    backdrop-filter: blur(10px);
+
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: .1em;
+}
+
+.card-price {
+    position: absolute;
+    z-index: 2;
+
+    top: 13px;
+    right: 13px;
+
+    padding: 7px 9px;
+
+    border-radius: 999px;
+
+    background: #111;
+    color: white;
+
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.discover-card-body {
+    padding: 20px;
+}
+
+.discover-card-body h3 {
+    margin: 0 0 9px;
+
+    font-size: 24px;
+    line-height: .98;
+    letter-spacing: -.045em;
+}
+
+.discover-card-body p {
+    min-height: 55px;
+
+    margin: 0;
+
+    color: #77736d;
+
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.card-social {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+
+    margin-top: 14px;
+}
+
+.card-social span {
+    padding: 6px 8px;
+
+    border-radius: 999px;
+
+    background: #f4f1eb;
+
+    color: #69655e;
+
+    font-size: 8px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-top: 18px;
+    padding-top: 14px;
+
+    border-top: 1px solid #eeeae2;
+}
+
+.card-footer-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    color: #77736d;
+
+    font-size: 9px;
+}
+
+.card-footer a {
+    padding: 9px 12px;
+
+    border-radius: 999px;
+
+    background: #111;
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 9px;
+    font-weight: 850;
+}
+
+
+/* EMPTY */
+
+.empty-state {
+    padding: 70px 30px;
+
+    border: 1px dashed #cfcac0;
+    border-radius: 27px;
+
+    text-align: center;
+}
+
+.empty-state > div {
+    font-size: 45px;
+    color: #7054ff;
+}
+
+.empty-state h3 {
+    margin: 10px 0 5px;
+
+    font-size: 25px;
+}
+
+.empty-state p {
+    color: #777;
+}
+
+
+/* VIX CTA */
+
+.discover-footer-card {
+    margin-top: 90px;
+    padding: 40px;
+
+    border-radius: 32px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #111,
+            #29204f
+        );
+
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+.discover-footer-card h2 {
+    margin: 10px 0;
+
+    font-size: clamp(42px, 6vw, 75px);
+    line-height: .85;
+    letter-spacing: -.06em;
+}
+
+.discover-footer-card h2 em {
+    font-family: Georgia, serif;
+    font-weight: 500;
+}
+
+.discover-footer-card p:last-child {
+    color: rgba(255,255,255,.65);
+}
+
+.discover-footer-card button {
+    flex-shrink: 0;
+
+    padding: 15px 20px;
+
+    border: 0;
+    border-radius: 999px;
+
+    background: #dfff27;
+    color: #111;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+    .discover-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .discover-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .discover-main {
+        width: calc(100% - 28px);
+    }
+
+    .discover-hero {
+        padding-top: 50px;
+    }
+
+    .discover-hero h1 {
+        font-size: clamp(58px, 16vw, 85px);
+    }
+
+    .discover-hero-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .discover-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .spotlight-content {
+        left: 25px;
+        right: 25px;
+        bottom: 28px;
+    }
+
+    .spotlight-content h3 {
+        font-size: 43px;
+    }
+
+    .discover-footer-card {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 30px;
+    }
+
+}

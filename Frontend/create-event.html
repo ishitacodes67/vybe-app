@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VYBE — Create Event</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/organizer.css">
+    <link rel="stylesheet" href="css/cursor.css">
+
+</head>
+
+<body class="organizer-page create-page">
+
+<div class="organizer-shell">
+
+    <!-- SIDEBAR -->
+
+    <aside class="organizer-sidebar">
+
+        <a
+            href="organizer-dashboard.html"
+            class="brand"
+        >
+            <span class="brand-mark">V</span>
+            <span>VYBE</span>
+        </a>
+
+        <div class="host-label">
+            VYBE HOST
+        </div>
+
+        <nav class="organizer-nav">
+
+            <a
+                href="organizer-dashboard.html"
+                class="nav-item"
+            >
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+            <a
+                href="create-event.html"
+                class="nav-item active"
+            >
+                <span>＋</span>
+                Create Event
+            </a>
+
+            <a
+                href="event.html"
+                class="nav-item"
+            >
+                <span>◫</span>
+                Your Events
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="organizer-main">
+
+        <a
+            href="organizer-dashboard.html"
+            class="page-back"
+        >
+            ← Back to dashboard
+        </a>
+
+
+        <header class="create-header">
+
+            <span class="eyebrow">
+                VYBE HOST / CREATE
+            </span>
+
+            <h1>
+                Make something<br>
+                <em>worth showing up for.</em>
+            </h1>
+
+            <p>
+                Tell the campus what you're building.
+                Your event will be submitted for approval
+                before it becomes publicly visible.
+            </p>
+
+        </header>
+
+
+        <div
+            class="success-banner"
+            id="successBanner"
+        >
+            ✓ Event submitted successfully.
+            Your event is now waiting for approval.
+        </div>
+
+
+        <form
+            class="event-form"
+            id="createEventForm"
+            novalidate
+        >
+
+            <!-- BASIC -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span>01 / BASICS</span>
+
+                    <h2>
+                        What are you creating?
+                    </h2>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-field full">
+
+                        <label for="eventTitle">
+                            Event name *
+                        </label>
+
+                        <input
+                            id="eventTitle"
+                            name="title"
+                            type="text"
+                            placeholder="e.g. AI & Future Systems Night"
+                            maxlength="100"
+                            required
+                        >
+
+                        <span class="form-error">
+                            Please enter an event name.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-field full">
+
+                        <label for="eventDescription">
+                            Description *
+                        </label>
+
+                        <textarea
+                            id="eventDescription"
+                            name="description"
+                            placeholder="What is this event about?"
+                            maxlength="1200"
+                            required
+                        ></textarea>
+
+                        <span class="form-error">
+                            Please add a description.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="eventCategory">
+                            Category *
+                        </label>
+
+                        <select
+                            id="eventCategory"
+                            name="category"
+                            required
+                        >
+
+                            <option value="">
+                                Select category
+                            </option>
+
+                            <option value="Tech">
+                                💻 Tech
+                            </option>
+
+                            <option value="Design">
+                                🎨 Design
+                            </option>
+
+                            <option value="Music">
+                                🎵 Music
+                            </option>
+
+                            <option value="Sports">
+                                ⚽ Sports
+                            </option>
+
+                            <option value="Business">
+                                💼 Business
+                            </option>
+
+                            <option value="Culture">
+                                🌍 Culture
+                            </option>
+
+                            <option value="Social">
+                                🫂 Social
+                            </option>
+
+                            <option value="Wellness">
+                                🌿 Wellness
+                            </option>
+
+                        </select>
+
+                        <span class="form-error">
+                            Select a category.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="eventVenue">
+                            Venue *
+                        </label>
+
+                        <input
+                            id="eventVenue"
+                            name="venue"
+                            type="text"
+                            placeholder="e.g. Seminar Hall 2"
+                            required
+                        >
+
+                        <span class="form-error">
+                            Enter the venue.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- WHEN -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span>02 / WHEN</span>
+
+                    <h2>
+                        When is it happening?
+                    </h2>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-field">
+
+                        <label for="eventDate">
+                            Date *
+                        </label>
+
+                        <input
+                            id="eventDate"
+                            name="date"
+                            type="date"
+                            required
+                        >
+
+                        <span class="form-error">
+                            Select a date.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="eventTime">
+                            Start time *
+                        </label>
+
+                        <input
+                            id="eventTime"
+                            name="time"
+                            type="time"
+                            required
+                        >
+
+                        <span class="form-error">
+                            Select a time.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- CAPACITY -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span>03 / CAPACITY</span>
+
+                    <h2>
+                        How does registration work?
+                    </h2>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-field">
+
+                        <label for="eventCapacity">
+                            Capacity *
+                        </label>
+
+                        <input
+                            id="eventCapacity"
+                            name="capacity"
+                            type="number"
+                            min="1"
+                            max="100000"
+                            placeholder="100"
+                            required
+                        >
+
+                        <span class="form-error">
+                            Enter the capacity.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label>
+                            Registration mode *
+                        </label>
+
+                        <div class="registration-options">
+
+                            <label class="registration-option">
+
+                                <input
+                                    type="radio"
+                                    name="registrationMode"
+                                    value="Free"
+                                    checked
+                                >
+
+                                <span>
+                                    Free
+                                </span>
+
+                            </label>
+
+
+                            <label class="registration-option">
+
+                                <input
+                                    type="radio"
+                                    name="registrationMode"
+                                    value="Paid"
+                                >
+
+                                <span>
+                                    Paid
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="form-field"
+                        id="priceField"
+                        style="display:none;"
+                    >
+
+                        <label for="eventPrice">
+                            Price (₹)
+                        </label>
+
+                        <input
+                            id="eventPrice"
+                            name="price"
+                            type="number"
+                            min="0"
+                            placeholder="299"
+                        >
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- DETAILS -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span>04 / DETAILS</span>
+
+                    <h2>
+                        Give people a reason to join.
+                    </h2>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-field full">
+
+                        <label for="eventImage">
+                            Event image URL
+                        </label>
+
+                        <input
+                            id="eventImage"
+                            name="image"
+                            type="url"
+                            placeholder="https://..."
+                        >
+
+                        <span class="field-hint">
+                            Image upload will be connected
+                            to the backend later.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-field full">
+
+                        <label for="eventRequirements">
+                            Requirements
+                        </label>
+
+                        <textarea
+                            id="eventRequirements"
+                            name="requirements"
+                            placeholder="Anything participants should bring or know?"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- CONTACT -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span>05 / CONTACT</span>
+
+                    <h2>
+                        How can people reach you?
+                    </h2>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-field">
+
+                        <label for="eventContact">
+                            Contact
+                        </label>
+
+                        <input
+                            id="eventContact"
+                            name="contact"
+                            type="text"
+                            placeholder="Phone or email"
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="eventInstagram">
+                            Instagram
+                        </label>
+
+                        <input
+                            id="eventInstagram"
+                            name="instagram"
+                            type="text"
+                            placeholder="@yourclub"
+                        >
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ACTION -->
+
+            <div class="form-actions">
+
+                <a
+                    href="organizer-dashboard.html"
+                    class="secondary-button"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Submit for approval
+                    <span>→</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+</div>
+
+
+<script src="js/storage.js"></script>
+<script src="js/vix.js"></script>
+<script src="js/event.js"></script>
+<script src="js/cursor.js"></script>
+
+</body>
+</html>

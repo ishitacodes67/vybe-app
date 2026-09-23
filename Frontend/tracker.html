@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VYBE — Tracker</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tracker.css">
+    <link rel="stylesheet" href="css/vix.css">
+
+</head>
+
+<body class="member-page tracker-page">
+
+<header class="topbar">
+
+    <a class="brand" href="home.html">
+        VYBE<span>✦</span>
+    </a>
+
+    <nav>
+
+        <a href="home.html">Home</a>
+        <a href="discover.html">Discover</a>
+        <a class="active" href="tracker.html">Tracker</a>
+        <a href="voice.html">Voice</a>
+        <a href="profile.html">Profile</a>
+
+    </nav>
+
+</header>
+
+
+<main class="tracker-main">
+
+    <section class="tracker-hero">
+
+        <div>
+
+            <p class="eyebrow">
+                YOUR VYBE ✦
+            </p>
+
+            <h1>
+                your campus life,
+                <em>tracked.</em>
+            </h1>
+
+            <p>
+                Every event you join becomes part
+                of your VYBE story.
+            </p>
+
+        </div>
+
+        <div class="tracker-hero-orb">
+            <span>✦</span>
+            <strong id="heroXP">0</strong>
+            <small>XP earned</small>
+        </div>
+
+    </section>
+
+
+    <section
+        id="trackerStats"
+        class="tracker-stats"
+    ></section>
+
+
+    <section class="streak-card">
+
+        <div class="streak-left">
+
+            <span class="streak-icon">
+                🔥
+            </span>
+
+            <div>
+
+                <p class="eyebrow">
+                    CURRENT STREAK
+                </p>
+
+                <h2>
+                    <span id="streakNumber">
+                        0
+                    </span>
+                    weeks of showing up.
+                </h2>
+
+            </div>
+
+        </div>
+
+        <div class="streak-bars">
+
+            <span class="active"></span>
+            <span class="active"></span>
+            <span class="active"></span>
+            <span class="active"></span>
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </div>
+
+    </section>
+
+
+    <section class="tracker-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="eyebrow">
+                    UP NEXT
+                </p>
+
+                <h2>
+                    don't miss
+                    <em>your thing.</em>
+                </h2>
+
+            </div>
+
+            <span id="upcomingCount"></span>
+
+        </div>
+
+
+        <div
+            id="upcomingEvents"
+            class="tracker-events"
+        ></div>
+
+    </section>
+
+
+    <section class="tracker-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="eyebrow">
+                    YOUR ACTIVITY
+                </p>
+
+                <h2>
+                    your campus
+                    <em>story.</em>
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="activityList"
+            class="activity-list"
+        ></div>
+
+    </section>
+
+
+    <section class="tracker-bottom-grid">
+
+        <div class="xp-card">
+
+            <p class="eyebrow">
+                XP THIS MONTH
+            </p>
+
+            <strong id="monthXP">
+                +0
+            </strong>
+
+            <div class="xp-progress">
+                <span id="xpProgress"></span>
+            </div>
+
+            <small>
+                Keep showing up. Your VYBE grows with you.
+            </small>
+
+        </div>
+
+
+        <a
+            href="discover.html"
+            class="tracker-discover-card"
+        >
+
+            <span>✦</span>
+
+            <strong>
+                Find your next event.
+            </strong>
+
+            <small>
+                There's probably something
+                you haven't discovered yet.
+            </small>
+
+            <b>EXPLORE →</b>
+
+        </a>
+
+    </section>
+
+</main>
+
+
+<button
+    class="vix-floating-button"
+    type="button"
+    data-vix-open
+>
+    <span>✦</span>
+    <strong>Vix</strong>
+</button>
+
+
+<script src="js/events-data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/tracker.js"></script>
+<script src="js/vix.js"></script>
+
+</body>
+</html>

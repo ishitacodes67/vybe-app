@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Authority Desk — VYBE</title>
+
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/authority.css">
+    <link rel="stylesheet" href="CSS/auth.css">
+    <link rel="stylesheet" href="CSS/cursor.css">
+
+</head>
+
+<body class="authority-page">
+
+    <div class="page-noise"></div>
+
+    <!-- TOP NAV -->
+    <header class="authority-nav">
+
+        <a href="authority-dashboard.html" class="brand">
+            VYBE<span>.</span>
+        </a>
+
+        <div class="authority-context">
+            <span class="verification-dot"></span>
+            <span>Verified Campus Authority</span>
+        </div>
+
+        <nav class="authority-nav-actions">
+
+            <a href="notifications.html" class="nav-icon-btn" title="Notifications">
+                <span>◔</span>
+                <b id="notificationCount">3</b>
+            </a>
+
+            <button class="authority-avatar" id="profileButton">
+                RA
+            </button>
+
+        </nav>
+
+    </header>
+
+
+    <main class="authority-main">
+
+        <!-- HERO -->
+        <section class="authority-hero">
+
+            <div class="hero-copy">
+
+                <div class="eyebrow">
+                    CAMPUS CONTROL
+                </div>
+
+                <h1>
+                    Keep the campus<br>
+                    <span>moving.</span>
+                </h1>
+
+                <p>
+                    Review what is happening across your campus,
+                    approve meaningful experiences, and keep VYBE trustworthy.
+                </p>
+
+            </div>
+
+            <div class="authority-status-card">
+
+                <div class="status-top">
+                    <span class="live-pulse"></span>
+                    SYSTEM STATUS
+                </div>
+
+                <strong>Everything is running.</strong>
+
+                <span>
+                    Your campus is up to date.
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- QUICK STATS -->
+        <section class="authority-stats">
+
+            <article class="authority-stat pending-stat">
+
+                <div class="stat-icon">⌁</div>
+
+                <div>
+                    <span>Needs review</span>
+                    <strong id="pendingCount">0</strong>
+                </div>
+
+                <a href="#pendingEvents">
+                    Review →
+                </a>
+
+            </article>
+
+
+            <article class="authority-stat">
+
+                <div class="stat-icon">✦</div>
+
+                <div>
+                    <span>Published events</span>
+                    <strong id="publishedCount">0</strong>
+                </div>
+
+                <span class="stat-meta">This campus</span>
+
+            </article>
+
+
+            <article class="authority-stat">
+
+                <div class="stat-icon">◎</div>
+
+                <div>
+                    <span>Registrations</span>
+                    <strong id="registrationCount">0</strong>
+                </div>
+
+                <span class="stat-meta">Across events</span>
+
+            </article>
+
+
+            <article class="authority-stat">
+
+                <div class="stat-icon">⚑</div>
+
+                <div>
+                    <span>Reports</span>
+                    <strong id="reportCount">0</strong>
+                </div>
+
+                <span class="stat-meta">Needs attention</span>
+
+            </article>
+
+        </section>
+
+
+        <!-- MAIN GRID -->
+        <section class="authority-grid">
+
+            <!-- PENDING EVENTS -->
+            <div class="authority-panel pending-panel" id="pendingEvents">
+
+                <div class="panel-heading">
+
+                    <div>
+                        <span class="section-kicker">ACTION REQUIRED</span>
+
+                        <h2>
+                            Events waiting for you.
+                        </h2>
+
+                        <p>
+                            Review submissions before they appear on VYBE.
+                        </p>
+                    </div>
+
+                    <span class="panel-count" id="pendingBadge">0</span>
+
+                </div>
+
+                <div id="pendingEventsList" class="event-review-list">
+                    <!-- JavaScript -->
+                </div>
+
+            </div>
+
+
+            <!-- SIDE COLUMN -->
+            <aside class="authority-side">
+
+                <!-- CAMPUS PULSE -->
+                <div class="authority-panel pulse-panel">
+
+                    <span class="section-kicker">CAMPUS PULSE</span>
+
+                    <h3>
+                        What's happening?
+                    </h3>
+
+                    <div class="pulse-item">
+                        <span>Events this month</span>
+                        <strong id="monthlyEvents">0</strong>
+                    </div>
+
+                    <div class="pulse-item">
+                        <span>Active organizers</span>
+                        <strong id="activeOrganizers">0</strong>
+                    </div>
+
+                    <div class="pulse-item">
+                        <span>Student participation</span>
+                        <strong id="participationRate">—</strong>
+                    </div>
+
+                </div>
+
+
+                <!-- QUICK ACTIONS -->
+                <div class="authority-panel quick-panel">
+
+                    <span class="section-kicker">QUICK ACTIONS</span>
+
+                    <button class="quick-action" id="viewNotifications">
+                        <span>◔</span>
+                        <div>
+                            <strong>Notifications</strong>
+                            <small>See what changed</small>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                    <button class="quick-action" id="viewPublished">
+                        <span>✦</span>
+                        <div>
+                            <strong>Published events</strong>
+                            <small>View campus activity</small>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                    <button class="quick-action" id="viewReports">
+                        <span>⚑</span>
+                        <div>
+                            <strong>Reports</strong>
+                            <small>Review flagged activity</small>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                </div>
+
+
+                <!-- AUTHORITY IDENTITY -->
+                <div class="authority-panel identity-panel">
+
+                    <div class="identity-avatar">
+                        RA
+                    </div>
+
+                    <div>
+                        <span class="verified-label">
+                            ✓ VERIFIED
+                        </span>
+
+                        <h3 id="authorityName">
+                            Campus Authority
+                        </h3>
+
+                        <p id="authorityInstitution">
+                            MIT
+                        </p>
+                    </div>
+
+                    <a href="profile.html" class="text-link">
+                        View profile →
+                    </a>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    </main>
+
+
+    <!-- TOAST -->
+    <div id="authorityToast" class="authority-toast">
+        <span>✓</span>
+        <p></p>
+    </div>
+
+
+    <script src="app.js"></script>
+    <script src="authority.js"></script>
+    <script src="cursor.js"></script>
+
+</body>
+</html>

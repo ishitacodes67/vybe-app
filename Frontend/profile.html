@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VYBE — Profile</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/vix.css">
+
+</head>
+
+<body class="member-page profile-page">
+
+<header class="topbar">
+
+    <a class="brand" href="home.html">
+        VYBE<span>✦</span>
+    </a>
+
+    <nav>
+
+        <a href="home.html">Home</a>
+        <a href="discover.html">Discover</a>
+        <a href="tracker.html">Tracker</a>
+        <a href="voice.html">Voice</a>
+        <a class="active" href="profile.html">Profile</a>
+
+    </nav>
+
+</header>
+
+
+<main class="profile-main">
+
+
+    <!-- IDENTITY HERO -->
+
+    <section class="identity-card">
+
+        <div class="identity-background"></div>
+
+        <div class="identity-top">
+
+            <span class="profile-label">
+                VYBE EXPLORER
+            </span>
+
+            <span class="profile-level">
+                LEVEL <strong id="profileLevel">07</strong>
+            </span>
+
+        </div>
+
+
+        <div class="identity-content">
+
+            <div class="avatar-wrap">
+
+                <div
+                    class="avatar"
+                    id="avatar"
+                >
+                    R
+                </div>
+
+                <span class="avatar-status">
+                    ✦
+                </span>
+
+            </div>
+
+
+            <div class="identity-info">
+
+                <p class="identity-small">
+                    YOUR CAMPUS IDENTITY
+                </p>
+
+                <h1 id="profileName">
+                    Radhika Varade
+                </h1>
+
+                <p
+                    id="profileMeta"
+                    class="identity-meta"
+                >
+                    CSD · Third Year · MIT
+                </p>
+
+                <div
+                    id="profileInterestsPreview"
+                    class="identity-tags"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="level-section">
+
+            <div class="level-labels">
+
+                <span>
+                    VYBE LEVEL
+                </span>
+
+                <strong>
+                    <span id="profileXP">
+                        0
+                    </span>
+                    XP
+                </strong>
+
+            </div>
+
+            <div class="level-bar">
+
+                <span id="levelProgress"></span>
+
+            </div>
+
+            <div class="level-foot">
+
+                <span id="levelTitle">
+                    Campus Explorer
+                </span>
+
+                <span id="nextLevel">
+                    0 / 1000 XP
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section
+        id="profileStats"
+        class="profile-stats"
+    ></section>
+
+
+    <!-- BADGES -->
+
+    <section class="profile-section">
+
+        <div class="section-head">
+
+            <div>
+
+                <p class="eyebrow">
+                    ✦ YOUR BADGES
+                </p>
+
+                <h2>
+                    little proof
+                    <em>you showed up.</em>
+                </h2>
+
+            </div>
+
+            <span id="badgeCount">
+                0 earned
+            </span>
+
+        </div>
+
+
+        <div
+            id="badgeGrid"
+            class="badge-grid"
+        ></div>
+
+    </section>
+
+
+    <!-- INTERESTS -->
+
+    <section class="profile-section interest-section">
+
+        <div class="section-head">
+
+            <div>
+
+                <p class="eyebrow">
+                    YOUR VYBE
+                </p>
+
+                <h2>
+                    what makes
+                    <em>you, you.</em>
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="interestList"
+            class="interest-cloud"
+        ></div>
+
+    </section>
+
+
+    <!-- JOURNEY -->
+
+    <section class="profile-section">
+
+        <div class="section-head">
+
+            <div>
+
+                <p class="eyebrow">
+                    YOUR VYBE JOURNEY
+                </p>
+
+                <h2>
+                    the story
+                    <em>so far.</em>
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="journey"
+            class="journey"
+        ></div>
+
+    </section>
+
+
+    <!-- HIGHLIGHTS -->
+
+    <section class="profile-section">
+
+        <div class="section-head">
+
+            <div>
+
+                <p class="eyebrow">
+                    YOUR HIGHLIGHTS
+                </p>
+
+                <h2>
+                    moments worth
+                    <em>remembering.</em>
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="profileHighlights"
+            class="highlight-grid"
+        ></div>
+
+    </section>
+
+
+    <!-- SHARE -->
+
+    <section class="profile-share-card">
+
+        <div>
+
+            <p class="eyebrow">
+                THIS IS YOUR VYBE.
+            </p>
+
+            <h2>
+                make it
+                <em>yours.</em>
+            </h2>
+
+            <p>
+                Your campus experiences are more than
+                attendance numbers. They're part of your story.
+            </p>
+
+        </div>
+
+        <button
+            type="button"
+            id="shareProfile"
+        >
+            SHARE PROFILE
+            <span>↗</span>
+        </button>
+
+    </section>
+
+</main>
+
+
+<button
+    class="vix-floating-button"
+    type="button"
+    data-vix-open
+>
+    <span>✦</span>
+    <strong>Vix</strong>
+</button>
+
+
+<script src="js/events-data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/vix.js"></script>
+
+</body>
+</html>

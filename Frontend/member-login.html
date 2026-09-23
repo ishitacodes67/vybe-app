@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VYBE — Member Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/member-login.css">
+
+</head>
+
+
+<body class="auth-page member-auth">
+
+<main class="member-login-page">
+
+
+    <!-- =========================================
+         VISUAL SIDE
+    ========================================== -->
+
+    <section class="login-visual">
+
+        <a
+            href="index.html"
+            class="login-brand"
+        >
+            VYBE<span>✦</span>
+        </a>
+
+
+        <div class="visual-content">
+
+            <p class="visual-kicker">
+                MEMBER ACCESS
+            </p>
+
+            <h1>
+                your campus
+                has a <em>whole life.</em>
+            </h1>
+
+            <p>
+                Find the people, experiences and
+                moments that make your campus
+                feel like yours.
+            </p>
+
+        </div>
+
+
+        <div class="visual-bottom">
+
+            <span>DISCOVER</span>
+            <span>CONNECT</span>
+            <span>PARTICIPATE</span>
+            <span>GROW</span>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         LOGIN SIDE
+    ========================================== -->
+
+    <section class="login-panel">
+
+        <div class="login-inner">
+
+
+            <a
+                href="role-select.html"
+                class="login-back"
+            >
+                ← choose another world
+            </a>
+
+
+            <div class="login-kicker">
+                VYBE EXPLORER
+            </div>
+
+
+            <h2>
+                let's get
+                <em>you in.</em>
+            </h2>
+
+
+            <p class="login-intro">
+                Enter your details to start a fresh
+                VYBE onboarding experience.
+            </p>
+
+
+            <div class="fresh-session-note">
+
+                <span>✦</span>
+
+                <div>
+                    <strong>Fresh start every login</strong>
+
+                    <small>
+                        Your onboarding choices are never
+                        reused from an earlier login.
+                    </small>
+                </div>
+
+            </div>
+
+
+            <form
+                id="memberLoginForm"
+                class="auth-form"
+                data-login-role="member"
+                autocomplete="off"
+                novalidate
+            >
+
+
+                <!-- NAME -->
+
+                <div class="field">
+
+                    <label for="memberName">
+                        YOUR NAME
+                    </label>
+
+                    <input
+                        id="memberName"
+                        name="name"
+                        type="text"
+                        placeholder="e.g. Radhika Varade"
+                        autocomplete="off"
+                        required
+                    >
+
+                    <small
+                        class="field-error"
+                        data-error-for="name"
+                    ></small>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="field">
+
+                    <label for="memberEmail">
+                        EMAIL
+                    </label>
+
+                    <input
+                        id="memberEmail"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="off"
+                        required
+                    >
+
+                    <small
+                        class="field-error"
+                        data-error-for="email"
+                    ></small>
+
+                </div>
+
+
+                <!-- PHONE -->
+
+                <div class="field">
+
+                    <label for="memberPhone">
+                        PHONE
+                    </label>
+
+                    <div class="phone-input">
+
+                        <span>+91</span>
+
+                        <input
+                            id="memberPhone"
+                            name="phone"
+                            type="tel"
+                            inputmode="numeric"
+                            maxlength="10"
+                            placeholder="9876543210"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+                    <small class="field-hint">
+                        Enter a 10-digit Indian mobile number.
+                    </small>
+
+                    <small
+                        class="field-error"
+                        data-error-for="phone"
+                    ></small>
+
+                </div>
+
+
+                <!-- INSTITUTION -->
+
+                <div class="field">
+
+                    <label for="memberInstitution">
+                        INSTITUTION
+                    </label>
+
+                    <input
+                        id="memberInstitution"
+                        name="institution"
+                        type="text"
+                        placeholder="e.g. Maharashtra Institute of Technology"
+                        autocomplete="off"
+                        required
+                    >
+
+                    <small
+                        class="field-error"
+                        data-error-for="institution"
+                    ></small>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="auth-submit"
+                >
+                    START YOUR VYBE
+
+                    <span>
+                        →
+                    </span>
+                </button>
+
+
+                <p class="privacy-note">
+                    You'll complete your VYBE profile
+                    after signing in.
+                </p>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/login.js"></script>
+
+</body>
+</html>

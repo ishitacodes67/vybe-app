@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notifications — VYBE</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="notification.css">
+    <link rel="stylesheet" href="cursor.css">
+
+</head>
+
+<body class="notification-page">
+
+<header class="notification-nav">
+
+    <a href="authority-dashboard.html" class="brand">
+        VYBE<span>.</span>
+    </a>
+
+    <div class="notification-nav-title">
+        Notifications
+    </div>
+
+    <a href="authority-dashboard.html" class="back-link">
+        ← Desk
+    </a>
+
+</header>
+
+
+<main class="notifications-main">
+
+    <section class="notifications-hero">
+
+        <div>
+
+            <span class="section-kicker">
+                CAMPUS SIGNALS
+            </span>
+
+            <h1>
+                Things worth<br>
+                <span>knowing.</span>
+            </h1>
+
+            <p>
+                Event approvals, reports, changes and
+                campus activity—all in one place.
+            </p>
+
+        </div>
+
+        <button id="markAllRead" class="mark-read-btn">
+            Mark all as read
+        </button>
+
+    </section>
+
+
+    <!-- FILTERS -->
+
+    <div class="notification-filters">
+
+        <button class="filter-btn active" data-filter="all">
+            All
+        </button>
+
+        <button class="filter-btn" data-filter="approval">
+            Approvals
+        </button>
+
+        <button class="filter-btn" data-filter="report">
+            Reports
+        </button>
+
+        <button class="filter-btn" data-filter="activity">
+            Activity
+        </button>
+
+    </div>
+
+
+    <!-- NOTIFICATIONS -->
+
+    <section id="notificationList" class="notification-list">
+        <!-- JS -->
+    </section>
+
+
+    <!-- EMPTY STATE -->
+
+    <section
+        id="notificationEmpty"
+        class="notification-empty"
+        hidden
+    >
+
+        <div class="empty-icon">
+            ◔
+        </div>
+
+        <h2>
+            You're all caught up.
+        </h2>
+
+        <p>
+            No new campus signals right now.
+        </p>
+
+        <a href="authority-dashboard.html">
+            Back to Authority Desk →
+        </a>
+
+    </section>
+
+</main>
+
+
+<script src="app.js"></script>
+<script src="notification.js"></script>
+<script src="cursor.js"></script>
+
+</body>
+</html>

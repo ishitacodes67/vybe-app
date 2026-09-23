@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VYBE — Your Events</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/organizer.css">
+    <link rel="stylesheet" href="css/cursor.css">
+
+</head>
+
+<body class="organizer-page">
+
+<div class="organizer-shell">
+
+    <aside class="organizer-sidebar">
+
+        <a
+            href="organizer-dashboard.html"
+            class="brand"
+        >
+            <span class="brand-mark">V</span>
+            <span>VYBE</span>
+        </a>
+
+        <div class="host-label">
+            VYBE HOST
+        </div>
+
+        <nav class="organizer-nav">
+
+            <a
+                href="organizer-dashboard.html"
+                class="nav-item"
+            >
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+            <a
+                href="create-event.html"
+                class="nav-item"
+            >
+                <span>＋</span>
+                Create Event
+            </a>
+
+            <a
+                href="event.html"
+                class="nav-item active"
+            >
+                <span>◫</span>
+                Your Events
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="organizer-main">
+
+        <div id="manageEventContainer">
+
+            <!--
+                event.js renders this page.
+            -->
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    ✦
+                </div>
+
+                <h3>
+                    Loading your events...
+                </h3>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script src="js/storage.js"></script>
+<script src="js/vix.js"></script>
+<script src="js/event.js"></script>
+<script src="js/cursor.js"></script>
+
+</body>
+</html>

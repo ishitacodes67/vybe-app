@@ -1,0 +1,537 @@
+/* =========================================================
+   VYBE — AUTHENTICATION SYSTEM
+   MEMBER / ORGANIZER / AUTHORITY
+   ========================================================= */
+
+
+/* =========================================================
+   AUTH LAYOUT
+   ========================================================= */
+
+.auth-page {
+    min-height: 100vh;
+    background: var(--paper);
+}
+
+
+.auth-layout {
+    min-height: 100vh;
+
+    display: grid;
+    grid-template-columns: 45% 55%;
+}
+
+
+/* =========================================================
+   LEFT VISUAL
+   ========================================================= */
+
+.auth-visual {
+    position: relative;
+
+    min-height: 100vh;
+
+    padding: 42px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    overflow: hidden;
+}
+
+
+.member-auth .auth-visual {
+    background: var(--acid);
+}
+
+
+.host-auth .auth-visual {
+    background: var(--violet-soft);
+}
+
+
+.authority-auth .auth-visual {
+    background: var(--ink);
+    color: var(--white);
+}
+
+
+.authority-auth .auth-visual .brand {
+    color: var(--white);
+}
+
+
+.authority-auth .auth-visual .brand span {
+    color: var(--acid);
+}
+
+
+.auth-visual-content {
+    max-width: 650px;
+}
+
+
+.auth-kicker {
+    display: inline-block;
+
+    margin-bottom: 22px;
+
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+
+    letter-spacing: .15em;
+    text-transform: uppercase;
+}
+
+
+.member-auth .auth-kicker {
+    color: #343400;
+}
+
+
+.host-auth .auth-kicker {
+    color: var(--violet-dark);
+}
+
+
+.authority-auth .auth-kicker {
+    color: var(--acid);
+}
+
+
+.auth-visual h1 {
+    margin: 0;
+
+    font-family: var(--serif);
+    font-size: clamp(4rem, 7vw, 7rem);
+
+    font-weight: 600;
+    line-height: .84;
+
+    letter-spacing: -.075em;
+}
+
+
+.auth-visual h1 em {
+    display: block;
+    font-weight: 500;
+}
+
+
+.auth-visual p {
+    max-width: 420px;
+
+    margin: 30px 0 0;
+
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.55;
+}
+
+
+.auth-visual-footer {
+    font-family: var(--mono);
+    font-size: 9px;
+
+    letter-spacing: .14em;
+}
+
+
+/* =========================================================
+   FORM SIDE
+   ========================================================= */
+
+.auth-form-section {
+    min-height: 100vh;
+
+    padding: 50px 7vw;
+
+    display: flex;
+    align-items: center;
+
+    background:
+        radial-gradient(
+            circle at 90% 90%,
+            rgba(112,84,255,.10),
+            transparent 35%
+        ),
+        var(--paper);
+}
+
+
+.auth-form-wrap {
+    width: min(100%, 560px);
+    margin-inline: auto;
+}
+
+
+.auth-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 52px;
+
+    color: var(--muted);
+
+    text-decoration: none;
+
+    font-family: var(--mono);
+    font-size: 10px;
+
+    letter-spacing: .08em;
+
+    transition:
+        color .2s ease,
+        transform .2s ease;
+}
+
+
+.auth-back:hover {
+    color: var(--ink);
+    transform: translateX(-3px);
+}
+
+
+.auth-form-kicker {
+    color: var(--violet);
+
+    font-family: var(--mono);
+    font-size: 10px;
+
+    letter-spacing: .15em;
+}
+
+
+.auth-form-wrap h2 {
+    margin: 17px 0 0;
+
+    font-family: var(--serif);
+    font-size: clamp(3.7rem, 5vw, 5.8rem);
+
+    font-weight: 600;
+    line-height: .84;
+
+    letter-spacing: -.07em;
+}
+
+
+.auth-form-wrap h2 em {
+    display: block;
+    font-weight: 500;
+}
+
+
+.auth-intro {
+    max-width: 500px;
+
+    margin: 24px 0 42px;
+
+    color: var(--muted);
+
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.auth-form {
+    width: 100%;
+}
+
+
+.field {
+    margin-bottom: 20px;
+}
+
+
+.field label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-family: var(--mono);
+    font-size: 10px;
+
+    font-weight: 500;
+
+    letter-spacing: .1em;
+}
+
+
+.field input {
+    width: 100%;
+    height: 57px;
+
+    padding: 0 18px;
+
+    border: 1px solid var(--line);
+    border-radius: 15px;
+
+    background: rgba(255,255,255,.72);
+
+    color: var(--ink);
+
+    outline: none;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        background .18s ease;
+}
+
+
+.field input:hover {
+    border-color: var(--line-dark);
+}
+
+
+.field input:focus {
+    border-color: var(--violet);
+
+    background: var(--white);
+
+    box-shadow:
+        0 0 0 4px rgba(112,84,255,.09);
+}
+
+
+.field.has-error input {
+    border-color: var(--error);
+
+    box-shadow:
+        0 0 0 4px rgba(180,35,24,.06);
+}
+
+
+.phone-input {
+    display: grid;
+    grid-template-columns: 68px 1fr;
+
+    height: 57px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--line);
+    border-radius: 15px;
+
+    background: rgba(255,255,255,.72);
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        background .18s ease;
+}
+
+
+.phone-input:focus-within {
+    border-color: var(--violet);
+
+    background: var(--white);
+
+    box-shadow:
+        0 0 0 4px rgba(112,84,255,.09);
+}
+
+
+.field.has-error .phone-input {
+    border-color: var(--error);
+}
+
+
+.phone-input span {
+    display: grid;
+    place-items: center;
+
+    border-right: 1px solid var(--line);
+
+    font-family: var(--mono);
+    font-size: 11px;
+}
+
+
+.phone-input input {
+    height: 100%;
+
+    border: 0;
+    border-radius: 0;
+
+    background: transparent;
+
+    box-shadow: none;
+}
+
+
+.phone-input input:focus {
+    box-shadow: none;
+}
+
+
+.field-hint {
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--muted-light);
+
+    font-size: 11px;
+}
+
+
+.field-error {
+    display: block;
+
+    min-height: 16px;
+
+    margin-top: 6px;
+
+    color: var(--error);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   SUBMIT
+   ========================================================= */
+
+.auth-submit {
+    width: 100%;
+
+    margin-top: 8px;
+
+    padding: 0 24px;
+
+    font-size: 12px;
+    letter-spacing: .03em;
+}
+
+
+.auth-submit span {
+    color: var(--acid);
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   VERIFICATION
+   ========================================================= */
+
+.verification-box {
+    margin: 6px 0 18px;
+
+    padding: 15px 17px;
+
+    border: 1px solid rgba(112,84,255,.18);
+    border-radius: 15px;
+
+    background: rgba(112,84,255,.06);
+}
+
+
+.verification-box strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 12px;
+}
+
+
+.verification-box p {
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+
+.auth-note,
+.privacy-note {
+    margin: 16px 0 0;
+
+    color: var(--muted-light);
+
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+
+.auth-success {
+    margin-top: 15px;
+
+    padding: 12px 15px;
+
+    border-radius: 12px;
+
+    background: #ecfdf5;
+    color: var(--success);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .auth-layout {
+        grid-template-columns: 1fr;
+    }
+
+
+    .auth-visual {
+        min-height: 400px;
+        padding: 30px;
+    }
+
+
+    .auth-visual h1 {
+        font-size: clamp(4rem, 13vw, 6rem);
+    }
+
+
+    .auth-form-section {
+        min-height: auto;
+        padding: 60px 30px;
+    }
+}
+
+
+@media (max-width: 520px) {
+
+    .auth-visual {
+        min-height: 350px;
+        padding: 24px;
+    }
+
+
+    .auth-visual h1 {
+        font-size: 3.5rem;
+    }
+
+
+    .auth-form-section {
+        padding: 45px 20px;
+    }
+
+
+    .auth-form-wrap h2 {
+        font-size: 3.5rem;
+    }
+
+
+    .auth-back {
+        margin-bottom: 38px;
+    }
+}

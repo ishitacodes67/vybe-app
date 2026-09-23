@@ -1,0 +1,188 @@
+/* =========================================================
+   VYBE — CUSTOM CURSOR
+   ========================================================= */
+
+@media (hover: hover) and (pointer: fine) {
+
+    body {
+        cursor: none;
+    }
+
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    [role="button"] {
+        cursor: none;
+    }
+
+    .vybe-cursor {
+
+        position: fixed;
+
+        width: 13px;
+        height: 13px;
+
+        left: 0;
+        top: 0;
+
+        border-radius: 50%;
+
+        background:
+            linear-gradient(
+                135deg,
+                #7c5cff,
+                #d946ef
+            );
+
+        box-shadow:
+            0 0 12px
+            rgba(124,92,255,0.7),
+
+            0 0 30px
+            rgba(196,92,255,0.35);
+
+        pointer-events: none;
+
+        z-index: 999999;
+
+        transform:
+            translate(-50%, -50%);
+
+        opacity: 0;
+
+        transition:
+            width 180ms ease,
+            height 180ms ease,
+            opacity 180ms ease,
+            transform 100ms ease;
+    }
+
+    .vybe-cursor.visible {
+        opacity: 1;
+    }
+
+    .vybe-cursor::after {
+
+        content: "";
+
+        position: absolute;
+
+        width: 32px;
+        height: 32px;
+
+        left: 50%;
+        top: 50%;
+
+        transform:
+            translate(-50%, -50%);
+
+        border:
+            1px solid
+            rgba(124,92,255,0.3);
+
+        border-radius: 50%;
+
+        transition:
+            transform 180ms ease,
+            border-color 180ms ease;
+    }
+
+    .vybe-cursor.hover {
+
+        width: 38px;
+        height: 38px;
+
+        background:
+            rgba(124,92,255,0.10);
+
+        border:
+            1px solid
+            rgba(167,139,250,0.7);
+
+        box-shadow:
+            0 0 20px
+            rgba(124,92,255,0.45);
+    }
+
+    .vybe-cursor.hover::after {
+        transform:
+            translate(-50%, -50%)
+            scale(0.75);
+
+        border-color:
+            rgba(196,92,255,0.55);
+    }
+
+    .vybe-cursor.click {
+        transform:
+            translate(-50%, -50%)
+            scale(0.65);
+    }
+
+    .vybe-cursor-label {
+
+        position: fixed;
+
+        pointer-events: none;
+
+        z-index: 1000000;
+
+        padding:
+            6px 10px;
+
+        border-radius:
+            999px;
+
+        background:
+            rgba(18,18,28,0.95);
+
+        border:
+            1px solid
+            rgba(255,255,255,0.1);
+
+        color:
+            white;
+
+        font-size:
+            10px;
+
+        font-weight:
+            700;
+
+        letter-spacing:
+            0.02em;
+
+        white-space:
+            nowrap;
+
+        opacity: 0;
+
+        transform:
+            translateY(5px)
+            scale(0.9);
+
+        transition:
+            opacity 150ms ease,
+            transform 150ms ease;
+    }
+
+    .vybe-cursor-label.show {
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+
+@media (hover: none), (pointer: coarse) {
+
+    .vybe-cursor,
+    .vybe-cursor-label {
+        display: none !important;
+    }
+}
