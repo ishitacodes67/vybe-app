@@ -225,7 +225,7 @@
                 </div>
 
 
-                <!-- INSTITUTION -->
+                                <!-- INSTITUTION -->
 
                 <div class="field">
 
@@ -250,6 +250,37 @@
                 </div>
 
 
+                <!-- PASSWORD -->
+
+                <div class="field">
+
+                    <label for="memberPassword">
+                        PASSWORD
+                    </label>
+
+                    <input
+                        id="memberPassword"
+                        name="password"
+                        type="password"
+                        placeholder="At least 6 characters"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                    >
+
+                    <small class="field-hint">
+                        Minimum 6 characters. Used for future logins.
+                    </small>
+
+                    <small
+                        class="field-error"
+                        data-error-for="password"
+                    ></small>
+
+                </div>
+
+
+                
                 <button
                     type="submit"
                     class="auth-submit"

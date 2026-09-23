@@ -1,11 +1,11 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Institution = require("../models/Institution");
 const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
 
-// ---------- helpers ----------
 function issueToken(user) {
   return jwt.sign(
     { id: user._id, role: user.role, institution: user.institution },
@@ -18,15 +18,32 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Find-or-create an institution by name. Returns ObjectId or undefined.
+async function resolveInstitutionId({ institutionId, institutionName }) {
+  if (institutionId) return institutionId;
+  if (!institutionName) return undefined;
+
+  const name = String(institutionName).trim();
+  if (name.length < 2) return undefined;
+
+  let inst = await Institution.findOne({ name });
+  if (!inst) {
+    // Generate a simple domain from the name (e.g. "MIT" -> "mit.edu")
+    const domain = name.toLowerCase().replace(/[^a-z0-9]+/g, "") + ".edu";
+    inst = await Institution.create({ name, domain });
+  }
+  return inst._id;
+}
+
 // ---------- POST /api/auth/register ----------
 router.post("/register", async (req, res) => {
   try {
     const {
       name, email, password, phone,
-      course, year, role, orgName, institutionId
+      course, year, role, orgName,
+      institutionId, institutionName
     } = req.body;
 
-    // Basic validation
     if (!name || !email || !password) {
       return res.status(400).json({ message: "name, email and password are required" });
     }
@@ -45,7 +62,8 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ message: "An account with this email already exists" });
     }
 
-    // Build the new user
+    const resolvedInstitution = await resolveInstitutionId({ institutionId, institutionName });
+
     const newUser = new User({
       name,
       email,
@@ -53,13 +71,12 @@ router.post("/register", async (req, res) => {
       course: role === "member" || !role ? course : undefined,
       year: role === "member" || !role ? year : undefined,
       role: role || "member",
-      institution: institutionId || undefined,
+      institution: resolvedInstitution,
       organizerProfile: role === "organizer"
         ? { orgName, verified: false }
         : undefined
     });
 
-    // Use the new helper (hashes + saves on passwordHash)
     await newUser.setPassword(password);
     await newUser.save();
 
