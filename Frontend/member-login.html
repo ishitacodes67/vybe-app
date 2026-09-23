@@ -108,8 +108,8 @@
 
 
             <p class="login-intro">
-                Enter your details to start a fresh
-                VYBE onboarding experience.
+                New here? Create your VYBE account.
+                Already have one? Sign back in.
             </p>
 
 
@@ -118,11 +118,11 @@
                 <span>✦</span>
 
                 <div>
-                    <strong>Fresh start every login</strong>
+                    <strong>Fresh start every signup</strong>
 
                     <small>
-                        Your onboarding choices are never
-                        reused from an earlier login.
+                        New accounts complete a quick
+                        onboarding to personalise your VYBE.
                     </small>
                 </div>
 
@@ -133,14 +133,38 @@
                 id="memberLoginForm"
                 class="auth-form"
                 data-login-role="member"
+                data-mode="register"
                 autocomplete="off"
                 novalidate
             >
 
 
-                <!-- NAME -->
+                <!-- MODE TOGGLE -->
 
-                <div class="field">
+                <div class="auth-mode-toggle">
+
+                    <button
+                        type="button"
+                        class="mode-btn active"
+                        data-mode-btn="register"
+                    >
+                        NEW HERE
+                    </button>
+
+                    <button
+                        type="button"
+                        class="mode-btn"
+                        data-mode-btn="login"
+                    >
+                        ALREADY HAVE AN ACCOUNT
+                    </button>
+
+                </div>
+
+
+                <!-- NAME (register only) -->
+
+                <div class="field" data-register-only>
 
                     <label for="memberName">
                         YOUR NAME
@@ -152,7 +176,6 @@
                         type="text"
                         placeholder="e.g. Radhika Varade"
                         autocomplete="off"
-                        required
                     >
 
                     <small
@@ -188,9 +211,9 @@
                 </div>
 
 
-                <!-- PHONE -->
+                <!-- PHONE (register only) -->
 
-                <div class="field">
+                <div class="field" data-register-only>
 
                     <label for="memberPhone">
                         PHONE
@@ -208,7 +231,6 @@
                             maxlength="10"
                             placeholder="9876543210"
                             autocomplete="off"
-                            required
                         >
 
                     </div>
@@ -225,9 +247,9 @@
                 </div>
 
 
-                                <!-- INSTITUTION -->
+                <!-- INSTITUTION (register only) -->
 
-                <div class="field">
+                <div class="field" data-register-only>
 
                     <label for="memberInstitution">
                         INSTITUTION
@@ -239,7 +261,6 @@
                         type="text"
                         placeholder="e.g. Maharashtra Institute of Technology"
                         autocomplete="off"
-                        required
                     >
 
                     <small
@@ -263,14 +284,10 @@
                         name="password"
                         type="password"
                         placeholder="At least 6 characters"
-                        autocomplete="new-password"
+                        autocomplete="current-password"
                         minlength="6"
                         required
                     >
-
-                    <small class="field-hint">
-                        Minimum 6 characters. Used for future logins.
-                    </small>
 
                     <small
                         class="field-error"
@@ -280,22 +297,18 @@
                 </div>
 
 
-                
                 <button
                     type="submit"
                     class="auth-submit"
+                    id="memberSubmitBtn"
                 >
                     START YOUR VYBE
-
-                    <span>
-                        →
-                    </span>
+                    <span>→</span>
                 </button>
 
 
-                <p class="privacy-note">
-                    You'll complete your VYBE profile
-                    after signing in.
+                <p class="privacy-note" id="memberPrivacyNote">
+                    You'll complete your VYBE profile after signing in.
                 </p>
 
             </form>

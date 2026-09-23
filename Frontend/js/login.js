@@ -1,14 +1,60 @@
 /* =========================================================
    VYBE — MEMBER LOGIN / REGISTER
-   Talks to the real backend via window.api
+   Two modes on the same form:
+     • register (default) — name, email, phone, institution, password
+     • login              — email + password only
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-
     "use strict";
 
     const form = document.querySelector('[data-login-role="member"]');
     if (!form) return;
+
+    const toggleButtons = form.querySelectorAll("[data-mode-btn]");
+    const registerOnly = form.querySelectorAll("[data-register-only]");
+    const submitBtn = form.querySelector("#memberSubmitBtn");
+    const privacyNote = form.querySelector("#memberPrivacyNote");
+
+    let mode = "register"; // or "login"
+
+    /* =====================================================
+       MODE TOGGLE
+    ===================================================== */
+
+    function setMode(newMode) {
+        mode = newMode;
+        form.dataset.mode = newMode;
+
+        toggleButtons.forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.modeBtn === newMode);
+        });
+
+        // Hide/show register-only fields
+        registerOnly.forEach(field => {
+            field.style.display = newMode === "register" ? "" : "none";
+        });
+
+        // Update submit button label
+        if (submitBtn) {
+            submitBtn.innerHTML = newMode === "register"
+                ? `START YOUR VYBE <span>→</span>`
+                : `SIGN ME IN <span>→</span>`;
+        }
+
+        // Update hint text
+        if (privacyNote) {
+            privacyNote.textContent = newMode === "register"
+                ? "You'll complete your VYBE profile after signing in."
+                : "Welcome back. Your onboarding is already saved.";
+        }
+
+        clearErrors();
+    }
+
+    toggleButtons.forEach(btn => {
+        btn.addEventListener("click", () => setMode(btn.dataset.modeBtn));
+    });
 
     /* =====================================================
        HELPERS
@@ -47,77 +93,72 @@ document.addEventListener("DOMContentLoaded", () => {
     ===================================================== */
 
     form.addEventListener("submit", async (event) => {
-
         event.preventDefault();
         clearErrors();
 
-        const name = normalizeText(form.elements.name?.value);
         const email = normalizeEmail(form.elements.email?.value);
-        const phone = normalizePhone(form.elements.phone?.value);
-        const institution = normalizeText(form.elements.institution?.value);
         const password = String(form.elements.password?.value || "");
 
         let valid = true;
-
-        if (name.length < 2) { showError("name", "Enter your full name."); valid = false; }
         if (!validEmail(email)) { showError("email", "Enter a valid email address."); valid = false; }
-        if (!validPhone(phone)) { showError("phone", "Enter a valid 10-digit Indian mobile number."); valid = false; }
-        if (institution.length < 2) { showError("institution", "Enter your institution."); valid = false; }
         if (password.length < 6) { showError("password", "Password must be at least 6 characters."); valid = false; }
+
+        // Register-only fields
+        let name = "", phone = "", institution = "";
+        if (mode === "register") {
+            name = normalizeText(form.elements.name?.value);
+            phone = normalizePhone(form.elements.phone?.value);
+            institution = normalizeText(form.elements.institution?.value);
+
+            if (name.length < 2) { showError("name", "Enter your full name."); valid = false; }
+            if (!validPhone(phone)) { showError("phone", "Enter a valid 10-digit Indian mobile number."); valid = false; }
+            if (institution.length < 2) { showError("institution", "Enter your institution."); valid = false; }
+        }
 
         if (!valid) return;
 
         /* ---------- Button state ---------- */
-        const button = form.querySelector('button[type="submit"]');
-        const originalLabel = button ? button.innerHTML : "";
-        if (button) {
-            button.disabled = true;
-            button.innerHTML = `working… <span>→</span>`;
-        }
-
-        const payload = {
-            name,
-            email,
-            phone: `+91${phone}`,
-            password,
-            role: "member",
-            institutionName: institution
-        };
+        const originalLabel = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `working… <span>→</span>`;
 
         let user = null;
         let errorMsg = "";
 
         try {
-            // Try register first (new account)
-            const result = await window.api.register(payload);
-            user = result.user;
-        } catch (err) {
-            // If the email already exists, try logging in with the same password
-            if (err.status === 409) {
-                try {
-                    const result = await window.api.login(email, password);
-                    user = result.user;
-                } catch (loginErr) {
-                    errorMsg = loginErr.status === 401
-                        ? "This email is already registered. Wrong password, or try a different email."
-                        : (loginErr.message || "Login failed.");
-                }
+            if (mode === "login") {
+                const result = await window.api.login(email, password);
+                user = result.user;
             } else {
-                errorMsg = err.message || "Registration failed.";
+                const payload = {
+                    name,
+                    email,
+                    phone: `+91${phone}`,
+                    password,
+                    role: "member",
+                    institutionName: institution
+                };
+                const result = await window.api.register(payload);
+                user = result.user;
+            }
+        } catch (err) {
+            if (err.status === 409) {
+                errorMsg = "This email is already registered. Switch to 'ALREADY HAVE AN ACCOUNT' above to sign in.";
+            } else if (err.status === 401) {
+                errorMsg = "Invalid email or password.";
+            } else {
+                errorMsg = err.message || "Something went wrong.";
             }
         }
 
         if (errorMsg || !user) {
-            if (button) {
-                button.disabled = false;
-                button.innerHTML = originalLabel;
-            }
-            showError("email", errorMsg || "Something went wrong.");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalLabel;
+            showError("email", errorMsg);
             return;
         }
 
         /* ---------- Success ---------- */
-        // Clear any stale onboarding state
         ["vybeOnboarding", "vybeOnboardingUser", "vybe_current_user",
          "vybe_onboarding_complete", "vybeOnboardingState", "onboardingData"].forEach(k => {
             localStorage.removeItem(k);
@@ -130,10 +171,15 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("vybeRole", "member");
         sessionStorage.setItem("vybePendingMember", JSON.stringify(user));
 
-        if (button) button.innerHTML = `onboarding <span>→</span>`;
+        // Where to go next?
+        const needsOnboarding = !user.onboardingCompleted;
+
+        submitBtn.innerHTML = needsOnboarding
+            ? `onboarding <span>→</span>`
+            : `welcome back <span>→</span>`;
 
         setTimeout(() => {
-            window.location.replace("onboarding.html");
+            window.location.replace(needsOnboarding ? "onboarding.html" : "home.html");
         }, 250);
     });
 
@@ -144,6 +190,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("pageshow", () => {
         form.reset();
         clearErrors();
+        setMode(mode); // keep current mode
     });
 
+    // Initialize
+    setMode("register");
 });
