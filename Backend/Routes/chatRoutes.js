@@ -6,6 +6,7 @@ const Registration = require("../models/Registration");
 require("../models/Institution");
 const { verifyToken } = require("../middleware/auth");
 const { getChatReply } = require("../utils/aiClient");
+const { chatLimiter } = require("../middleware/rateLimiters");
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const router = express.Router();
 // Frontend sends { message, history?, contextEventIds? }
 // Backend: looks up user interests + current approved events, calls Python /chat,
 // returns { reply, recommendedEvents, recommendedEventIds }
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", chatLimiter, verifyToken, async (req, res) => {
   try {
     const { message, history, contextEventIds } = req.body;
 

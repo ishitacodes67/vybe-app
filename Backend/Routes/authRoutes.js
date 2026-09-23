@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Institution = require("../models/Institution");
 const { verifyToken } = require("../middleware/auth");
+const { loginLimiter, registerLimiter } = require("../middleware/rateLimiters");
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ async function resolveInstitutionId({ institutionId, institutionName }) {
 }
 
 // ---------- POST /api/auth/register ----------
-router.post("/register", async (req, res) => {
+router.post("/register", registerLimiter, async (req, res) => {
   try {
     const {
       name, email, password, phone,
@@ -91,7 +92,7 @@ router.post("/register", async (req, res) => {
 });
 
 // ---------- POST /api/auth/login ----------
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
