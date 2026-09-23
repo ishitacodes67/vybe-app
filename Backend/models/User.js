@@ -24,13 +24,15 @@ const userSchema = new mongoose.Schema(
     onboardingCompleted: { type: Boolean, default: false },
 
     // Present only when role === "organizer"
-    organizerProfile: {
+      organizerProfile: {
       orgName: { type: String, trim: true },
       verified: { type: Boolean, default: false }
-    }
+    },
+
+    // Password reset (hashed token + expiry)
+    resetTokenHash: { type: String, select: false },
+    resetTokenExpires: { type: Date, select: false }
   },
-  { timestamps: true }
-);
 
 // ---------- Instance methods ----------
 
