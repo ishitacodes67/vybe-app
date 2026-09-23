@@ -24,34 +24,33 @@ const userSchema = new mongoose.Schema(
     onboardingCompleted: { type: Boolean, default: false },
 
     // Present only when role === "organizer"
-      organizerProfile: {
+    organizerProfile: {
       orgName: { type: String, trim: true },
       verified: { type: Boolean, default: false }
     },
 
-    // Password reset (hashed token + expiry)
+    // Password reset (hashed token + expiry, hidden by default)
     resetTokenHash: { type: String, select: false },
     resetTokenExpires: { type: Date, select: false }
   },
+  { timestamps: true }
+);
 
 // ---------- Instance methods ----------
 
-// Returns the user object without the sensitive passwordHash field
 userSchema.methods.toSafeJSON = function toSafeJSON() {
   const obj = this.toObject();
   delete obj.passwordHash;
+  delete obj.resetTokenHash;
+  delete obj.resetTokenExpires;
   return obj;
 };
 
-// Hashes a plain-text password and stores it on this document.
-// Call this before .save() when creating or updating a password.
 userSchema.methods.setPassword = async function setPassword(plain) {
   this.passwordHash = await bcrypt.hash(plain, 10);
   return this.passwordHash;
 };
 
-// Compares a plain-text password against the stored hash.
-// Returns true if it matches, false otherwise.
 userSchema.methods.verifyPassword = function verifyPassword(plain) {
   return bcrypt.compare(plain, this.passwordHash);
 };
