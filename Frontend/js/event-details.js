@@ -1,7 +1,6 @@
 /* =========================================================
    VYBE — EVENT DETAILS
-   Loads a single event from the backend, uses Radhika's CSS classes
-   so the layout matches the design exactly.
+   Loads event from backend, uses Radhika's exact CSS structure.
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -24,10 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const params = new URLSearchParams(window.location.search);
     const eventId = params.get("id");
 
-    if (!eventId) {
-        renderNotFound();
-        return;
-    }
+    if (!eventId) { renderNotFound(); return; }
 
     container.innerHTML = `<div class="loading-state">Loading your VYBE…</div>`;
 
@@ -45,20 +41,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             return String(rid) === String(eventId) && r.status !== "cancelled";
         }) || null;
     } catch (err) {
-        console.error("[event-details] failed to load:", err);
+        console.error("[event-details] failed:", err);
         renderNotFound();
         return;
     }
 
-    if (!event) {
-        renderNotFound();
-        return;
-    }
+    if (!event) { renderNotFound(); return; }
 
     renderEvent(event, myRegistration);
 
     /* =====================================================
-       RENDER — uses Radhika's CSS class names
+       RENDER — matches Radhika's CSS exactly
     ===================================================== */
 
     function renderEvent(event, myReg) {
@@ -72,16 +65,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         const organizer = event.organizer || {};
         const organizerName = typeof organizer === "object" ? (organizer.name || "VYBE Host") : "VYBE Host";
         const organizerOrg = typeof organizer === "object" ? (organizer.organizerProfile?.orgName || "") : "";
-        const institutionName = typeof event.institution === "object" ? (event.institution?.name || "") : "";
+        const institutionName = typeof organizer === "object" ? (event.institution?.name || "") : "";
 
         const tags = Array.isArray(event.tags) ? event.tags : [];
 
-        // ---- Aside buttons based on registration state ----
+        // ---- Aside (right column) ----
         let asideHTML = `
             <div class="host-card">
                 <small>Hosted by</small>
-                <h2>${escapeHTML(organizerName)}</h2>
-                ${organizerOrg && organizerOrg !== organizerName ? `<p>${escapeHTML(organizerOrg)}</p>` : ""}
+                <h2>${escapeHTML(organizerOrg || organizerName)}</h2>
                 ${institutionName ? `<p>${escapeHTML(institutionName)}</p>` : ""}
             </div>
 
@@ -96,6 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             asideHTML += `
                 <div class="registered-box">
                     <strong>✓ You're registered</strong>
+                    <span>See you there!</span>
                     <a href="#" id="cancelRegBtn">Cancel registration</a>
                 </div>
             `;
@@ -103,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             asideHTML += `
                 <div class="registered-box">
                     <strong>⏳ Pending approval</strong>
-                    <span>Your request is waiting for the organizer.</span>
+                    <span>Waiting for the organizer to approve.</span>
                     <a href="#" id="cancelRegBtn">Withdraw request</a>
                 </div>
             `;
@@ -111,17 +104,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             asideHTML += `
                 <div class="registered-box">
                     <strong>Request declined</strong>
-                    <span>The organizer did not approve your request.</span>
+                    <span>The organizer did not approve.</span>
                 </div>
             `;
         } else if (isPast) {
-            asideHTML += `
-                <button class="full-button" disabled>EVENT ENDED</button>
-            `;
+            asideHTML += `<button class="full-button" disabled>EVENT ENDED</button>`;
         } else if (isFull) {
-            asideHTML += `
-                <button class="full-button" disabled>EVENT FULL</button>
-            `;
+            asideHTML += `<button class="full-button" disabled>EVENT FULL</button>`;
         } else {
             const approvalMode = event.registrationMode === "approval";
             asideHTML += `
@@ -131,6 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             `;
         }
 
+        // ---- Full page ----
         container.innerHTML = `
             <section class="event-hero">
 
@@ -147,7 +137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 ${tags.length ? `
                     <div class="event-tags">
-                        ${tags.map(t => `<span>${escapeHTML(t)}</span>`).join("")}
+                        ${tags.map(t => `<span>#${escapeHTML(t)}</span>`).join("")}
                     </div>
                 ` : ""}
 
@@ -155,34 +145,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             <div class="event-layout">
 
-                <section class="detail-grid">
+                <div>
 
-                    <div>
-                        <small>Date</small>
-                        <strong>${formatEventDate(event.date)}</strong>
+                    <div class="detail-grid">
+
+                        <div>
+                            <small>DATE</small>
+                            <strong>${formatEventDate(event.date)}</strong>
+                        </div>
+
+                        <div>
+                            <small>TIME</small>
+                            <strong>${escapeHTML(event.time || "TBA")}</strong>
+                        </div>
+
+                        <div>
+                            <small>VENUE</small>
+                            <strong>${escapeHTML(event.venue || "TBA")}</strong>
+                        </div>
+
+                        <div>
+                            <small>PRICE</small>
+                            <strong>${formatPrice(event.price)}</strong>
+                        </div>
+
                     </div>
 
-                    <div>
-                        <small>Time</small>
-                        <strong>${escapeHTML(event.time || "TBA")}</strong>
-                    </div>
-
-                    <div>
-                        <small>Venue</small>
-                        <strong>${escapeHTML(event.venue || "TBA")}</strong>
-                    </div>
-
-                    <div>
-                        <small>Price</small>
-                        <strong>${formatPrice(event.price)}</strong>
-                    </div>
-
-                    <article class="about-event">
-                        <p class="eyebrow">About this event</p>
+                    <section class="about-event">
+                        <p class="eyebrow">ABOUT THIS EVENT</p>
                         <p>${escapeHTML(event.description || "More details coming soon.")}</p>
-                    </article>
+                    </section>
 
-                </section>
+                </div>
 
                 <aside class="event-aside">
                     ${asideHTML}
@@ -191,7 +185,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
         `;
 
-        // Wire buttons
         document.getElementById("registerBtn")?.addEventListener("click", () => handleRegister(event));
         document.getElementById("cancelRegBtn")?.addEventListener("click", (e) => {
             e.preventDefault();
@@ -219,38 +212,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (err) {
             btn.disabled = false;
             btn.textContent = originalText;
-            showInlineError(err.message || "Registration failed.");
+            alert(err.message || "Registration failed.");
         }
     }
 
     async function handleCancel(event) {
-        const link = document.getElementById("cancelRegBtn");
-        if (!link) return;
-
         if (!confirm("Cancel your registration for this event?")) return;
-
-        link.textContent = "Cancelling…";
         try {
             await window.api.cancelRegistration(event._id || event.id);
             setTimeout(() => window.location.reload(), 400);
         } catch (err) {
-            link.textContent = "Cancel registration";
             alert(err.message || "Could not cancel.");
         }
-    }
-
-    function showInlineError(message) {
-        const aside = document.querySelector(".event-aside");
-        if (!aside) return;
-        const existing = aside.querySelector(".inline-error");
-        if (existing) existing.remove();
-
-        const p = document.createElement("p");
-        p.className = "inline-error";
-        p.style.cssText = "color:#c00;font-size:0.85rem;margin-top:0.75rem;";
-        p.textContent = message;
-        aside.appendChild(p);
-        setTimeout(() => p.remove(), 5000);
     }
 
     /* =====================================================
@@ -262,7 +235,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <section class="not-found">
                 <p class="eyebrow">EVENT NOT FOUND</p>
                 <h1>that VYBE <em>moved.</em></h1>
-                <a href="discover.html" class="full-button" style="display:inline-block;padding:1rem 2rem;text-decoration:none;margin-top:1rem;">Back to Discover →</a>
+                <a href="discover.html" class="full-button" style="display:inline-block;width:auto;padding:1rem 2rem;text-decoration:none;margin-top:1rem;">Back to Discover →</a>
             </section>
         `;
     }
@@ -272,11 +245,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const d = new Date(dateStr + "T00:00:00");
-            return d < today;
-        } catch {
-            return false;
-        }
+            return new Date(dateStr + "T00:00:00") < today;
+        } catch { return false; }
     }
 
     function escapeHTML(value) {
@@ -290,8 +260,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function formatPrice(price) {
         const n = Number(price);
-        if (!n) return "FREE";
-        return `₹${n}`;
+        return n ? `₹${n}` : "FREE";
     }
 
     function formatEventDate(dateStr) {
@@ -299,11 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const d = new Date(dateStr + "T00:00:00");
             if (isNaN(d.getTime())) return dateStr;
-            return d.toLocaleDateString("en-IN", {
-                weekday: "short", day: "numeric", month: "long", year: "numeric"
-            });
-        } catch {
-            return dateStr;
-        }
+            return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
+        } catch { return dateStr; }
     }
 });
