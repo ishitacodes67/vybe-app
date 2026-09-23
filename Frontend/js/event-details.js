@@ -1,15 +1,13 @@
 /* =========================================================
    VYBE — EVENT DETAILS
-   Loads a single event from the backend, shows registration state,
-   wires the register/cancel button to window.api.
+   Loads a single event from the backend, uses Radhika's CSS classes
+   so the layout matches the design exactly.
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
     "use strict";
 
-    // ---- Guard ----
     if (!window.api) {
-        console.error("[event-details] window.api not found");
         window.location.href = "member-login.html";
         return;
     }
@@ -23,7 +21,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const container = document.querySelector("#eventDetails");
     if (!container) return;
 
-    // ---- Get event ID from URL ----
     const params = new URLSearchParams(window.location.search);
     const eventId = params.get("id");
 
@@ -32,14 +29,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // ---- Show loading state ----
-    container.innerHTML = `
-        <section class="event-hero" style="padding: 4rem 2rem; text-align: center;">
-            <p class="eyebrow">LOADING EVENT…</p>
-        </section>
-    `;
+    container.innerHTML = `<div class="loading-state">Loading your VYBE…</div>`;
 
-    // ---- Fetch data in parallel ----
     let event = null;
     let myRegistration = null;
 
@@ -67,21 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderEvent(event, myRegistration);
 
     /* =====================================================
-       RENDER NOT FOUND
-    ===================================================== */
-
-    function renderNotFound() {
-        container.innerHTML = `
-            <section class="not-found" style="padding: 4rem 2rem;">
-                <p class="eyebrow">EVENT NOT FOUND</p>
-                <h1>that VYBE <em>moved.</em></h1>
-                <a class="primary-button" href="discover.html">Back to Discover →</a>
-            </section>
-        `;
-    }
-
-    /* =====================================================
-       RENDER EVENT
+       RENDER — uses Radhika's CSS class names
     ===================================================== */
 
     function renderEvent(event, myReg) {
@@ -99,43 +76,56 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const tags = Array.isArray(event.tags) ? event.tags : [];
 
-        // Decide what the action button should be
-        let actionHTML = "";
+        // ---- Aside buttons based on registration state ----
+        let asideHTML = `
+            <div class="host-card">
+                <small>Hosted by</small>
+                <h2>${escapeHTML(organizerName)}</h2>
+                ${organizerOrg && organizerOrg !== organizerName ? `<p>${escapeHTML(organizerOrg)}</p>` : ""}
+                ${institutionName ? `<p>${escapeHTML(institutionName)}</p>` : ""}
+            </div>
 
-        if (myReg) {
-            if (myReg.status === "confirmed") {
-                actionHTML = `
-                    <div class="registered-banner">
-                        <span>✓ You're registered</span>
-                        <button type="button" class="cancel-btn" id="cancelRegBtn">
-                            Cancel registration
-                        </button>
-                    </div>
-                `;
-            } else if (myReg.status === "pending") {
-                actionHTML = `
-                    <div class="registered-banner pending">
-                        <span>⏳ Registration pending approval</span>
-                        <button type="button" class="cancel-btn" id="cancelRegBtn">
-                            Withdraw request
-                        </button>
-                    </div>
-                `;
-            } else if (myReg.status === "rejected") {
-                actionHTML = `
-                    <div class="registered-banner rejected">
-                        <span>Your request was declined by the organizer.</span>
-                    </div>
-                `;
-            }
+            <div class="seat-card">
+                <small>Seats left</small>
+                <strong>${seats} / ${capacity}</strong>
+                <small>${registered} going</small>
+            </div>
+        `;
+
+        if (myReg && myReg.status === "confirmed") {
+            asideHTML += `
+                <div class="registered-box">
+                    <strong>✓ You're registered</strong>
+                    <a href="#" id="cancelRegBtn">Cancel registration</a>
+                </div>
+            `;
+        } else if (myReg && myReg.status === "pending") {
+            asideHTML += `
+                <div class="registered-box">
+                    <strong>⏳ Pending approval</strong>
+                    <span>Your request is waiting for the organizer.</span>
+                    <a href="#" id="cancelRegBtn">Withdraw request</a>
+                </div>
+            `;
+        } else if (myReg && myReg.status === "rejected") {
+            asideHTML += `
+                <div class="registered-box">
+                    <strong>Request declined</strong>
+                    <span>The organizer did not approve your request.</span>
+                </div>
+            `;
         } else if (isPast) {
-            actionHTML = `<p class="event-closed">This event has already happened.</p>`;
+            asideHTML += `
+                <button class="full-button" disabled>EVENT ENDED</button>
+            `;
         } else if (isFull) {
-            actionHTML = `<p class="event-closed">This event is full.</p>`;
+            asideHTML += `
+                <button class="full-button" disabled>EVENT FULL</button>
+            `;
         } else {
             const approvalMode = event.registrationMode === "approval";
-            actionHTML = `
-                <button type="button" class="register-btn" id="registerBtn">
+            asideHTML += `
+                <button class="full-button" id="registerBtn">
                     ${approvalMode ? "REQUEST TO JOIN →" : "REGISTER →"}
                 </button>
             `;
@@ -146,87 +136,71 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 <a class="back-link" href="discover.html">← back to discover</a>
 
-                <div class="event-hero-grid">
-
-                    <div class="event-hero-image">
-                        <img src="${imageFor(event.category)}" alt="${escapeHTML(event.title)}">
-                    </div>
-
-                    <div class="event-hero-content">
-
-                        <span class="event-category-tag">${escapeHTML(event.category || "")}</span>
-
-                        <h1>${escapeHTML(event.title)}</h1>
-
-                        <p class="event-description">${escapeHTML(event.description || "")}</p>
-
-                        ${tags.length ? `
-                            <div class="event-tags">
-                                ${tags.map(t => `<span>${escapeHTML(t)}</span>`).join("")}
-                            </div>
-                        ` : ""}
-
-                        <div class="event-meta-grid">
-                            <div class="meta-item">
-                                <label>Date</label>
-                                <span>${formatEventDate(event.date)}</span>
-                            </div>
-                            <div class="meta-item">
-                                <label>Time</label>
-                                <span>${escapeHTML(event.time || "TBA")}</span>
-                            </div>
-                            <div class="meta-item">
-                                <label>Venue</label>
-                                <span>${escapeHTML(event.venue || "TBA")}</span>
-                            </div>
-                            <div class="meta-item">
-                                <label>Mode</label>
-                                <span>${escapeHTML(event.mode || "offline")}</span>
-                            </div>
-                            <div class="meta-item">
-                                <label>Seats</label>
-                                <span>${registered} going · ${seats} left</span>
-                            </div>
-                            <div class="meta-item">
-                                <label>Price</label>
-                                <span>${formatPrice(event.price)}</span>
-                            </div>
-                        </div>
-
-                        <div class="event-host">
-                            <label>Hosted by</label>
-                            <strong>${escapeHTML(organizerName)}</strong>
-                            ${organizerOrg && organizerOrg !== organizerName
-                                ? `<small>${escapeHTML(organizerOrg)}</small>`
-                                : ""}
-                            ${institutionName ? `<small>· ${escapeHTML(institutionName)}</small>` : ""}
-                        </div>
-
-                        <div class="event-action" id="eventAction">
-                            ${actionHTML}
-                        </div>
-
-                    </div>
-
+                <div class="event-kicker">
+                    <span>${escapeHTML(event.category || "EVENT")}</span>
+                    <span>${escapeHTML(event.mode || "offline")}</span>
                 </div>
 
+                <h1>${escapeHTML(event.title)}</h1>
+
+                <p class="event-lead">${escapeHTML(event.description || "")}</p>
+
+                ${tags.length ? `
+                    <div class="event-tags">
+                        ${tags.map(t => `<span>${escapeHTML(t)}</span>`).join("")}
+                    </div>
+                ` : ""}
+
             </section>
+
+            <div class="event-layout">
+
+                <section class="detail-grid">
+
+                    <div>
+                        <small>Date</small>
+                        <strong>${formatEventDate(event.date)}</strong>
+                    </div>
+
+                    <div>
+                        <small>Time</small>
+                        <strong>${escapeHTML(event.time || "TBA")}</strong>
+                    </div>
+
+                    <div>
+                        <small>Venue</small>
+                        <strong>${escapeHTML(event.venue || "TBA")}</strong>
+                    </div>
+
+                    <div>
+                        <small>Price</small>
+                        <strong>${formatPrice(event.price)}</strong>
+                    </div>
+
+                    <article class="about-event">
+                        <p class="eyebrow">About this event</p>
+                        <p>${escapeHTML(event.description || "More details coming soon.")}</p>
+                    </article>
+
+                </section>
+
+                <aside class="event-aside">
+                    ${asideHTML}
+                </aside>
+
+            </div>
         `;
 
         // Wire buttons
-        const registerBtn = document.getElementById("registerBtn");
-        if (registerBtn) {
-            registerBtn.addEventListener("click", () => handleRegister(event));
-        }
-
-        const cancelBtn = document.getElementById("cancelRegBtn");
-        if (cancelBtn) {
-            cancelBtn.addEventListener("click", () => handleCancel(event));
-        }
+        document.getElementById("registerBtn")?.addEventListener("click", () => handleRegister(event));
+        document.getElementById("cancelRegBtn")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            handleCancel(event);
+        });
     }
 
     /* =====================================================
-       REGISTER
+       ACTIONS
     ===================================================== */
 
     async function handleRegister(event) {
@@ -235,65 +209,63 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = "registering…";
+        btn.textContent = "Registering…";
 
         try {
             const reg = await window.api.registerForEvent(event._id || event.id);
             const isPending = reg.status === "pending";
-
-            btn.textContent = isPending ? "pending approval ✓" : "registered ✓";
-            btn.classList.add("success");
-
-            // Reload the page after a moment to reflect new state
-            setTimeout(() => window.location.reload(), 800);
+            btn.textContent = isPending ? "Pending approval ✓" : "Registered ✓";
+            setTimeout(() => window.location.reload(), 700);
         } catch (err) {
             btn.disabled = false;
             btn.textContent = originalText;
-
-            const message = err.message || "Registration failed.";
-
-            // Show error inline
-            const action = document.getElementById("eventAction");
-            if (action) {
-                const errEl = document.createElement("p");
-                errEl.className = "event-error";
-                errEl.style.color = "#c00";
-                errEl.style.marginTop = "0.75rem";
-                errEl.textContent = message;
-                action.appendChild(errEl);
-
-                setTimeout(() => errEl.remove(), 4000);
-            }
+            showInlineError(err.message || "Registration failed.");
         }
     }
 
-    /* =====================================================
-       CANCEL
-    ===================================================== */
-
     async function handleCancel(event) {
-        const btn = document.getElementById("cancelRegBtn");
-        if (!btn) return;
+        const link = document.getElementById("cancelRegBtn");
+        if (!link) return;
 
         if (!confirm("Cancel your registration for this event?")) return;
 
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = "cancelling…";
-
+        link.textContent = "Cancelling…";
         try {
             await window.api.cancelRegistration(event._id || event.id);
-            setTimeout(() => window.location.reload(), 500);
+            setTimeout(() => window.location.reload(), 400);
         } catch (err) {
-            btn.disabled = false;
-            btn.textContent = originalText;
+            link.textContent = "Cancel registration";
             alert(err.message || "Could not cancel.");
         }
+    }
+
+    function showInlineError(message) {
+        const aside = document.querySelector(".event-aside");
+        if (!aside) return;
+        const existing = aside.querySelector(".inline-error");
+        if (existing) existing.remove();
+
+        const p = document.createElement("p");
+        p.className = "inline-error";
+        p.style.cssText = "color:#c00;font-size:0.85rem;margin-top:0.75rem;";
+        p.textContent = message;
+        aside.appendChild(p);
+        setTimeout(() => p.remove(), 5000);
     }
 
     /* =====================================================
        HELPERS
     ===================================================== */
+
+    function renderNotFound() {
+        container.innerHTML = `
+            <section class="not-found">
+                <p class="eyebrow">EVENT NOT FOUND</p>
+                <h1>that VYBE <em>moved.</em></h1>
+                <a href="discover.html" class="full-button" style="display:inline-block;padding:1rem 2rem;text-decoration:none;margin-top:1rem;">Back to Discover →</a>
+            </section>
+        `;
+    }
 
     function isEventPast(dateStr) {
         if (!dateStr) return false;
@@ -305,22 +277,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch {
             return false;
         }
-    }
-
-    function imageFor(category) {
-        const images = {
-            Tech: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=85",
-            Design: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1200&q=85",
-            Music: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=85",
-            Sports: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=85",
-            Business: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=85",
-            Culture: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=85",
-            Social: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=85",
-            Wellness: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1200&q=85",
-            Admin: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=85",
-            Other: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=85"
-        };
-        return images[category] || images.Culture;
     }
 
     function escapeHTML(value) {
