@@ -1,861 +1,229 @@
 /* =========================================================
-   VYBE — VIX
-   Functional frontend prototype
+   VYBE — VIX (backend-wired)
+   Calls /api/chat on the backend, which proxies to the AI service.
+   Renders the reply + real event cards returned from MongoDB.
    ========================================================= */
 
 (function () {
-
     "use strict";
 
-
-    function getUser() {
-
-        if (
-            window.VYBE_STORAGE &&
-            typeof VYBE_STORAGE.getUser === "function"
-        ) {
-            return VYBE_STORAGE.getUser();
-        }
-
-        try {
-
-            return JSON.parse(
-                localStorage.getItem(
-                    "vybeUser"
-                )
-            );
-
-        } catch {
-
-            return null;
-
-        }
-    }
-
-
-    function getEvents() {
-
-        return Array.isArray(
-            window.VYBE_EVENTS
-        )
-            ? window.VYBE_EVENTS
-            : [];
-    }
-
-
-    function getRegistrations() {
-
-        if (
-            window.VYBE_STORAGE &&
-            typeof VYBE_STORAGE.getRegistrations ===
-                "function"
-        ) {
-
-            return VYBE_STORAGE
-                .getRegistrations();
-
-        }
-
-        try {
-
-            return JSON.parse(
-                localStorage.getItem(
-                    "vybeRegistrations"
-                )
-            ) || [];
-
-        } catch {
-
-            return [];
-
-        }
-    }
-
-
-    function getUpcomingEvents() {
-
-        const today =
-            new Date();
-
-        today.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-
-        return getEvents()
-            .filter(event => {
-
-                const date =
-                    new Date(
-                        `${event.date}T12:00:00`
-                    );
-
-                return (
-                    !Number.isNaN(
-                        date.getTime()
-                    ) &&
-                    date >= today
-                );
-
-            })
-            .sort(
-                (a, b) =>
-                    a.date.localeCompare(
-                        b.date
-                    )
-            );
-
-    }
-
-
-    function getRecommendedEvents() {
-
-        const user =
-            getUser();
-
-        const events =
-            getUpcomingEvents();
-
-        const registrations =
-            getRegistrations();
-
-        const registeredIds =
-            new Set(
-                registrations.map(
-                    item =>
-                        item.eventId
-                )
-            );
-
-
-        if (!user) {
-
-            return events
-                .slice(0, 3);
-
-        }
-
-
-        const interests =
-            Array.isArray(
-                user.interests
-            )
-                ? user.interests
-                    .map(
-                        item =>
-                            String(item)
-                                .toLowerCase()
-                    )
-                : [];
-
-
-        const goals =
-            Array.isArray(
-                user.goals
-            )
-                ? user.goals
-                    .map(
-                        item =>
-                            String(item)
-                                .toLowerCase()
-                    )
-                : [];
-
-
-        return events
-
-            .filter(
-                event =>
-                    !registeredIds.has(
-                        event.id
-                    )
-            )
-
-            .map(event => {
-
-                const searchable =
-                    `
-                    ${event.title}
-                    ${event.category}
-                    ${(event.tags || []).join(" ")}
-                    ${event.description}
-                    ${event.organizer}
-                    `
-                        .toLowerCase();
-
-
-                let score = 0;
-
-
-                interests.forEach(
-                    interest => {
-
-                        if (
-                            searchable.includes(
-                                interest
-                            )
-                        ) {
-
-                            score += 5;
-
-                        }
-
-                    }
-                );
-
-
-                goals.forEach(
-                    goal => {
-
-                        goal
-                            .split(/\s+/)
-                            .forEach(
-                                term => {
-
-                                    if (
-                                        term.length > 3 &&
-                                        searchable.includes(
-                                            term
-                                        )
-                                    ) {
-
-                                        score += 2;
-
-                                    }
-
-                                }
-                            );
-
-                    }
-                );
-
-
-                if (
-                    event.registered >
-                    event.capacity * .70
-                ) {
-
-                    score += 1;
-
-                }
-
-
-                return {
-                    event,
-                    score
-                };
-
-            })
-
-            .sort(
-                (a, b) =>
-                    b.score - a.score
-            )
-
-            .slice(0, 4)
-
-            .map(
-                item =>
-                    item.event
-            );
-
-    }
-
-
-    function buildMessage() {
-
-        const recommendations =
-            getRecommendedEvents();
-
-
-        if (!recommendations.length) {
-
-            return {
-                title: "okay... 👀",
-                message:
-                    "You've explored most of your current matches. Discover the full campus feed."
-            };
-
-        }
-
-
-        return {
-
-            title:
-                "Vix found something ✦",
-
-            message:
-                `you might actually like ${recommendations[0].title}.`
-
-        };
-
-    }
-
+    /* =====================================================
+       SUGGESTION → PROMPT MAPPING
+    ===================================================== */
+
+    const PROMPTS = {
+        recommend: "What should I attend this week?",
+        upcoming: "What's happening soon on campus?",
+        interests: "Show me events matching my interests."
+    };
+
+    /* =====================================================
+       PANEL
+    ===================================================== */
 
     function createPanel() {
+        if (document.getElementById("vixPanel")) return;
 
-        if (
-            document.getElementById(
-                "vixPanel"
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        const panel =
-            document.createElement(
-                "aside"
-            );
-
-
-        panel.id =
-            "vixPanel";
-
-        panel.className =
-            "vix-panel";
-
+        const panel = document.createElement("aside");
+        panel.id = "vixPanel";
+        panel.className = "vix-panel";
 
         panel.innerHTML = `
+            <div class="vix-panel-backdrop"></div>
 
-            <div
-                class="vix-panel-backdrop"
-            ></div>
+            <div class="vix-panel-content" role="dialog" aria-modal="true" aria-label="Vix AI">
 
+                <button class="vix-close" id="vixClose" type="button" aria-label="Close Vix">×</button>
 
-            <div
-                class="vix-panel-content"
-                role="dialog"
-                aria-modal="true"
-                aria-label="Vix AI"
-            >
+                <div class="vix-panel-icon">✦</div>
 
-                <button
-                    class="vix-close"
-                    id="vixClose"
-                    type="button"
-                    aria-label="Close Vix"
-                >
-                    ×
-                </button>
+                <span class="vix-panel-eyebrow">VIX AI</span>
 
-
-                <div class="vix-panel-icon">
-                    ✦
-                </div>
-
-
-                <span class="vix-panel-eyebrow">
-                    VIX AI
-                </span>
-
-
-                <h2>
-                    your slightly chaotic
-                    campus AI friend.
-                </h2>
-
+                <h2>your slightly chaotic<br>campus AI friend.</h2>
 
                 <p class="vix-panel-intro">
-                    Ask me what to attend,
-                    what's happening soon,
+                    Ask me what to attend, what's happening soon,
                     or what matches your interests.
                 </p>
 
-
-                <div
-                    class="vix-response"
-                    id="vixResponse"
-                ></div>
-
+                <div class="vix-response" id="vixResponse"></div>
 
                 <div class="vix-suggestions">
-
-                    <button
-                        type="button"
-                        data-vix-question="recommend"
-                    >
-                        ✦ What should I attend?
-                    </button>
-
-
-                    <button
-                        type="button"
-                        data-vix-question="upcoming"
-                    >
-                        ⚡ What's happening soon?
-                    </button>
-
-
-                    <button
-                        type="button"
-                        data-vix-question="interests"
-                    >
-                        ♡ Show my matches
-                    </button>
-
+                    <button type="button" data-vix-question="recommend">✦ What should I attend?</button>
+                    <button type="button" data-vix-question="upcoming">⚡ What's happening soon?</button>
+                    <button type="button" data-vix-question="interests">♡ Show my matches</button>
                 </div>
 
-
-                <a
-                    href="discover.html"
-                    class="vix-discover-link"
-                >
-                    Explore all events →
-                </a>
-
+                <a href="discover.html" class="vix-discover-link">Explore all events →</a>
             </div>
-
         `;
 
+        document.body.appendChild(panel);
 
-        document.body.appendChild(
-            panel
-        );
+        document.getElementById("vixClose").addEventListener("click", closePanel);
+        panel.querySelector(".vix-panel-backdrop").addEventListener("click", closePanel);
 
-
-        document
-            .getElementById("vixClose")
-            .addEventListener(
-                "click",
-                closePanel
-            );
-
-
-        panel
-            .querySelector(
-                ".vix-panel-backdrop"
-            )
-            .addEventListener(
-                "click",
-                closePanel
-            );
-
-
-        panel
-            .querySelectorAll(
-                "[data-vix-question]"
-            )
-            .forEach(
-                button => {
-
-                    button.addEventListener(
-                        "click",
-                        () => {
-
-                            showAnswer(
-                                button.dataset
-                                    .vixQuestion
-                            );
-
-                        }
-                    );
-
-                }
-            );
-
+        panel.querySelectorAll("[data-vix-question]").forEach(button => {
+            button.addEventListener("click", () => {
+                handleSuggestion(button.dataset.vixQuestion);
+            });
+        });
     }
 
+    /* =====================================================
+       SUGGESTION HANDLER — calls the backend
+    ===================================================== */
 
-    function showAnswer(type) {
+    async function handleSuggestion(type) {
+        const response = document.getElementById("vixResponse");
+        if (!response) return;
 
-        const response =
-            document.getElementById(
-                "vixResponse"
-            );
+        const prompt = PROMPTS[type] || "What should I attend?";
 
+        // ---- Loading state ----
+        response.innerHTML = `
+            <strong>${escapeHTML(prompt)}</strong>
+            <p style="opacity:.7;margin-top:8px;">Vix is thinking… <span style="opacity:.5;">(first reply can take up to 60s if the AI is waking up)</span></p>
+        `;
 
-        if (!response) {
+        // ---- Guard ----
+        if (!window.api || !window.api.chat) {
+            response.innerHTML = `
+                <strong>Vix is unavailable.</strong>
+                <p>Please sign in again and refresh.</p>
+            `;
             return;
         }
 
+        if (!window.api.getToken()) {
+            response.innerHTML = `
+                <strong>Please sign in.</strong>
+                <p>Vix needs to know who you are before recommending events.</p>
+                <a href="member-login.html">Sign in →</a>
+            `;
+            return;
+        }
 
-        const user =
-            getUser();
+        try {
+            const { reply, recommendedEvents } = await window.api.chat(prompt, []);
 
-
-        if (
-            type ===
-            "recommend"
-        ) {
-
-            const events =
-                getRecommendedEvents();
-
+            const events = Array.isArray(recommendedEvents) ? recommendedEvents : [];
 
             response.innerHTML = `
-
-                <strong>
-                    okay, here's my shortlist 👀
-                </strong>
+                <strong>${escapeHTML(reply || "Here's what I found.")}</strong>
 
                 ${
                     events.length
                         ? `
-                            <div
-                                class="vix-event-list"
-                            >
-
-                                ${
-                                    events
-                                        .map(
-                                            event => `
-
-                                                <button
-                                                    type="button"
-                                                    class="vix-event-option"
-                                                    data-event-id="${event.id}"
-                                                >
-
-                                                    <span>
-                                                        ${escapeHTML(
-                                                            event.title
-                                                        )}
-                                                    </span>
-
-                                                    <small>
-                                                        ${formatDate(
-                                                            event.date
-                                                        )}
-                                                    </small>
-
-                                                </button>
-
-                                            `
-                                        )
-                                        .join("")
-                                }
-
+                            <div class="vix-event-list">
+                                ${events.map(renderEventCard).join("")}
                             </div>
                         `
                         : `
-                            <p>
-                                Nothing is matching
-                                right now. Try Discover.
+                            <p style="opacity:.7;margin-top:8px;">
+                                Nothing matched right now. Try <a href="discover.html">Discover</a> to browse everything.
                             </p>
                         `
                 }
-
             `;
 
+            // Wire click → event details page
+            response.querySelectorAll("[data-event-id]").forEach(button => {
+                button.addEventListener("click", () => {
+                    const id = button.dataset.eventId;
+                    window.location.href = `event-details.html?id=${encodeURIComponent(id)}`;
+                });
+            });
 
-            response
-                .querySelectorAll(
-                    "[data-event-id]"
-                )
-                .forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "click",
-                            () => {
-
-                                const eventId =
-                                    button.dataset
-                                        .eventId;
-
-
-                                if (
-                                    window.VYBE_STORAGE
-                                ) {
-
-                                    const event =
-                                        getEvents()
-                                            .find(
-                                                item =>
-                                                    item.id ===
-                                                    eventId
-                                            );
-
-                                    if (event) {
-
-                                        VYBE_STORAGE
-                                            .setSelectedEvent(
-                                                event
-                                            );
-
-                                    }
-
-                                }
-
-
-                                window.location.href =
-                                    `event-details.html?id=${encodeURIComponent(
-                                        eventId
-                                    )}`;
-
-                            }
-                        );
-
-                    }
-                );
-
-
-            return;
-
-        }
-
-
-        if (
-            type ===
-            "upcoming"
-        ) {
-
-            const events =
-                getUpcomingEvents()
-                    .slice(0, 4);
-
-
+        } catch (err) {
+            console.error("[vix] chat failed:", err);
+            const msg = err?.message || "Something went wrong.";
             response.innerHTML = `
-
-                <strong>
-                    here's what's coming up.
-                </strong>
-
-                ${
-                    events.length
-                        ? events
-                            .map(
-                                event => `
-
-                                    <div
-                                        class="vix-mini-event"
-                                    >
-
-                                        <span>
-                                            ${escapeHTML(
-                                                event.title
-                                            )}
-                                        </span>
-
-                                        <small>
-                                            ${formatDate(
-                                                event.date
-                                            )}
-                                        </small>
-
-                                    </div>
-
-                                `
-                            )
-                            .join("")
-                        : `
-                            <p>
-                                The calendar is quiet
-                                for now.
-                            </p>
-                        `
-                }
-
+                <strong>Vix hit a snag.</strong>
+                <p>${escapeHTML(msg)}</p>
+                <p style="opacity:.7;margin-top:6px;">Try again in a few seconds.</p>
             `;
-
-
-            return;
-
         }
-
-
-        if (
-            type ===
-            "interests"
-        ) {
-
-            const interests =
-                user &&
-                Array.isArray(
-                    user.interests
-                )
-                    ? user.interests
-                    : [];
-
-
-            response.innerHTML = `
-
-                <strong>
-                    your VYBE is giving...
-                </strong>
-
-                ${
-                    interests.length
-                        ? `
-                            <div
-                                class="vix-interest-list"
-                            >
-
-                                ${
-                                    interests
-                                        .map(
-                                            interest =>
-                                                `<span>${escapeHTML(
-                                                    interest
-                                                )}</span>`
-                                        )
-                                        .join("")
-                                }
-
-                            </div>
-                        `
-                        : `
-                            <p>
-                                Complete onboarding
-                                so I can learn your vibe.
-                            </p>
-                        `
-                }
-
-            `;
-
-        }
-
     }
 
+    /* =====================================================
+       EVENT CARD (matches vix-event-option CSS)
+    ===================================================== */
+
+    function renderEventCard(event) {
+        const id = event._id || event.id;
+        const date = formatDate(event.date);
+        const venue = event.venue ? ` · ${escapeHTML(event.venue)}` : "";
+
+        return `
+            <button type="button" class="vix-event-option" data-event-id="${id}">
+                <span>${escapeHTML(event.title || "")}</span>
+                <small>${date}${venue}</small>
+            </button>
+        `;
+    }
+
+    /* =====================================================
+       OPEN / CLOSE
+    ===================================================== */
 
     function openPanel() {
-
         createPanel();
+        const panel = document.getElementById("vixPanel");
+        panel.classList.add("open");
+        document.body.classList.add("vix-open");
 
-
-        const panel =
-            document.getElementById(
-                "vixPanel"
-            );
-
-
-        panel.classList.add(
-            "open"
-        );
-
-
-        document.body.classList.add(
-            "vix-open"
-        );
-
-
-        showAnswer(
-            "recommend"
-        );
-
+        // Auto-fire the "recommend" suggestion when opening
+        handleSuggestion("recommend");
     }
-
 
     function closePanel() {
-
-        const panel =
-            document.getElementById(
-                "vixPanel"
-            );
-
-
-        if (!panel) {
-            return;
-        }
-
-
-        panel.classList.remove(
-            "open"
-        );
-
-
-        document.body.classList.remove(
-            "vix-open"
-        );
-
+        const panel = document.getElementById("vixPanel");
+        if (!panel) return;
+        panel.classList.remove("open");
+        document.body.classList.remove("vix-open");
     }
 
-
-    function init() {
-
-        createPanel();
-
-
-        document
-            .querySelectorAll(
-                "[data-vix-open]"
-            )
-            .forEach(
-                button => {
-
-                    button.addEventListener(
-                        "click",
-                        openPanel
-                    );
-
-                }
-            );
-
-
-        const message =
-            buildMessage();
-
-
-        const vixMessage =
-            document.getElementById(
-                "vixMessage"
-            );
-
-
-        if (vixMessage) {
-
-            vixMessage.textContent =
-                message.message;
-
-        }
-
-    }
-
+    /* =====================================================
+       HELPERS
+    ===================================================== */
 
     function formatDate(date) {
-
-        return new Date(
-            `${date}T12:00:00`
-        ).toLocaleDateString(
-            "en-IN",
-            {
-                day: "numeric",
-                month: "short"
-            }
-        );
-
+        if (!date) return "";
+        try {
+            const d = new Date(`${date}T12:00:00`);
+            if (isNaN(d.getTime())) return date;
+            return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+        } catch {
+            return date;
+        }
     }
 
-
     function escapeHTML(value) {
-
         return String(value ?? "")
             .replaceAll("&", "&amp;")
             .replaceAll("<", "&lt;")
             .replaceAll(">", "&gt;")
             .replaceAll('"', "&quot;")
             .replaceAll("'", "&#039;");
-
     }
 
+    /* =====================================================
+       INIT + GLOBAL EXPORT
+    ===================================================== */
+
+    function init() {
+        createPanel();
+
+        document.querySelectorAll("[data-vix-open]").forEach(button => {
+            button.addEventListener("click", openPanel);
+        });
+    }
 
     window.VYBE_VIX = {
-
-        open:
-            openPanel,
-
-        close:
-            closePanel,
-
-        recommend:
-            getRecommendedEvents,
-
-        refresh:
-            buildMessage
-
+        open: openPanel,
+        close: closePanel
     };
 
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        init
-    );
-
+    document.addEventListener("DOMContentLoaded", init);
 })();
