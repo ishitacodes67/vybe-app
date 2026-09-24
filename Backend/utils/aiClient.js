@@ -1,8 +1,9 @@
-// Thin wrapper around the Python ai-service. Normalizes Mongoose events
-// (which use _id) into the { id, ... } shape Pydantic expects, and merges
-// the returned scores back into the full event objects.
+// Thin wrapper around the Python ai-service.
+// Includes a 90-second timeout to survive Render free-tier cold starts.
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
+
+const AI_TIMEOUT_MS = 90000; // 90 seconds — enough for cold start + inference
 
 // Mongoose → AI service shape
 function toAiEvent(event) {
@@ -28,6 +29,25 @@ function mergeScores(originalEvents, ranked) {
     .sort((a, b) => b.score - a.score);
 }
 
+// Wrap fetch with a 90s timeout via AbortController
+async function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timer);
+    return response;
+  } catch (err) {
+    clearTimeout(timer);
+    if (err.name === "AbortError") {
+      throw new Error(`ai-service timed out after ${AI_TIMEOUT_MS / 1000}s (likely cold start)`);
+    }
+    throw err;
+  }
+}
+
+// ---------- Recommendations ----------
 async function getRecommendations({ user, events }) {
   try {
     const payload = {
@@ -40,7 +60,7 @@ async function getRecommendations({ user, events }) {
       limit: events.length
     };
 
-    const response = await fetch(`${AI_SERVICE_URL}/recommend`, {
+    const response = await fetchWithTimeout(`${AI_SERVICE_URL}/recommend`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -48,7 +68,7 @@ async function getRecommendations({ user, events }) {
 
     if (!response.ok) {
       const errBody = await response.text().catch(() => "");
-      throw new Error(`ai-service responded ${response.status}: ${errBody}`);
+      throw new Error(`ai-service /recommend responded ${response.status}: ${errBody.slice(0, 200)}`);
     }
 
     const data = await response.json();
@@ -59,6 +79,7 @@ async function getRecommendations({ user, events }) {
   }
 }
 
+// ---------- Chat ----------
 async function getChatReply({ message, user, currentEvents, history }) {
   const payload = {
     message,
@@ -71,7 +92,7 @@ async function getChatReply({ message, user, currentEvents, history }) {
     history: history || []
   };
 
-  const response = await fetch(`${AI_SERVICE_URL}/chat`, {
+  const response = await fetchWithTimeout(`${AI_SERVICE_URL}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -79,7 +100,7 @@ async function getChatReply({ message, user, currentEvents, history }) {
 
   if (!response.ok) {
     const errBody = await response.text().catch(() => "");
-    throw new Error(`ai-service /chat responded ${response.status}: ${errBody}`);
+    throw new Error(`ai-service /chat responded ${response.status}: ${errBody.slice(0, 200)}`);
   }
   return response.json();
 }
