@@ -19,6 +19,7 @@ const notificationRoutes = require("./Routes/notificationRoutes");
 const chatRoutes = require("./Routes/chatRoutes");                     // ← ADDED
 
 const app = express();
+app.set("trust proxy", 1);
 
 const allowedOrigins = (process.env.CLIENT_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
 
