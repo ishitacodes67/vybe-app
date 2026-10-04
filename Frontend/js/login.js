@@ -1,8 +1,7 @@
 /* =========================================================
    VYBE — MEMBER LOGIN / REGISTER
-   Two modes on the same form:
-     • register (default) — name, email, phone, institution, password
-     • login              — email + password only
+   Enforces college email domain (mit.asia / mit.edu).
+   Shows red validation states on invalid input.
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,6 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let mode = "register"; // or "login"
 
     /* =====================================================
+       COLLEGE EMAIL WHITELIST
+    ===================================================== */
+
+    const ALLOWED_EMAIL_DOMAINS = ["mit.asia", "mit.edu"];
+
+    /* =====================================================
        MODE TOGGLE
     ===================================================== */
 
@@ -30,19 +35,16 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.classList.toggle("active", btn.dataset.modeBtn === newMode);
         });
 
-        // Hide/show register-only fields
         registerOnly.forEach(field => {
             field.style.display = newMode === "register" ? "" : "none";
         });
 
-        // Update submit button label
         if (submitBtn) {
             submitBtn.innerHTML = newMode === "register"
                 ? `START YOUR VYBE <span>→</span>`
                 : `SIGN ME IN <span>→</span>`;
         }
 
-        // Update hint text
         if (privacyNote) {
             privacyNote.textContent = newMode === "register"
                 ? "You'll complete your VYBE profile after signing in."
@@ -79,6 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
     function validEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e); }
     function validPhone(p) { return /^[6-9]\d{9}$/.test(p); }
 
+    function validCollegeEmail(email) {
+        if (!validEmail(email)) return false;
+        const domain = email.split("@")[1]?.toLowerCase().trim();
+        return ALLOWED_EMAIL_DOMAINS.includes(domain);
+    }
+
     /* =====================================================
        PHONE INPUT — digits only
     ===================================================== */
@@ -100,19 +108,44 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = String(form.elements.password?.value || "");
 
         let valid = true;
-        if (!validEmail(email)) { showError("email", "Enter a valid email address."); valid = false; }
-        if (password.length < 6) { showError("password", "Password must be at least 6 characters."); valid = false; }
 
-        // Register-only fields
+        /* ----- Email validation ----- */
+        if (!validEmail(email)) {
+            showError("email", "Enter a valid email address.");
+            valid = false;
+        } else if (!validCollegeEmail(email)) {
+            showError(
+                "email",
+                `Only college emails are allowed (${ALLOWED_EMAIL_DOMAINS.map(d => "@" + d).join(", ")}).`
+            );
+            valid = false;
+        }
+
+        /* ----- Password validation ----- */
+        if (password.length < 6) {
+            showError("password", "Password must be at least 6 characters.");
+            valid = false;
+        }
+
+        /* ----- Register-only fields ----- */
         let name = "", phone = "", institution = "";
         if (mode === "register") {
             name = normalizeText(form.elements.name?.value);
             phone = normalizePhone(form.elements.phone?.value);
             institution = normalizeText(form.elements.institution?.value);
 
-            if (name.length < 2) { showError("name", "Enter your full name."); valid = false; }
-            if (!validPhone(phone)) { showError("phone", "Enter a valid 10-digit Indian mobile number."); valid = false; }
-            if (institution.length < 2) { showError("institution", "Enter your institution."); valid = false; }
+            if (name.length < 2) {
+                showError("name", "Enter your full name.");
+                valid = false;
+            }
+            if (!validPhone(phone)) {
+                showError("phone", "Enter a valid 10-digit Indian mobile number.");
+                valid = false;
+            }
+            if (institution.length < 2) {
+                showError("institution", "Enter your institution.");
+                valid = false;
+            }
         }
 
         if (!valid) return;
@@ -124,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let user = null;
         let errorMsg = "";
+        let errorField = "email";
 
         try {
             if (mode === "login") {
@@ -146,6 +180,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 errorMsg = "This email is already registered. Switch to 'ALREADY HAVE AN ACCOUNT' above to sign in.";
             } else if (err.status === 401) {
                 errorMsg = "Invalid email or password.";
+                errorField = "password";
+            } else if (err.status === 400 && /only college/i.test(err.message || "")) {
+                errorMsg = err.message;
+                errorField = "email";
             } else {
                 errorMsg = err.message || "Something went wrong.";
             }
@@ -154,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (errorMsg || !user) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalLabel;
-            showError("email", errorMsg);
+            showError(errorField, errorMsg);
             return;
         }
 
@@ -165,13 +203,11 @@ document.addEventListener("DOMContentLoaded", () => {
             sessionStorage.removeItem(k);
         });
 
-        // Also store in the keys the old pages expect
         localStorage.setItem("vybeUser", JSON.stringify(user));
         localStorage.setItem("vybeMember", JSON.stringify(user));
         localStorage.setItem("vybeRole", "member");
         sessionStorage.setItem("vybePendingMember", JSON.stringify(user));
 
-        // Where to go next?
         const needsOnboarding = !user.onboardingCompleted;
 
         submitBtn.innerHTML = needsOnboarding
@@ -190,9 +226,8 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("pageshow", () => {
         form.reset();
         clearErrors();
-        setMode(mode); // keep current mode
+        setMode(mode);
     });
 
-    // Initialize
     setMode("register");
 });

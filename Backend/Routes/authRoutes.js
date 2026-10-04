@@ -3,13 +3,29 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Institution = require("../models/Institution");
 const { verifyToken } = require("../middleware/auth");
-const { loginLimiter, registerLimiter } = require("../middleware/rateLimiters");
-const crypto = require("crypto");
-const { forgotPasswordLimiter } = require("../middleware/rateLimiters");
+const { loginLimiter, registerLimiter, forgotPasswordLimiter } = require("../middleware/rateLimiters");
 const { sendEmail } = require("../utils/mailer");
+const crypto = require("crypto");
 
 const router = express.Router();
 
+// ---------- College email enforcement ----------
+// Only these domains are allowed to register or log in.
+const ALLOWED_EMAIL_DOMAINS = ["mit.asia", "mit.edu"];
+
+function isCollegeEmail(email) {
+  if (!email || typeof email !== "string") return false;
+  const domain = email.split("@")[1]?.toLowerCase().trim();
+  return ALLOWED_EMAIL_DOMAINS.includes(domain);
+}
+
+function emailDomainError() {
+  return {
+    message: `Only college emails are allowed (${ALLOWED_EMAIL_DOMAINS.map(d => "@" + d).join(", ")}). Contact your department if you use a different address.`
+  };
+}
+
+// ---------- Helpers ----------
 function issueToken(user) {
   return jwt.sign(
     { id: user._id, role: user.role, institution: user.institution },
@@ -32,15 +48,15 @@ async function resolveInstitutionId({ institutionId, institutionName }) {
 
   let inst = await Institution.findOne({ name });
   if (!inst) {
-    // Generate a simple domain from the name (e.g. "MIT" -> "mit.edu")
     const domain = name.toLowerCase().replace(/[^a-z0-9]+/g, "") + ".edu";
     inst = await Institution.create({ name, domain });
   }
   return inst._id;
 }
+
 // Generate a random reset token + its SHA-256 hash.
 function generateResetToken() {
-  const raw = crypto.randomBytes(32).toString("hex"); // 64-char hex
+  const raw = crypto.randomBytes(32).toString("hex");
   const hash = crypto.createHash("sha256").update(raw).digest("hex");
   return { raw, hash };
 }
@@ -48,6 +64,7 @@ function generateResetToken() {
 function hashResetToken(raw) {
   return crypto.createHash("sha256").update(raw).digest("hex");
 }
+
 // ---------- POST /api/auth/register ----------
 router.post("/register", registerLimiter, async (req, res) => {
   try {
@@ -62,6 +79,9 @@ router.post("/register", registerLimiter, async (req, res) => {
     }
     if (!isValidEmail(email)) {
       return res.status(400).json({ message: "Invalid email format" });
+    }
+    if (!isCollegeEmail(email)) {
+      return res.status(400).json(emailDomainError());
     }
     if (password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
@@ -111,6 +131,9 @@ router.post("/login", loginLimiter, async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: "email and password are required" });
     }
+    if (!isCollegeEmail(email)) {
+      return res.status(400).json(emailDomainError());
+    }
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
@@ -145,9 +168,8 @@ router.get("/me", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch profile", error: error.message });
   }
 });
+
 // ---------- POST /api/auth/forgot-password ----------
-// Body: { email }
-// Always returns 200 (even if email not found) to prevent enumeration.
 router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
   try {
     const { email } = req.body;
@@ -158,17 +180,14 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
-    // Generic response no matter what (prevents account enumeration)
     const genericResponse = {
       message: "If an account exists with that email, a reset link has been sent."
     };
 
     if (!user) {
-      // Still return 200 — don't reveal whether the email exists
       return res.json(genericResponse);
     }
 
-    // Generate token
     const { raw, hash } = generateResetToken();
     const expiresMinutes = Number(process.env.RESET_TOKEN_EXPIRES_MINUTES) || 60;
     const expiresAt = new Date(Date.now() + expiresMinutes * 60 * 1000);
@@ -177,11 +196,9 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
     user.resetTokenExpires = expiresAt;
     await user.save();
 
-    // Build reset URL
     const frontend = process.env.FRONTEND_URL || "http://localhost:5500";
     const resetUrl = `${frontend}/reset-password.html?token=${raw}`;
 
-    // Send email (falls back to console log if no Resend key)
     const html = `
       <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:32px;background:#f7f7f4;">
         <h1 style="font-size:32px;font-weight:800;letter-spacing:-0.02em;">VYBE<span style="color:#a3e635;">✦</span></h1>
@@ -212,7 +229,6 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
 });
 
 // ---------- POST /api/auth/reset-password/:token ----------
-// Body: { newPassword }
 router.post("/reset-password/:token", async (req, res) => {
   try {
     const { token } = req.params;
@@ -227,7 +243,6 @@ router.post("/reset-password/:token", async (req, res) => {
 
     const hash = hashResetToken(token);
 
-    // Find user with this token that hasn't expired yet
     const user = await User.findOne({
       resetTokenHash: hash,
       resetTokenExpires: { $gt: new Date() }
@@ -239,7 +254,6 @@ router.post("/reset-password/:token", async (req, res) => {
       });
     }
 
-    // Update password + clear reset fields
     await user.setPassword(newPassword);
     user.resetTokenHash = undefined;
     user.resetTokenExpires = undefined;
@@ -251,4 +265,5 @@ router.post("/reset-password/:token", async (req, res) => {
     res.status(500).json({ message: "Failed to reset password", error: error.message });
   }
 });
+
 module.exports = router;
