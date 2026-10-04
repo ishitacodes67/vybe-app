@@ -67,23 +67,53 @@
 
   const api = {
     // ------- auth -------
-    async login(email, password) {
-      const data = await request("/auth/login", { method: "POST", body: { email, password }, auth: false });
+    // login accepts a studentId (e.g. "2024CS001") OR a full college email.
+    // The backend converts studentId → email (2024cs001@mit.asia) automatically.
+    async login(identifier, password) {
+      const data = await request("/auth/login", {
+        method: "POST",
+        body: { identifier, password },
+        auth: false
+      });
       setToken(data.token);
       setUser(data.user);
       return data;
     },
+
+    // register accepts { name, studentId, gmail, password, role?, institutionName? }
     async register(payload) {
-      const data = await request("/auth/register", { method: "POST", body: payload, auth: false });
+      const data = await request("/auth/register", {
+        method: "POST",
+        body: payload,
+        auth: false
+      });
       setToken(data.token);
       setUser(data.user);
       return data;
     },
+
     async me() {
       const data = await request("/auth/me");
       setUser(data.user);
       return data.user;
     },
+
+    async forgotPassword(identifier) {
+      return request("/auth/forgot-password", {
+        method: "POST",
+        body: { identifier },
+        auth: false
+      });
+    },
+
+    async resetPassword(token, newPassword) {
+      return request(`/auth/reset-password/${token}`, {
+        method: "POST",
+        body: { newPassword },
+        auth: false
+      });
+    },
+
     logout,
     getToken,
     getUser,
