@@ -4,7 +4,16 @@ const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+
+    // College email — derived from studentId (e.g., 2024cs001@mit.asia)
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+
+    // Raw student ID as entered (e.g., "2024CS001") — for display
+    studentId: { type: String, trim: true, lowercase: true },
+
+    // Personal Gmail for password reset delivery
+    gmail: { type: String, trim: true, lowercase: true },
+
     phone: { type: String, trim: true },
     passwordHash: { type: String, required: true },
 
@@ -23,13 +32,12 @@ const userSchema = new mongoose.Schema(
     goals: [{ type: String, trim: true, lowercase: true }],
     onboardingCompleted: { type: Boolean, default: false },
 
-    // Present only when role === "organizer"
     organizerProfile: {
       orgName: { type: String, trim: true },
       verified: { type: Boolean, default: false }
     },
 
-    // Password reset (hashed token + expiry, hidden by default)
+    // Password reset
     resetTokenHash: { type: String, select: false },
     resetTokenExpires: { type: Date, select: false }
   },

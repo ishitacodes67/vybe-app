@@ -9,9 +9,9 @@ const crypto = require("crypto");
 
 const router = express.Router();
 
-// ---------- College email enforcement ----------
-// Only these domains are allowed to register or log in.
+// ---------- College email domain ----------
 const ALLOWED_EMAIL_DOMAINS = ["mit.asia", "mit.edu"];
+const PRIMARY_DOMAIN = "mit.asia";
 
 function isCollegeEmail(email) {
   if (!email || typeof email !== "string") return false;
@@ -21,8 +21,23 @@ function isCollegeEmail(email) {
 
 function emailDomainError() {
   return {
-    message: `Only college emails are allowed (${ALLOWED_EMAIL_DOMAINS.map(d => "@" + d).join(", ")}). Contact your department if you use a different address.`
+    message: `Only college emails are allowed (${ALLOWED_EMAIL_DOMAINS.map(d => "@" + d).join(", ")}).`
   };
+}
+
+// ---------- Student ID → email ----------
+// "2024CS001" → "2024cs001@mit.asia"
+// "2024cs001@mit.asia" → "2024cs001@mit.asia" (unchanged)
+function toEmailFromIdentifier(identifier) {
+  const cleaned = String(identifier || "").trim().toLowerCase();
+  if (!cleaned) return "";
+  if (cleaned.includes("@")) return cleaned;
+  return `${cleaned}@${PRIMARY_DOMAIN}`;
+}
+
+// "2024CS001" → "2024cs001"
+function normalizeStudentId(id) {
+  return String(id || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 // ---------- Helpers ----------
@@ -38,7 +53,11 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Find-or-create an institution by name. Returns ObjectId or undefined.
+function isValidGmail(email) {
+  if (!email) return true; // optional
+  return /^[^\s@]+@gmail\.com$/.test(String(email).trim().toLowerCase());
+}
+
 async function resolveInstitutionId({ institutionId, institutionName }) {
   if (institutionId) return institutionId;
   if (!institutionName) return undefined;
@@ -54,7 +73,6 @@ async function resolveInstitutionId({ institutionId, institutionName }) {
   return inst._id;
 }
 
-// Generate a random reset token + its SHA-256 hash.
 function generateResetToken() {
   const raw = crypto.randomBytes(32).toString("hex");
   const hash = crypto.createHash("sha256").update(raw).digest("hex");
@@ -66,33 +84,50 @@ function hashResetToken(raw) {
 }
 
 // ---------- POST /api/auth/register ----------
+// Body: { name, studentId, gmail, password, role?, institutionName? }
 router.post("/register", registerLimiter, async (req, res) => {
   try {
     const {
-      name, email, password, phone,
-      course, year, role, orgName,
+      name, studentId, gmail, password,
+      phone, course, year, role, orgName,
       institutionId, institutionName
     } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "name, email and password are required" });
+    // ---- Validation ----
+    if (!name || !studentId || !password) {
+      return res.status(400).json({ message: "name, studentId and password are required" });
     }
-    if (!isValidEmail(email)) {
-      return res.status(400).json({ message: "Invalid email format" });
+
+    const normStudentId = normalizeStudentId(studentId);
+    if (normStudentId.length < 3) {
+      return res.status(400).json({ message: "Student ID must be at least 3 characters (letters + numbers)" });
     }
-    if (!isCollegeEmail(email)) {
-      return res.status(400).json(emailDomainError());
+
+    if (gmail && !isValidGmail(gmail)) {
+      return res.status(400).json({ message: "Gmail must end with @gmail.com" });
     }
+
     if (password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
+
     if (role && !["member", "organizer", "authority"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    // Build the college email from student ID
+    const email = toEmailFromIdentifier(normStudentId);
+
+    const existing = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { studentId: normStudentId }
+      ]
+    });
     if (existing) {
-      return res.status(409).json({ message: "An account with this email already exists" });
+      return res.status(409).json({
+        message: "An account with this Student ID already exists. Try logging in."
+      });
     }
 
     const resolvedInstitution = await resolveInstitutionId({ institutionId, institutionName });
@@ -100,6 +135,8 @@ router.post("/register", registerLimiter, async (req, res) => {
     const newUser = new User({
       name,
       email,
+      studentId: normStudentId,
+      gmail: gmail ? gmail.trim().toLowerCase() : undefined,
       phone,
       course: role === "member" || !role ? course : undefined,
       year: role === "member" || !role ? year : undefined,
@@ -124,25 +161,40 @@ router.post("/register", registerLimiter, async (req, res) => {
 });
 
 // ---------- POST /api/auth/login ----------
+// Body: { identifier, password }   (identifier = studentId OR full college email)
+// Also accepts { studentId, password } or { email, password }
 router.post("/login", loginLimiter, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    // Support multiple field names for backwards-compat
+    const identifier = req.body.identifier || req.body.studentId || req.body.email;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "email and password are required" });
+    if (!identifier || !password) {
+      return res.status(400).json({ message: "Student ID and password are required" });
     }
+
+    const email = toEmailFromIdentifier(identifier);
+
     if (!isCollegeEmail(email)) {
       return res.status(400).json(emailDomainError());
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // Try email first, then studentId (in case of migration)
+    const normId = normalizeStudentId(identifier);
+    const user = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { studentId: normId }
+      ]
+    });
+
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid Student ID or password" });
     }
 
     const isMatch = await user.verifyPassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid Student ID or password" });
     }
 
     res.json({
@@ -172,17 +224,27 @@ router.get("/me", verifyToken, async (req, res) => {
 // ---------- POST /api/auth/forgot-password ----------
 router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
   try {
-    const { email } = req.body;
+    const { identifier, email, studentId } = req.body;
+    const input = identifier || email || studentId;
 
-    if (!email || !isValidEmail(email)) {
-      return res.status(400).json({ message: "A valid email is required" });
+    if (!input) {
+      return res.status(400).json({ message: "Student ID or Gmail is required" });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
-
     const genericResponse = {
-      message: "If an account exists with that email, a reset link has been sent."
+      message: "If an account exists, a reset link has been sent to the registered Gmail."
     };
+
+    const normId = normalizeStudentId(input);
+    const asEmail = toEmailFromIdentifier(input).toLowerCase();
+
+    const user = await User.findOne({
+      $or: [
+        { email: asEmail },
+        { studentId: normId },
+        { gmail: String(input).trim().toLowerCase() }
+      ]
+    });
 
     if (!user) {
       return res.json(genericResponse);
@@ -203,7 +265,7 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
       <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:32px;background:#f7f7f4;">
         <h1 style="font-size:32px;font-weight:800;letter-spacing:-0.02em;">VYBE<span style="color:#a3e635;">✦</span></h1>
         <p style="font-size:16px;color:#333;">Hey ${user.name || "there"},</p>
-        <p style="font-size:16px;color:#333;">Someone requested a password reset for your VYBE account. Click the button below to set a new password. This link expires in ${expiresMinutes} minutes.</p>
+        <p style="font-size:16px;color:#333;">Someone requested a password reset for your VYBE account (Student ID: <strong>${user.studentId || user.email}</strong>). Click the button below to set a new password. This link expires in ${expiresMinutes} minutes.</p>
         <p style="margin:28px 0;">
           <a href="${resetUrl}" style="background:#000;color:#fff;padding:14px 24px;text-decoration:none;border-radius:999px;font-weight:700;display:inline-block;">Reset my password →</a>
         </p>
@@ -214,12 +276,17 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
 
     const text = `Reset your VYBE password: ${resetUrl} (expires in ${expiresMinutes} minutes)`;
 
+    // Prefer Gmail for delivery
+    const deliveryEmail = user.gmail || user.email;
+
     await sendEmail({
-      to: user.email,
+      to: deliveryEmail,
       subject: "Reset your VYBE password",
       html,
       text
     });
+
+    console.log(`[forgot-password] Reset link sent to ${deliveryEmail} (user: ${user.email})`);
 
     res.json(genericResponse);
   } catch (error) {

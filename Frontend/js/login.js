@@ -1,7 +1,7 @@
 /* =========================================================
    VYBE — MEMBER LOGIN / REGISTER
-   Enforces college email domain (mit.asia / mit.edu).
-   Shows red validation states on invalid input.
+   Register: name + studentId + gmail + password
+   Login:    studentId + password
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,13 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitBtn = form.querySelector("#memberSubmitBtn");
     const privacyNote = form.querySelector("#memberPrivacyNote");
 
-    let mode = "register"; // or "login"
-
-    /* =====================================================
-       COLLEGE EMAIL WHITELIST
-    ===================================================== */
-
-    const ALLOWED_EMAIL_DOMAINS = ["mit.asia", "mit.edu"];
+    let mode = "register";
 
     /* =====================================================
        MODE TOGGLE
@@ -75,26 +69,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (error) error.textContent = message;
     }
 
-    function normalizePhone(v) { return String(v || "").replace(/\D/g, "").slice(0, 10); }
     function normalizeText(v) { return String(v || "").trim().replace(/\s+/g, " "); }
+    function normalizeStudentId(v) {
+        return String(v || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+    }
     function normalizeEmail(v) { return String(v || "").trim().toLowerCase(); }
-    function validEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e); }
-    function validPhone(p) { return /^[6-9]\d{9}$/.test(p); }
 
-    function validCollegeEmail(email) {
-        if (!validEmail(email)) return false;
-        const domain = email.split("@")[1]?.toLowerCase().trim();
-        return ALLOWED_EMAIL_DOMAINS.includes(domain);
+    function validStudentId(id) {
+        // 3+ chars, letters and numbers only (after normalization)
+        return /^[a-z0-9]{3,}$/.test(id);
     }
 
-    /* =====================================================
-       PHONE INPUT — digits only
-    ===================================================== */
-
-    const phoneInput = form.querySelector("#memberPhone");
-    phoneInput?.addEventListener("input", () => {
-        phoneInput.value = normalizePhone(phoneInput.value);
-    });
+    function validGmail(g) {
+        if (!g) return true; // optional
+        return /^[^\s@]+@gmail\.com$/.test(g);
+    }
 
     /* =====================================================
        SUBMIT
@@ -104,86 +93,75 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         clearErrors();
 
-        const email = normalizeEmail(form.elements.email?.value);
+        const studentId = normalizeStudentId(form.elements.studentId?.value);
         const password = String(form.elements.password?.value || "");
 
         let valid = true;
 
-        /* ----- Email validation ----- */
-        if (!validEmail(email)) {
-            showError("email", "Enter a valid email address.");
+        /* ----- Student ID validation ----- */
+        if (!studentId) {
+            showError("studentId", "Enter your Student ID.");
             valid = false;
-        } else if (!validCollegeEmail(email)) {
-            showError(
-                "email",
-                `Only college emails are allowed (${ALLOWED_EMAIL_DOMAINS.map(d => "@" + d).join(", ")}).`
-            );
+        } else if (!validStudentId(studentId)) {
+            showError("studentId", "Student ID must be at least 3 letters/numbers (e.g. 2024CS001).");
             valid = false;
         }
 
-        /* ----- Password validation ----- */
+        /* ----- Password ----- */
         if (password.length < 6) {
             showError("password", "Password must be at least 6 characters.");
             valid = false;
         }
 
         /* ----- Register-only fields ----- */
-        let name = "", phone = "", institution = "";
+        let name = "", gmail = "";
         if (mode === "register") {
             name = normalizeText(form.elements.name?.value);
-            phone = normalizePhone(form.elements.phone?.value);
-            institution = normalizeText(form.elements.institution?.value);
+            gmail = normalizeEmail(form.elements.gmail?.value);
 
             if (name.length < 2) {
                 showError("name", "Enter your full name.");
                 valid = false;
             }
-            if (!validPhone(phone)) {
-                showError("phone", "Enter a valid 10-digit Indian mobile number.");
-                valid = false;
-            }
-            if (institution.length < 2) {
-                showError("institution", "Enter your institution.");
+            if (gmail && !validGmail(gmail)) {
+                showError("gmail", "Gmail must end with @gmail.com.");
                 valid = false;
             }
         }
 
         if (!valid) return;
 
-        /* ---------- Button state ---------- */
         const originalLabel = submitBtn.innerHTML;
         submitBtn.disabled = true;
         submitBtn.innerHTML = `working… <span>→</span>`;
 
         let user = null;
         let errorMsg = "";
-        let errorField = "email";
+        let errorField = "studentId";
 
         try {
             if (mode === "login") {
-                const result = await window.api.login(email, password);
+                const result = await window.api.login(studentId, password);
                 user = result.user;
             } else {
                 const payload = {
                     name,
-                    email,
-                    phone: `+91${phone}`,
+                    studentId,
+                    gmail: gmail || undefined,
                     password,
-                    role: "member",
-                    institutionName: institution
+                    role: "member"
                 };
                 const result = await window.api.register(payload);
                 user = result.user;
             }
         } catch (err) {
             if (err.status === 409) {
-                errorMsg = "This email is already registered. Switch to 'ALREADY HAVE AN ACCOUNT' above to sign in.";
+                errorMsg = "This Student ID is already registered. Switch to 'ALREADY HAVE AN ACCOUNT' above.";
             } else if (err.status === 401) {
-                errorMsg = "Invalid email or password.";
+                errorMsg = "Invalid Student ID or password.";
                 errorField = "password";
-            } else if (err.status === 400 && /only college/i.test(err.message || "")) {
-                errorMsg = err.message;
-                errorField = "email";
+            } else if (err.status === 400) {
+                errorMsg = err.message || "Please check your details.";
             } else {
                 errorMsg = err.message || "Something went wrong.";
             }
@@ -218,10 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.replace(needsOnboarding ? "onboarding.html" : "home.html");
         }, 250);
     });
-
-    /* =====================================================
-       Prevent stale form values on back button
-    ===================================================== */
 
     window.addEventListener("pageshow", () => {
         form.reset();

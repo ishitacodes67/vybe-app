@@ -23,7 +23,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/member-login.css">
-    <link rel="stylesheet" href="css/cursor.css">
 
 </head>
 
@@ -32,102 +31,44 @@
 
 <main class="member-login-page">
 
-
-    <!-- =========================================
-         VISUAL SIDE
-    ========================================== -->
-
     <section class="login-visual">
 
-        <a
-            href="index.html"
-            class="login-brand"
-        >
+        <a href="index.html" class="login-brand">
             VYBE<span>✦</span>
         </a>
 
-
         <div class="visual-content">
-
-            <p class="visual-kicker">
-                MEMBER ACCESS
-            </p>
-
-            <h1>
-                your campus
-                has a <em>whole life.</em>
-            </h1>
-
-            <p>
-                Find the people, experiences and
-                moments that make your campus
-                feel like yours.
-            </p>
-
+            <p class="visual-kicker">MEMBER ACCESS</p>
+            <h1>your campus has a <em>whole life.</em></h1>
+            <p>Find the people, experiences and moments that make your campus feel like yours.</p>
         </div>
 
-
         <div class="visual-bottom">
-
             <span>DISCOVER</span>
             <span>CONNECT</span>
             <span>PARTICIPATE</span>
             <span>GROW</span>
-
         </div>
 
     </section>
 
 
-
-    <!-- =========================================
-         LOGIN SIDE
-    ========================================== -->
-
     <section class="login-panel">
 
         <div class="login-inner">
 
-
-            <a
-                href="role-select.html"
-                class="login-back"
-            >
+            <a href="role-select.html" class="login-back">
                 ← choose another world
             </a>
 
+            <div class="login-kicker">VYBE EXPLORER</div>
 
-            <div class="login-kicker">
-                VYBE EXPLORER
-            </div>
-
-
-            <h2>
-                let's get
-                <em>you in.</em>
-            </h2>
-
+            <h2>let's get <em>you in.</em></h2>
 
             <p class="login-intro">
                 New here? Create your VYBE account.
                 Already have one? Sign back in.
             </p>
-
-
-            <div class="fresh-session-note">
-
-                <span>✦</span>
-
-                <div>
-                    <strong>College email required</strong>
-
-                    <small>
-                        Only @mit.asia and @mit.edu addresses
-                        are accepted for sign-up and login.
-                    </small>
-                </div>
-
-            </div>
 
 
             <form
@@ -139,24 +80,15 @@
                 novalidate
             >
 
-
                 <!-- MODE TOGGLE -->
 
                 <div class="auth-mode-toggle">
 
-                    <button
-                        type="button"
-                        class="mode-btn active"
-                        data-mode-btn="register"
-                    >
+                    <button type="button" class="mode-btn active" data-mode-btn="register">
                         NEW HERE
                     </button>
 
-                    <button
-                        type="button"
-                        class="mode-btn"
-                        data-mode-btn="login"
-                    >
+                    <button type="button" class="mode-btn" data-mode-btn="login">
                         ALREADY HAVE AN ACCOUNT
                     </button>
 
@@ -167,9 +99,7 @@
 
                 <div class="field" data-register-only>
 
-                    <label for="memberName">
-                        YOUR NAME
-                    </label>
+                    <label for="memberName">YOUR NAME</label>
 
                     <input
                         id="memberName"
@@ -179,95 +109,54 @@
                         autocomplete="off"
                     >
 
-                    <small
-                        class="field-error"
-                        data-error-for="name"
-                    ></small>
+                    <small class="field-error" data-error-for="name"></small>
 
                 </div>
 
 
-                <!-- EMAIL -->
+                <!-- STUDENT ID -->
 
                 <div class="field">
 
-                    <label for="memberEmail">
-                        COLLEGE EMAIL
-                    </label>
+                    <label for="memberStudentId">STUDENT ID</label>
 
                     <input
-                        id="memberEmail"
-                        name="email"
-                        type="email"
-                        placeholder="name@mit.asia"
+                        id="memberStudentId"
+                        name="studentId"
+                        type="text"
+                        placeholder="e.g. 2024CS001"
                         autocomplete="off"
                         required
                     >
 
-                    <small
-                        class="field-error"
-                        data-error-for="email"
-                    ></small>
-
-                </div>
-
-
-                <!-- PHONE (register only) -->
-
-                <div class="field" data-register-only>
-
-                    <label for="memberPhone">
-                        PHONE
-                    </label>
-
-                    <div class="phone-input">
-
-                        <span>+91</span>
-
-                        <input
-                            id="memberPhone"
-                            name="phone"
-                            type="tel"
-                            inputmode="numeric"
-                            maxlength="10"
-                            placeholder="9876543210"
-                            autocomplete="off"
-                        >
-
-                    </div>
-
                     <small class="field-hint">
-                        Enter a 10-digit Indian mobile number.
+                        Your college ID. Becomes your login — e.g. <strong>2024CS001@mit.asia</strong>
                     </small>
 
-                    <small
-                        class="field-error"
-                        data-error-for="phone"
-                    ></small>
+                    <small class="field-error" data-error-for="studentId"></small>
 
                 </div>
 
 
-                <!-- INSTITUTION (register only) -->
+                <!-- GMAIL (register only) -->
 
                 <div class="field" data-register-only>
 
-                    <label for="memberInstitution">
-                        INSTITUTION
-                    </label>
+                    <label for="memberGmail">PERSONAL GMAIL</label>
 
                     <input
-                        id="memberInstitution"
-                        name="institution"
-                        type="text"
-                        placeholder="e.g. Maharashtra Institute of Technology"
+                        id="memberGmail"
+                        name="gmail"
+                        type="email"
+                        placeholder="yourname@gmail.com"
                         autocomplete="off"
                     >
 
-                    <small
-                        class="field-error"
-                        data-error-for="institution"
-                    ></small>
+                    <small class="field-hint">
+                        We send your password reset link here.
+                    </small>
+
+                    <small class="field-error" data-error-for="gmail"></small>
 
                 </div>
 
@@ -276,9 +165,7 @@
 
                 <div class="field">
 
-                    <label for="memberPassword">
-                        PASSWORD
-                    </label>
+                    <label for="memberPassword">PASSWORD</label>
 
                     <input
                         id="memberPassword"
@@ -290,10 +177,7 @@
                         required
                     >
 
-                    <small
-                        class="field-error"
-                        data-error-for="password"
-                    ></small>
+                    <small class="field-error" data-error-for="password"></small>
 
                 </div>
 
@@ -312,7 +196,6 @@
                     <a href="forgot-password.html">Forgot your password?</a>
                 </p>
 
-
                 <p class="privacy-note" id="memberPrivacyNote">
                     You'll complete your VYBE profile after signing in.
                 </p>
@@ -329,7 +212,6 @@
 <script src="js/api.js"></script>
 <script src="js/app.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/cursor.js"></script>
 <script src="js/login.js"></script>
 
 </body>
