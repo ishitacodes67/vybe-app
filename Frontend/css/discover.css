@@ -963,3 +963,130 @@
 .toolbar {
     align-items: center;
 }
+/* =========================================================
+   VYBE — DISCOVER TOOLBAR FINAL FIX (2026-10-05)
+   Layout + typography. ID-first selectors.
+   ========================================================= */
+
+.discover-toolbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 20px !important;
+    padding: 16px 0 18px !important;
+    margin: 0 0 28px !important;
+    border-bottom: 1px solid #e3e3e3 !important;
+    flex-wrap: wrap !important;
+}
+
+.discover-toolbar-left,
+.discover-toolbar-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+}
+
+.discover-toolbar-left  { flex: 1 1 auto !important; min-width: 0 !important; }
+.discover-toolbar-right { flex: 0 0 auto !important; }
+
+#resultCount {
+    font-family: "DM Mono", "Courier New", monospace !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    color: #0d0d0d !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+}
+
+.sort-label {
+    font-family: "DM Mono", "Courier New", monospace !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    color: #77736d !important;
+    line-height: 1 !important;
+}
+
+#sortSelect,
+.sort-select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    padding: 10px 36px 10px 16px !important;
+    border: 1px solid #d9d4ca !important;
+    border-radius: 999px !important;
+    background-color: #ffffff !important;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%230d0d0d' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 10px 7px !important;
+    font-family: "DM Mono", "Courier New", monospace !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: #0d0d0d !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    outline: none !important;
+    min-width: 168px !important;
+    transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+
+#sortSelect:hover,
+.sort-select:hover {
+    border-color: #0d0d0d !important;
+}
+
+#sortSelect:focus,
+.sort-select:focus {
+    border-color: #0d0d0d !important;
+    box-shadow: 0 0 0 3px rgba(163, 230, 53, 0.35) !important;
+    outline: none !important;
+}
+
+#clearFiltersBtn,
+.clear-filters-btn {
+    font-family: "DM Mono", "Courier New", monospace !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    color: #7c5cff !important;
+    background: transparent !important;
+    border: 1px solid rgba(124, 92, 255, 0.25) !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    cursor: pointer !important;
+}
+
+#clearFiltersBtn:hover,
+.clear-filters-btn:hover {
+    background: rgba(124, 92, 255, 0.08) !important;
+    border-color: rgba(124, 92, 255, 0.5) !important;
+}
+
+.load-more-btn[hidden],
+#loadMoreBtn[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 650px) {
+    .discover-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+    }
+    .discover-toolbar-left,
+    .discover-toolbar-right {
+        justify-content: space-between !important;
+        width: 100% !important;
+    }
+    #sortSelect {
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+}

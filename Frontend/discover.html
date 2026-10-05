@@ -8,6 +8,10 @@
 
     <title>VYBE — Discover</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/discover.css">
     <link rel="stylesheet" href="css/vix.css">
@@ -162,23 +166,26 @@
 
             </div>
 
-            <div class="discover-toolbar">
-                <div class="discover-toolbar-left">
-                    <span id="resultCount">0 events</span>
-                    <button type="button" class="clear-filters-btn" id="clearFiltersBtn" hidden>
-                        Clear filters ×
-                    </button>
-                </div>
+        </div>
 
-                <div class="discover-toolbar-right">
-                    <label class="sort-label" for="sortSelect">Sort</label>
-                    <select id="sortSelect" class="sort-select">
-                        <option value="soonest">Soonest</option>
-                        <option value="newest">Newest added</option>
-                        <option value="popular">Most popular</option>
-                        <option value="alpha">A → Z</option>
-                    </select>
-                </div>
+
+        <div class="discover-toolbar">
+
+            <div class="discover-toolbar-left">
+                <span id="resultCount">0 events</span>
+                <button type="button" class="clear-filters-btn" id="clearFiltersBtn" hidden>
+                    Clear ×
+                </button>
+            </div>
+
+            <div class="discover-toolbar-right">
+                <span class="sort-label">Sort by</span>
+                <select id="sortSelect" class="sort-select">
+                    <option value="soonest">Soonest</option>
+                    <option value="newest">Newest added</option>
+                    <option value="popular">Most popular</option>
+                    <option value="alpha">A → Z</option>
+                </select>
             </div>
 
         </div>
