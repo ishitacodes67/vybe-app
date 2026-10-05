@@ -676,87 +676,182 @@
     }
 
 }
+
+
 /* =========================================================
-   EXPLORE-MORE TAB — shown in Discover empty state
+   DISCOVER TOOLBAR — clean full-width row
    ========================================================= */
 
-.empty-state .explore-tab {
-    display: inline-flex;
+.discover-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 14px 4px;
+    margin: 0 0 28px;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.discover-toolbar-left {
+    display: flex;
     align-items: center;
     gap: 12px;
+}
 
-    margin: 22px auto 26px;
-    padding: 12px 20px;
+.discover-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-    border-radius: 14px;
-    border: 1px solid rgba(124, 92, 255, 0.35);
-    background: linear-gradient(
-        135deg,
-        rgba(124, 92, 255, 0.08),
-        rgba(163, 230, 53, 0.08)
-    );
+.discover-toolbar #resultCount {
+    font-family: var(--mono, "DM Mono", monospace);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #0d0d0d;
+}
 
+.sort-label {
+    font-family: var(--mono, "DM Mono", monospace);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8a8a8a;
+}
+
+.sort-select {
+    appearance: none;
+    -webkit-appearance: none;
+
+    padding: 8px 30px 8px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: #fff;
+
+    font-family: var(--mono, "DM Mono", monospace);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #0d0d0d;
+
+    cursor: pointer;
+    outline: none;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230d0d0d' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 9px;
+
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sort-select:hover {
+    border-color: rgba(0, 0, 0, 0.4);
+}
+
+.sort-select:focus {
+    border-color: #0d0d0d;
+    box-shadow: 0 0 0 3px rgba(163, 230, 53, 0.28);
+}
+
+.clear-filters-btn {
+    border: none;
+    background: transparent;
+    color: #7c5cff;
+
+    padding: 6px 10px;
+    border-radius: 6px;
+
+    font-family: var(--mono, "DM Mono", monospace);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.clear-filters-btn:hover {
+    background: rgba(124, 92, 255, 0.1);
+}
+
+
+/* =========================================================
+   LOAD MORE
+   ========================================================= */
+
+.discover-load-more-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0 20px;
+}
+
+.load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 14px 28px;
+    border: 2px solid #0d0d0d;
+    border-radius: 999px;
+    background: transparent;
+    color: #0d0d0d;
+
+    font-family: var(--mono, "DM Mono", monospace);
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
 
-    color: #6d28d9;
-}
-
-.empty-state .explore-tab-arrow {
-    font-size: 15px;
-    color: #7c5cff;
-}
-
-.empty-state .explore-events {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-
-    margin-top: 12px;
-    text-align: left;
-}
-
-.empty-state .explore-events .discover-card {
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.15s ease;
 }
 
-.empty-state .explore-events .discover-card:hover {
+.load-more-btn:hover {
+    background: #0d0d0d;
+    color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* Large empty-state icon */
-
-.empty-state .empty-icon {
-    font-size: 48px;
-    color: #7c5cff;
-    opacity: 0.35;
-    margin-bottom: 8px;
+.load-more-btn span {
+    color: #a3e635;
+    font-size: 14px;
 }
+
+
 /* =========================================================
-   EXPLORE-MORE BUTTON � matches VYBE primary button style
+   EXPLORE-MORE BUTTON — empty state CTA
    ========================================================= */
 
 .explore-tab-btn {
     display: inline-flex;
     align-items: center;
     gap: 12px;
+
     margin: 24px auto 28px;
     padding: 16px 28px;
+
     border: none;
     border-radius: 999px;
     background: #000;
     color: #fff;
+
     font-family: var(--mono, "DM Mono", monospace);
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+
     cursor: pointer;
     outline: none;
+
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -783,12 +878,28 @@
     transform: translateX(3px);
 }
 
+
+/* =========================================================
+   EXPLORE EVENTS GRID (inside empty state)
+   ========================================================= */
+
 .empty-state .explore-events {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
+
     margin-top: 12px;
     text-align: left;
+}
+
+.empty-state .explore-events .discover-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.empty-state .explore-events .discover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
 }
 
 .empty-state .empty-icon {
