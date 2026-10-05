@@ -7,14 +7,16 @@ simply lists the top-ranked events - still grounded, never hallucinated.
 """
 
 import os
-import json
 import httpx
 from typing import List, Dict, Any
 
 from models.recommendation_model import RankedEvent
 
+# Groq API — current endpoint as of 2026
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+
+# Current free-tier chat model on Groq (llama models were decommissioned Aug 2026)
+GROQ_MODEL = "openai/gpt-oss-20b"
 
 SYSTEM_PROMPT = """You are Vix, a friendly college event assistant for the VYBE platform.
 
@@ -23,7 +25,7 @@ Rules:
 2. Keep replies short: 2-3 sentences max.
 3. If the user asks about events, refer to the specific titles and dates from the context.
 4. If no events match, say so honestly and suggest they browse categories instead.
-5. Be warm and concise. No corporate jargon.
+5. Be warm and concise. Use contractions. No corporate jargon.
 """
 
 
@@ -60,7 +62,7 @@ async def _call_groq(api_key: str, message: str, context: str, history: List[Dic
                 "model": GROQ_MODEL,
                 "messages": messages,
                 "temperature": 0.5,
-                "max_tokens": 400
+                "max_tokens": 800
             }
         )
         resp.raise_for_status()
@@ -95,9 +97,11 @@ async def generate_reply(
 
     api_key = os.getenv("GROQ_API_KEY", "").strip()
     if not api_key:
+        print("[chat_service] No GROQ_API_KEY set — using fallback")
         return _fallback_reply(message, ranked, catalog_by_id)
 
     try:
+        print(f"[chat_service] Calling Groq with model {GROQ_MODEL}")
         return await _call_groq(api_key, message, context, history)
     except Exception as e:
         print(f"[chat_service] Groq call failed: {e}")
