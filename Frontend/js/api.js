@@ -68,7 +68,6 @@
   const api = {
     // ------- auth -------
     // login accepts a studentId (e.g. "2024CS001") OR a full college email.
-    // The backend converts studentId → email (2024cs001@mit.asia) automatically.
     async login(identifier, password) {
       const data = await request("/auth/login", {
         method: "POST",
@@ -131,6 +130,10 @@
     async getEvent(id) {
       const data = await request(`/events/${id}`, { auth: false });
       return data.event;
+    },
+    async getRelatedEvents(id, limit = 6) {
+      const data = await request(`/events/related/${id}?limit=${limit}`, { auth: false });
+      return data.events;
     },
     async createEvent(payload) {
       const data = await request("/events", { method: "POST", body: payload });

@@ -268,4 +268,76 @@ router.delete("/:id", verifyToken, async (req, res) => {
   }
 });
 
+// ---------- GET /api/events/related/:id ----------
+// Returns events related to the given event — same category first, then
+// ranked by shared tags. Excludes the source event itself and any past events.
+// Public route (no auth required) — used by Vix explore cards and event details.
+router.get("/related/:id", async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid event id" });
+    }
+
+    const source = await Event.findById(req.params.id).lean();
+    if (!source) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const limit = Math.min(Number(req.query.limit) || 6, 12);
+
+    const sourceTags = Array.isArray(source.tags)
+      ? source.tags.map(t => String(t).toLowerCase())
+      : [];
+
+    // Candidate pool: upcoming approved events in the same institution,
+    // excluding the source event
+    const candidates = await Event.find({
+      _id: { $ne: source._id },
+      status: "approved",
+      date: { $gte: today },
+      institution: source.institution
+    })
+      .populate("institution", "name")
+      .populate("organizer", "name organizerProfile.orgName")
+      .lean();
+
+    // Score each candidate
+    const scored = candidates.map(event => {
+      let score = 0;
+
+      // Same category is worth a lot
+      if (event.category === source.category) score += 10;
+
+      // Shared tags — 3 points each
+      const eventTags = Array.isArray(event.tags)
+        ? event.tags.map(t => String(t).toLowerCase())
+        : [];
+      const shared = eventTags.filter(t => sourceTags.includes(t)).length;
+      score += shared * 3;
+
+      // Popularity nudge
+      const registered = Number(event.registeredCount) || 0;
+      score += Math.min(registered * 0.1, 2);
+
+      // Slight preference for closer dates
+      const daysOut = Math.abs(
+        (new Date(event.date) - new Date(source.date)) / (1000 * 60 * 60 * 24)
+      );
+      score += Math.max(0, 3 - daysOut / 30);
+
+      return { ...event, score };
+    });
+
+    // Sort descending, take top N
+    const ranked = scored
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+
+    res.json({ events: ranked, count: ranked.length });
+  } catch (error) {
+    console.error("[GET /events/related/:id]", error);
+    res.status(500).json({ message: "Failed to fetch related events", error: error.message });
+  }
+});
 module.exports = router;
