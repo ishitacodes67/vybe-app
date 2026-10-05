@@ -736,3 +736,64 @@
     opacity: 0.35;
     margin-bottom: 8px;
 }
+/* =========================================================
+   EXPLORE-MORE BUTTON � matches VYBE primary button style
+   ========================================================= */
+
+.explore-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px auto 28px;
+    padding: 16px 28px;
+    border: none;
+    border-radius: 999px;
+    background: #000;
+    color: #fff;
+    font-family: var(--mono, "DM Mono", monospace);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.explore-tab-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+.explore-tab-btn:active {
+    transform: translateY(0);
+}
+
+.explore-tab-btn:focus-visible {
+    box-shadow: 0 0 0 4px rgba(163, 230, 53, 0.35);
+}
+
+.explore-tab-arrow {
+    color: #a3e635;
+    font-size: 16px;
+    transition: transform 0.15s ease;
+}
+
+.explore-tab-btn:hover .explore-tab-arrow {
+    transform: translateX(3px);
+}
+
+.empty-state .explore-events {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+    text-align: left;
+}
+
+.empty-state .empty-icon {
+    font-size: 48px;
+    color: #7c5cff;
+    opacity: 0.35;
+    margin-bottom: 8px;
+}

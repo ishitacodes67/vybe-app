@@ -1,5 +1,5 @@
 /* =========================================================
-   VYBE — DISCOVER (with smart fallback + explore-more)
+   VYBE — DISCOVER (with smart fallback + clickable explore)
    Loads all upcoming approved events once, filters client-side,
    and shows related events when the search doesn't match.
    ========================================================= */
@@ -45,7 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* =====================================================
        CATEGORY KEYWORDS — detect field from free text
-       e.g. "i want to learn guitar" → "Music"
     ===================================================== */
 
     const CATEGORY_KEYWORDS = {
@@ -62,9 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
         business: "Business", startup: "Business", entrepreneur: "Business",
         finance: "Business", pitch: "Business", analytics: "Business", marketing: "Business",
         culture: "Culture", poetry: "Culture", film: "Culture", cinema: "Culture",
-        theatre: "Culture", dance: "Culture", cultural: "Culture", art: "Culture",
+        theatre: "Culture", dance: "Culture", cultural: "Culture",
         wellness: "Wellness", meditation: "Wellness", mental: "Wellness",
-        health: "Wellness", nutrition: "Wellness", yoga: "Wellness",
+        health: "Wellness", nutrition: "Wellness",
         social: "Social", networking: "Social", games: "Social", mixer: "Social",
         meet: "Social", friends: "Social"
     };
@@ -184,7 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return searchable.includes(query);
         }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
-        // ---- Update result count ----
         if (resultCount) {
             if (query) {
                 resultCount.textContent = `${matched.length} of ${allEvents.length} events`;
@@ -193,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // ---- Empty state ----
         if (matched.length === 0) {
             grid.innerHTML = "";
             renderEmptyState(query);
@@ -206,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       EMPTY STATE with "Explore more" tab
+       EMPTY STATE with clickable "Explore" button
     ===================================================== */
 
     function renderEmptyState(query) {
@@ -221,22 +218,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const tabLabel = guessedCategory
             ? `Explore ${escapeHTML(guessedCategory)} events`
-            : "Explore more events";
+            : "Explore all events";
 
         emptyState.innerHTML = `
             <div class="empty-icon">◌</div>
             <h3>nothing matched.</h3>
             <p>${headerText} Try another search or switch your VYBE.</p>
 
-            <div class="explore-tab">
-                <span class="explore-tab-label">${tabLabel}</span>
+            <button type="button" class="explore-tab-btn" id="exploreTabBtn">
+                ${tabLabel}
                 <span class="explore-tab-arrow">→</span>
-            </div>
+            </button>
 
             <div class="explore-events" id="exploreEvents">
                 <p style="opacity:.6;font-size:13px;padding:14px 0;">Loading suggestions…</p>
             </div>
         `;
+
+        // ---- Wire the "Explore" button ----
+        const exploreBtn = emptyState.querySelector("#exploreTabBtn");
+        exploreBtn?.addEventListener("click", () => {
+            if (search) search.value = "";
+
+            if (guessedCategory) {
+                activeFilter = guessedCategory;
+                document.querySelectorAll(".filter").forEach(b => {
+                    b.classList.toggle("active", b.dataset.filter === guessedCategory);
+                });
+            } else {
+                activeFilter = "All";
+                document.querySelectorAll(".filter").forEach(b => {
+                    b.classList.toggle("active", b.dataset.filter === "All");
+                });
+            }
+
+            render();
+        });
 
         const container = emptyState.querySelector("#exploreEvents");
 
@@ -250,7 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 .slice(0, 6);
         }
 
-        // Fallback: if no category guessed or no events in it, show popular
         if (suggestions.length === 0) {
             suggestions = [...allEvents]
                 .sort((a, b) => (b.registeredCount || 0) - (a.registeredCount || 0))
@@ -264,7 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         container.innerHTML = suggestions.map(renderCard).join("");
 
-        // Wire click
         container.querySelectorAll("[data-event-id]").forEach(card => {
             card.addEventListener("click", () => {
                 window.location.href = `event-details.html?id=${encodeURIComponent(card.dataset.eventId)}`;
