@@ -1,7 +1,8 @@
 /* =========================================================
-   VYBE — VIX (backend-wired)
-   Calls /api/chat on the backend, which proxies to the AI service.
-   Renders the reply + real event cards returned from MongoDB.
+   VYBE — VIX (backend-wired + explore-more tab)
+   Calls /api/chat, renders reply + event cards.
+   When no events match, shows related events from the same
+   field the user asked about, so they can still register.
    ========================================================= */
 
 (function () {
@@ -16,6 +17,36 @@
         upcoming: "What's happening soon on campus?",
         interests: "Show me events matching my interests."
     };
+
+    /* =====================================================
+       CATEGORY KEYWORDS — guess what field the user means
+    ===================================================== */
+
+    const CATEGORY_KEYWORDS = {
+        tech: "Tech", technology: "Tech", coding: "Tech", programming: "Tech",
+        hackathon: "Tech", ai: "Tech", ml: "Tech", robot: "Tech", software: "Tech",
+        music: "Music", singing: "Music", band: "Music", guitar: "Music",
+        acoustic: "Music", concert: "Music",
+        design: "Design", art: "Design", ui: "Design", ux: "Design",
+        figma: "Design", portfolio: "Design",
+        sport: "Sports", sports: "Sports", football: "Sports", cricket: "Sports",
+        basketball: "Sports", yoga: "Sports", gym: "Sports", fitness: "Sports",
+        business: "Business", startup: "Business", entrepreneur: "Business",
+        finance: "Business", pitch: "Business", analytics: "Business",
+        culture: "Culture", poetry: "Culture", film: "Culture", cinema: "Culture",
+        theatre: "Culture", dance: "Culture", cultural: "Culture",
+        wellness: "Wellness", meditation: "Wellness", mental: "Wellness",
+        health: "Wellness", nutrition: "Wellness",
+        social: "Social", networking: "Social", games: "Social", mixer: "Social"
+    };
+
+    function guessCategory(text) {
+        const lower = String(text || "").toLowerCase();
+        for (const [keyword, category] of Object.entries(CATEGORY_KEYWORDS)) {
+            if (lower.includes(keyword)) return category;
+        }
+        return null;
+    }
 
     /* =====================================================
        PANEL
@@ -71,7 +102,7 @@
     }
 
     /* =====================================================
-       SUGGESTION HANDLER — calls the backend
+       SUGGESTION HANDLER
     ===================================================== */
 
     async function handleSuggestion(type) {
@@ -109,31 +140,30 @@
 
             const events = Array.isArray(recommendedEvents) ? recommendedEvents : [];
 
-            response.innerHTML = `
-                <strong>${escapeHTML(reply || "Here's what I found.")}</strong>
+            if (events.length > 0) {
+                /* ============================================
+                   HAPPY PATH — events matched
+                ============================================ */
+                response.innerHTML = `
+                    <strong>${escapeHTML(reply || "Here's what I found.")}</strong>
+                    <div class="vix-event-list">
+                        ${events.map(renderEventCard).join("")}
+                    </div>
+                `;
 
-                ${
-                    events.length
-                        ? `
-                            <div class="vix-event-list">
-                                ${events.map(renderEventCard).join("")}
-                            </div>
-                        `
-                        : `
-                            <p style="opacity:.7;margin-top:8px;">
-                                Nothing matched right now. Try <a href="discover.html">Discover</a> to browse everything.
-                            </p>
-                        `
-                }
-            `;
-
-            // Wire click → event details page
-            response.querySelectorAll("[data-event-id]").forEach(button => {
-                button.addEventListener("click", () => {
-                    const id = button.dataset.eventId;
-                    window.location.href = `event-details.html?id=${encodeURIComponent(id)}`;
+                response.querySelectorAll("[data-event-id]").forEach(button => {
+                    button.addEventListener("click", () => {
+                        const id = button.dataset.eventId;
+                        window.location.href = `event-details.html?id=${encodeURIComponent(id)}`;
+                    });
                 });
-            });
+
+            } else {
+                /* ============================================
+                   NO MATCH — show explore-more tab + related events
+                ============================================ */
+                await renderExploreState(response, reply, prompt);
+            }
 
         } catch (err) {
             console.error("[vix] chat failed:", err);
@@ -142,6 +172,78 @@
                 <strong>Vix hit a snag.</strong>
                 <p>${escapeHTML(msg)}</p>
                 <p style="opacity:.7;margin-top:6px;">Try again in a few seconds.</p>
+            `;
+        }
+    }
+
+    /* =====================================================
+       EXPLORE-MORE STATE
+       Triggered when Vix found no matches for the user's request.
+       Shows:
+         - LLM's reply text
+         - "Explore more →" tab
+         - Related events from the same field (or popular events)
+    ===================================================== */
+
+    async function renderExploreState(response, reply, prompt) {
+        const guessedCategory = guessCategory(prompt);
+
+        // Show the tab + loading state
+        response.innerHTML = `
+            <strong>${escapeHTML(reply || "Nothing matched your interests right now.")}</strong>
+            <div class="vix-explore-tab">
+                <span class="vix-explore-tab-label">
+                    ${guessedCategory ? `Explore ${escapeHTML(guessedCategory)} events` : "Explore more events"}
+                </span>
+                <span class="vix-explore-tab-arrow">→</span>
+            </div>
+            <div class="vix-event-list" id="vixExploreList">
+                <p style="opacity:.7;font-size:12px;padding:12px 0;">Loading suggestions…</p>
+            </div>
+        `;
+
+        const listContainer = response.querySelector("#vixExploreList");
+
+        try {
+            // Fetch related events
+            let events = [];
+            if (guessedCategory) {
+                events = await window.api.getEvents({ category: guessedCategory, when: "upcoming", limit: 6 });
+            }
+
+            // Fallback: if no category guessed or nothing matched, get popular upcoming
+            if (!events || events.length === 0) {
+                const all = await window.api.getEvents({ when: "upcoming", limit: 20 });
+                events = (all || [])
+                    .sort((a, b) => (b.registeredCount || 0) - (a.registeredCount || 0))
+                    .slice(0, 6);
+            }
+
+            if (!events || events.length === 0) {
+                listContainer.innerHTML = `
+                    <p style="opacity:.7;font-size:12px;padding:12px 0;">
+                        No events to show right now. Try <a href="discover.html">Discover</a>.
+                    </p>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = events.map(renderEventCard).join("");
+
+            // Wire click → event details
+            listContainer.querySelectorAll("[data-event-id]").forEach(button => {
+                button.addEventListener("click", () => {
+                    const id = button.dataset.eventId;
+                    window.location.href = `event-details.html?id=${encodeURIComponent(id)}`;
+                });
+            });
+
+        } catch (err) {
+            console.error("[vix] explore fetch failed:", err);
+            listContainer.innerHTML = `
+                <p style="opacity:.7;font-size:12px;padding:12px 0;">
+                    Couldn't load suggestions. Try <a href="discover.html">Discover</a>.
+                </p>
             `;
         }
     }
@@ -172,8 +274,6 @@
         const panel = document.getElementById("vixPanel");
         panel.classList.add("open");
         document.body.classList.add("vix-open");
-
-        // Auto-fire the "recommend" suggestion when opening
         handleSuggestion("recommend");
     }
 
@@ -209,7 +309,7 @@
     }
 
     /* =====================================================
-       INIT + GLOBAL EXPORT
+       INIT + GLOBAL
     ===================================================== */
 
     function init() {

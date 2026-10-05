@@ -383,3 +383,46 @@
     }
 
 }
+/* =========================================================
+   EXPLORE-MORE TAB — shown when Vix has no match
+   ========================================================= */
+
+.vix-explore-tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin: 14px 0 8px;
+    padding: 12px 16px;
+
+    border-radius: 14px;
+    border: 1px solid rgba(163, 230, 53, 0.35);
+    background: linear-gradient(
+        135deg,
+        rgba(163, 230, 53, 0.08),
+        rgba(124, 92, 255, 0.08)
+    );
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+
+    color: #d1fae5;
+    cursor: default;
+    transition: all 0.2s ease;
+}
+
+.vix-explore-tab:hover {
+    border-color: rgba(163, 230, 53, 0.6);
+    background: linear-gradient(
+        135deg,
+        rgba(163, 230, 53, 0.14),
+        rgba(124, 92, 255, 0.14)
+    );
+}
+
+.vix-explore-tab-arrow {
+    font-size: 14px;
+    color: #a3e635;
+}
