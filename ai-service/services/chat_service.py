@@ -14,7 +14,7 @@ from typing import List, Dict, Any
 from models.recommendation_model import RankedEvent
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL = "llama-3.3-70b-versatile"  # fast + free on Groq as of 2026
+GROQ_MODEL = "openai/gpt-oss-20b"  # current free model on Groq
 
 SYSTEM_PROMPT = """You are Vix, a friendly college event assistant for the VYBE platform.
 
