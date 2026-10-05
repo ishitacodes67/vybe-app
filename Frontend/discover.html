@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/discover.css">
     <link rel="stylesheet" href="css/vix.css">
-
     <link rel="stylesheet" href="css/cursor.css">
 </head>
 
@@ -163,9 +162,24 @@
 
             </div>
 
-            <span id="resultCount">
-                0 events
-            </span>
+            <div class="discover-toolbar">
+                <div class="discover-toolbar-left">
+                    <span id="resultCount">0 events</span>
+                    <button type="button" class="clear-filters-btn" id="clearFiltersBtn" hidden>
+                        Clear filters ×
+                    </button>
+                </div>
+
+                <div class="discover-toolbar-right">
+                    <label class="sort-label" for="sortSelect">Sort</label>
+                    <select id="sortSelect" class="sort-select">
+                        <option value="soonest">Soonest</option>
+                        <option value="newest">Newest added</option>
+                        <option value="popular">Most popular</option>
+                        <option value="alpha">A → Z</option>
+                    </select>
+                </div>
+            </div>
 
         </div>
 
@@ -192,6 +206,14 @@
                 Try another search or switch your VYBE.
             </p>
 
+        </div>
+
+
+        <div class="discover-load-more-wrap">
+            <button type="button" class="load-more-btn" id="loadMoreBtn" hidden>
+                Load more events
+                <span>↓</span>
+            </button>
         </div>
 
     </section>
@@ -242,11 +264,9 @@
 
 
 <script src="js/api.js"></script>
-<script src="js/events-data.js"></script>
-<script src="js/storage.js"></script>
 <script src="js/discover.js"></script>
 <script src="js/vix.js"></script>
+<script src="js/cursor.js"></script>
 
-    <script src="js/cursor.js"></script>
 </body>
 </html>
