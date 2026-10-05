@@ -676,3 +676,63 @@
     }
 
 }
+/* =========================================================
+   EXPLORE-MORE TAB — shown in Discover empty state
+   ========================================================= */
+
+.empty-state .explore-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+
+    margin: 22px auto 26px;
+    padding: 12px 20px;
+
+    border-radius: 14px;
+    border: 1px solid rgba(124, 92, 255, 0.35);
+    background: linear-gradient(
+        135deg,
+        rgba(124, 92, 255, 0.08),
+        rgba(163, 230, 53, 0.08)
+    );
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    color: #6d28d9;
+}
+
+.empty-state .explore-tab-arrow {
+    font-size: 15px;
+    color: #7c5cff;
+}
+
+.empty-state .explore-events {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+
+    margin-top: 12px;
+    text-align: left;
+}
+
+.empty-state .explore-events .discover-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.empty-state .explore-events .discover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+/* Large empty-state icon */
+
+.empty-state .empty-icon {
+    font-size: 48px;
+    color: #7c5cff;
+    opacity: 0.35;
+    margin-bottom: 8px;
+}

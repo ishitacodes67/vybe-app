@@ -1,14 +1,12 @@
 /* =========================================================
-   VYBE — DISCOVER
-   Loads events from the backend via window.api.getEvents(),
-   then filters/searches client-side for instant UX.
-   Same HTML selectors as before — CSS unchanged.
+   VYBE — DISCOVER (with smart fallback + explore-more)
+   Loads all upcoming approved events once, filters client-side,
+   and shows related events when the search doesn't match.
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
     "use strict";
 
-    // ---- Guard ----
     if (!window.api) {
         console.error("[discover] window.api not found");
         window.location.href = "member-login.html";
@@ -31,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let allEvents = [];
     let activeFilter = "All";
 
-    // ---- URL category (?category=Tech) ----
     const params = new URLSearchParams(window.location.search);
     const categoryFromURL = params.get("category");
 
@@ -47,22 +44,53 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       LOAD EVENTS FROM BACKEND
+       CATEGORY KEYWORDS — detect field from free text
+       e.g. "i want to learn guitar" → "Music"
+    ===================================================== */
+
+    const CATEGORY_KEYWORDS = {
+        tech: "Tech", technology: "Tech", coding: "Tech", programming: "Tech",
+        hackathon: "Tech", ai: "Tech", ml: "Tech", robot: "Tech", software: "Tech",
+        code: "Tech", developer: "Tech", computer: "Tech",
+        music: "Music", singing: "Music", band: "Music", guitar: "Music",
+        acoustic: "Music", concert: "Music", sing: "Music", song: "Music",
+        design: "Design", art: "Design", ui: "Design", ux: "Design",
+        figma: "Design", portfolio: "Design", creative: "Design", drawing: "Design",
+        sport: "Sports", sports: "Sports", football: "Sports", cricket: "Sports",
+        basketball: "Sports", yoga: "Sports", gym: "Sports", fitness: "Sports",
+        run: "Sports", marathon: "Sports",
+        business: "Business", startup: "Business", entrepreneur: "Business",
+        finance: "Business", pitch: "Business", analytics: "Business", marketing: "Business",
+        culture: "Culture", poetry: "Culture", film: "Culture", cinema: "Culture",
+        theatre: "Culture", dance: "Culture", cultural: "Culture", art: "Culture",
+        wellness: "Wellness", meditation: "Wellness", mental: "Wellness",
+        health: "Wellness", nutrition: "Wellness", yoga: "Wellness",
+        social: "Social", networking: "Social", games: "Social", mixer: "Social",
+        meet: "Social", friends: "Social"
+    };
+
+    function guessCategory(text) {
+        const lower = String(text || "").toLowerCase();
+        for (const [keyword, category] of Object.entries(CATEGORY_KEYWORDS)) {
+            if (lower.includes(keyword)) return category;
+        }
+        return null;
+    }
+
+    /* =====================================================
+       LOAD EVENTS
     ===================================================== */
 
     async function loadEvents() {
         try {
-            // Fetch upcoming approved events (backend filters by status + date)
             const events = await window.api.getEvents({ when: "upcoming" });
             allEvents = Array.isArray(events) ? events : [];
-            renderSpotlight();
-            render();
         } catch (err) {
             console.error("[discover] failed to load events:", err);
             allEvents = [];
-            renderSpotlight();
-            render();
         }
+        renderSpotlight();
+        render();
     }
 
     /* =====================================================
@@ -78,7 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Search input — debounced
     let searchTimer = null;
     search?.addEventListener("input", () => {
         clearTimeout(searchTimer);
@@ -86,14 +113,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* =====================================================
-       SPOTLIGHT (top event by registered count)
+       SPOTLIGHT
     ===================================================== */
 
     function renderSpotlight() {
         if (!spotlight) return;
 
-        const events = [...allEvents]
-            .sort((a, b) => (b.registeredCount || 0) - (a.registeredCount || 0));
+        const events = [...allEvents].sort(
+            (a, b) => (b.registeredCount || 0) - (a.registeredCount || 0)
+        );
 
         const event = events[0];
         if (!event) {
@@ -102,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const id = event._id || event.id;
-        const registered = Number(event.registeredCount ?? event.registered) || 0;
+        const registered = Number(event.registeredCount) || 0;
 
         spotlight.innerHTML = `
             <article class="spotlight-card" data-event-id="${id}" tabindex="0">
@@ -135,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       GRID RENDER
+       MAIN RENDER
     ===================================================== */
 
     function render() {
@@ -143,49 +171,117 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const query = (search?.value || "").trim().toLowerCase();
 
-        const events = allEvents
-            .filter(event => {
-                const matchesFilter =
-                    activeFilter === "All" || event.category === activeFilter;
+        const matched = allEvents.filter(event => {
+            const matchesFilter =
+                activeFilter === "All" || event.category === activeFilter;
+            if (!matchesFilter) return false;
+            if (!query) return true;
 
-                if (!matchesFilter) return false;
-                if (!query) return true;
+            const tags = Array.isArray(event.tags) ? event.tags.join(" ") : "";
+            const organizerName =
+                (typeof event.organizer === "object" && event.organizer?.name) || "";
+            const searchable = `${event.title} ${event.category} ${tags} ${event.venue || ""} ${organizerName} ${event.description || ""}`.toLowerCase();
+            return searchable.includes(query);
+        }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
-                const organizerName =
-                    (typeof event.organizer === "object" && event.organizer?.name) ||
-                    (typeof event.organizer === "string" ? "" : "");
-
-                const tags = Array.isArray(event.tags) ? event.tags.join(" ") : "";
-
-                const searchable = `${event.title || ""} ${event.category || ""} ${tags} ${event.venue || ""} ${organizerName} ${event.description || ""}`.toLowerCase();
-                return searchable.includes(query);
-            })
-            .sort((a, b) => String(a.date).localeCompare(String(b.date)));
-
+        // ---- Update result count ----
         if (resultCount) {
-            resultCount.textContent = `${events.length} ${events.length === 1 ? "event" : "events"}`;
+            if (query) {
+                resultCount.textContent = `${matched.length} of ${allEvents.length} events`;
+            } else {
+                resultCount.textContent = `${matched.length} ${matched.length === 1 ? "event" : "events"}`;
+            }
         }
 
-        if (emptyState) emptyState.hidden = events.length !== 0;
+        // ---- Empty state ----
+        if (matched.length === 0) {
+            grid.innerHTML = "";
+            renderEmptyState(query);
+            return;
+        }
 
-        grid.innerHTML = events.map(renderCard).join("");
+        if (emptyState) emptyState.hidden = true;
+        grid.innerHTML = matched.map(renderCard).join("");
         bindCards();
     }
+
+    /* =====================================================
+       EMPTY STATE with "Explore more" tab
+    ===================================================== */
+
+    function renderEmptyState(query) {
+        if (!emptyState) return;
+        emptyState.hidden = false;
+
+        const guessedCategory = query ? guessCategory(query) : null;
+
+        const headerText = query
+            ? `No exact match for "<em>${escapeHTML(query)}</em>".`
+            : "No events match this filter.";
+
+        const tabLabel = guessedCategory
+            ? `Explore ${escapeHTML(guessedCategory)} events`
+            : "Explore more events";
+
+        emptyState.innerHTML = `
+            <div class="empty-icon">◌</div>
+            <h3>nothing matched.</h3>
+            <p>${headerText} Try another search or switch your VYBE.</p>
+
+            <div class="explore-tab">
+                <span class="explore-tab-label">${tabLabel}</span>
+                <span class="explore-tab-arrow">→</span>
+            </div>
+
+            <div class="explore-events" id="exploreEvents">
+                <p style="opacity:.6;font-size:13px;padding:14px 0;">Loading suggestions…</p>
+            </div>
+        `;
+
+        const container = emptyState.querySelector("#exploreEvents");
+
+        // ---- Suggest related events ----
+        let suggestions = [];
+
+        if (guessedCategory) {
+            suggestions = allEvents
+                .filter(e => e.category === guessedCategory)
+                .sort((a, b) => String(a.date).localeCompare(String(b.date)))
+                .slice(0, 6);
+        }
+
+        // Fallback: if no category guessed or no events in it, show popular
+        if (suggestions.length === 0) {
+            suggestions = [...allEvents]
+                .sort((a, b) => (b.registeredCount || 0) - (a.registeredCount || 0))
+                .slice(0, 6);
+        }
+
+        if (suggestions.length === 0) {
+            container.innerHTML = `<p style="opacity:.6;font-size:13px;padding:14px 0;">No events to show. Try <a href="home.html">Home</a>.</p>`;
+            return;
+        }
+
+        container.innerHTML = suggestions.map(renderCard).join("");
+
+        // Wire click
+        container.querySelectorAll("[data-event-id]").forEach(card => {
+            card.addEventListener("click", () => {
+                window.location.href = `event-details.html?id=${encodeURIComponent(card.dataset.eventId)}`;
+            });
+        });
+    }
+
+    /* =====================================================
+       EVENT CARD
+    ===================================================== */
 
     function renderCard(event) {
         const id = event._id || event.id;
         const capacity = Number(event.capacity) || 0;
-        const registered = Number(event.registeredCount ?? event.registered) || 0;
+        const registered = Number(event.registeredCount) || 0;
         const seats = Math.max(capacity - registered, 0);
         const almostFull = seats > 0 && seats <= Math.ceil(capacity * 0.2);
-
-        const organizerName =
-            (typeof event.organizer === "object" && event.organizer?.name) || "";
-
-        const verified = Boolean(
-            typeof event.organizer === "object" &&
-            event.organizer?.organizerProfile?.verified
-        );
 
         return `
             <article class="discover-card" data-event-id="${id}" tabindex="0">
@@ -194,18 +290,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span class="card-floating-tag">${escapeHTML(event.category || "")}</span>
                     <span class="card-price">${formatPrice(event.price)}</span>
                 </div>
-
                 <div class="discover-card-body">
                     <h3>${escapeHTML(event.title)}</h3>
                     <p>${escapeHTML(event.description || "")}</p>
-
                     <div class="card-social">
                         ${almostFull ? `<span>⚡ ALMOST FULL</span>` : ""}
                         <span>👀 ${registered} going</span>
-                        ${verified ? `<span>✓ VERIFIED HOST</span>` : ""}
-                        ${organizerName ? `<span>by ${escapeHTML(organizerName)}</span>` : ""}
                     </div>
-
                     <div class="card-footer">
                         <div class="card-footer-meta">
                             <span>${formatEventDate(event.date)}</span>
@@ -223,12 +314,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const open = () => {
                 window.location.href = `event-details.html?id=${encodeURIComponent(card.dataset.eventId)}`;
             };
-
-            card.addEventListener("click", event => {
-                if (event.target.closest("a")) return;
+            card.addEventListener("click", e => {
+                if (e.target.closest("a")) return;
                 open();
             });
-
             card.addEventListener("keydown", e => {
                 if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
             });
@@ -266,19 +355,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function formatPrice(price) {
         const n = Number(price);
-        if (!n) return "FREE";
-        return `₹${n}`;
+        return n ? `₹${n}` : "FREE";
     }
 
     function formatEventDate(dateStr) {
         if (!dateStr) return "";
         try {
-            const d = new Date(dateStr + "T00:00:00");
+            const d = new Date(`${dateStr}T00:00:00`);
             if (isNaN(d.getTime())) return dateStr;
             return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-        } catch {
-            return dateStr;
-        }
+        } catch { return dateStr; }
     }
 
     /* =====================================================
