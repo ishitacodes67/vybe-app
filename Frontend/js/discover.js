@@ -1,7 +1,10 @@
 /* =========================================================
-   VYBE — DISCOVER (with smart fallback + clickable explore)
-   Loads all upcoming approved events once, filters client-side,
-   and shows related events when the search doesn't match.
+   VYBE — DISCOVER
+   Features:
+     • Multi-select category chips (toggle on/off)
+     • Sort dropdown (soonest / newest / popular / A-Z)
+     • Load more pagination
+     • Smart search with explore-more fallback
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -25,26 +28,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultCount = document.getElementById("resultCount");
     const emptyState = document.getElementById("emptyState");
     const spotlight = document.getElementById("discoverSpotlight");
+    const sortSelect = document.getElementById("sortSelect");
+    const clearBtn = document.getElementById("clearFiltersBtn");
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
 
+    // ---- State ----
     let allEvents = [];
-    let activeFilter = "All";
+    let activeFilters = [];
+    let sortMode = "soonest";
+    let visibleCount = 12;
+    const PAGE_SIZE = 12;
 
+    // ---- URL category preload ----
     const params = new URLSearchParams(window.location.search);
     const categoryFromURL = params.get("category");
-
     if (categoryFromURL) {
-        const matchingFilter = document.querySelector(
-            `.filter[data-filter="${CSS.escape(categoryFromURL)}"]`
-        );
-        if (matchingFilter) {
-            document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
-            matchingFilter.classList.add("active");
-            activeFilter = categoryFromURL;
-        }
+        activeFilters = [categoryFromURL];
     }
 
     /* =====================================================
-       CATEGORY KEYWORDS — detect field from free text
+       CATEGORY KEYWORDS
     ===================================================== */
 
     const CATEGORY_KEYWORDS = {
@@ -89,26 +92,103 @@ document.addEventListener("DOMContentLoaded", () => {
             allEvents = [];
         }
         renderSpotlight();
+        syncChipUI();
         render();
     }
 
     /* =====================================================
-       FILTER BUTTONS
+       FILTER CHIPS — multi-select
     ===================================================== */
+
+    function syncChipUI() {
+        document.querySelectorAll(".filter").forEach(btn => {
+            const cat = btn.dataset.filter;
+            if (cat === "All") {
+                btn.classList.toggle("active", activeFilters.length === 0);
+            } else {
+                btn.classList.toggle("active", activeFilters.includes(cat));
+            }
+        });
+    }
 
     document.querySelectorAll(".filter").forEach(button => {
         button.addEventListener("click", () => {
-            document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
-            button.classList.add("active");
-            activeFilter = button.dataset.filter;
+            const cat = button.dataset.filter;
+
+            if (cat === "All") {
+                activeFilters = [];
+            } else {
+                const idx = activeFilters.indexOf(cat);
+                if (idx >= 0) {
+                    activeFilters.splice(idx, 1);
+                } else {
+                    activeFilters.push(cat);
+                }
+            }
+
+            visibleCount = PAGE_SIZE;
+            syncChipUI();
             render();
         });
     });
 
+    /* =====================================================
+       SEARCH — debounced
+    ===================================================== */
+
     let searchTimer = null;
     search?.addEventListener("input", () => {
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(render, 120);
+        searchTimer = setTimeout(() => {
+            visibleCount = PAGE_SIZE;
+            render();
+        }, 120);
+    });
+
+    /* =====================================================
+       SORT
+    ===================================================== */
+
+    sortSelect?.addEventListener("change", () => {
+        sortMode = sortSelect.value;
+        render();
+    });
+
+    function sortEvents(events) {
+        const sorted = [...events];
+        switch (sortMode) {
+            case "newest":
+                return sorted.sort((a, b) =>
+                    String(b.createdAt || "").localeCompare(String(a.createdAt || ""))
+                );
+            case "popular":
+                return sorted.sort((a, b) =>
+                    (Number(b.registeredCount) || 0) - (Number(a.registeredCount) || 0)
+                );
+            case "alpha":
+                return sorted.sort((a, b) =>
+                    String(a.title || "").localeCompare(String(b.title || ""))
+                );
+            case "soonest":
+            default:
+                return sorted.sort((a, b) =>
+                    String(a.date || "").localeCompare(String(b.date || ""))
+                );
+        }
+    }
+
+    /* =====================================================
+       CLEAR FILTERS
+    ===================================================== */
+
+    clearBtn?.addEventListener("click", () => {
+        activeFilters = [];
+        if (search) search.value = "";
+        if (sortSelect) sortSelect.value = "soonest";
+        sortMode = "soonest";
+        visibleCount = PAGE_SIZE;
+        syncChipUI();
+        render();
     });
 
     /* =====================================================
@@ -170,9 +250,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const query = (search?.value || "").trim().toLowerCase();
 
-        const matched = allEvents.filter(event => {
+        let matched = allEvents.filter(event => {
             const matchesFilter =
-                activeFilter === "All" || event.category === activeFilter;
+                activeFilters.length === 0 || activeFilters.includes(event.category);
             if (!matchesFilter) return false;
             if (!query) return true;
 
@@ -181,29 +261,58 @@ document.addEventListener("DOMContentLoaded", () => {
                 (typeof event.organizer === "object" && event.organizer?.name) || "";
             const searchable = `${event.title} ${event.category} ${tags} ${event.venue || ""} ${organizerName} ${event.description || ""}`.toLowerCase();
             return searchable.includes(query);
-        }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+        });
 
+        matched = sortEvents(matched);
+
+        const hasFilters = activeFilters.length > 0 || query;
         if (resultCount) {
-            if (query) {
-                resultCount.textContent = `${matched.length} of ${allEvents.length} events`;
-            } else {
+            if (matched.length === 0) {
+                resultCount.textContent = "0 events";
+            } else if (matched.length <= visibleCount) {
                 resultCount.textContent = `${matched.length} ${matched.length === 1 ? "event" : "events"}`;
+            } else {
+                resultCount.textContent = `Showing ${visibleCount} of ${matched.length}`;
             }
         }
 
+        if (clearBtn) clearBtn.hidden = !hasFilters;
+
         if (matched.length === 0) {
             grid.innerHTML = "";
+            if (loadMoreBtn) loadMoreBtn.hidden = true;
             renderEmptyState(query);
             return;
         }
 
         if (emptyState) emptyState.hidden = true;
-        grid.innerHTML = matched.map(renderCard).join("");
+
+        const visible = matched.slice(0, visibleCount);
+        grid.innerHTML = visible.map(renderCard).join("");
         bindCards();
+
+        if (loadMoreBtn) {
+            if (matched.length > visibleCount) {
+                const remaining = matched.length - visibleCount;
+                loadMoreBtn.hidden = false;
+                loadMoreBtn.innerHTML = `Load ${Math.min(remaining, PAGE_SIZE)} more <span>↓</span>`;
+            } else {
+                loadMoreBtn.hidden = true;
+            }
+        }
     }
 
     /* =====================================================
-       EMPTY STATE with clickable "Explore" button
+       LOAD MORE
+    ===================================================== */
+
+    loadMoreBtn?.addEventListener("click", () => {
+        visibleCount += PAGE_SIZE;
+        render();
+    });
+
+    /* =====================================================
+       EMPTY STATE + explore button
     ===================================================== */
 
     function renderEmptyState(query) {
@@ -235,29 +344,23 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
-        // ---- Wire the "Explore" button ----
         const exploreBtn = emptyState.querySelector("#exploreTabBtn");
         exploreBtn?.addEventListener("click", () => {
             if (search) search.value = "";
 
             if (guessedCategory) {
-                activeFilter = guessedCategory;
-                document.querySelectorAll(".filter").forEach(b => {
-                    b.classList.toggle("active", b.dataset.filter === guessedCategory);
-                });
+                activeFilters = [guessedCategory];
             } else {
-                activeFilter = "All";
-                document.querySelectorAll(".filter").forEach(b => {
-                    b.classList.toggle("active", b.dataset.filter === "All");
-                });
+                activeFilters = [];
             }
 
+            visibleCount = PAGE_SIZE;
+            syncChipUI();
             render();
         });
 
         const container = emptyState.querySelector("#exploreEvents");
 
-        // ---- Suggest related events ----
         let suggestions = [];
 
         if (guessedCategory) {

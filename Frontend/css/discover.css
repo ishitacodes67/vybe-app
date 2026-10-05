@@ -908,3 +908,58 @@
     opacity: 0.35;
     margin-bottom: 8px;
 }
+/* =========================================================
+   VYBE — DISCOVER FIXES (2026-10-05)
+   Issue 1: Load-more button must respect [hidden]
+   Issue 2: Toolbar fonts must use theme tokens regardless of wrapper class
+   ========================================================= */
+
+/* ---- Issue 1: make [hidden] win on the load-more button ---- */
+.load-more-btn[hidden],
+#loadMoreBtn[hidden] {
+    display: none !important;
+}
+
+/* ---- Issue 2: toolbar typography — target IDs directly ---- */
+#resultCount,
+.discover-toolbar #resultCount,
+.toolbar #resultCount,
+.discover-toolbar-left #resultCount {
+    font-family: var(--mono, "DM Mono", "Courier New", monospace) !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: #0d0d0d !important;
+}
+
+.sort-label,
+.discover-toolbar .sort-label,
+.toolbar .sort-label,
+.discover-toolbar-right .sort-label {
+    font-family: var(--mono, "DM Mono", "Courier New", monospace) !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: #8a8a8a !important;
+    margin-right: 6px;
+}
+
+#sortSelect,
+.sort-select,
+.discover-toolbar #sortSelect,
+.toolbar #sortSelect {
+    font-family: var(--mono, "DM Mono", "Courier New", monospace) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #0d0d0d !important;
+}
+
+/* Also normalise the toolbar container itself if it exists */
+.discover-toolbar,
+.toolbar {
+    align-items: center;
+}
