@@ -5,6 +5,7 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const express = require("express");
 const cors = require("cors");
+const compression = require("compression");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
 const { generalLimiter } = require("./middleware/rateLimiters");
@@ -16,13 +17,14 @@ const organizerRoutes = require("./Routes/organizerRoutes");
 const authorityRoutes = require("./Routes/authorityRoutes");
 const feedbackRoutes = require("./Routes/feedbackRoutes");
 const notificationRoutes = require("./Routes/notificationRoutes");
-const chatRoutes = require("./Routes/chatRoutes");                     // ← ADDED
+const chatRoutes = require("./Routes/chatRoutes");
 
 const app = express();
 app.set("trust proxy", 1);
 
 const allowedOrigins = (process.env.CLIENT_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
 
+app.use(compression());
 app.use(
   cors({
     origin: allowedOrigins.length ? allowedOrigins : true,
@@ -32,9 +34,12 @@ app.use(
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.get("/health", (req, res) => res.json({ status: "ok", time: new Date().toISOString() }));
+// Health endpoint for uptime monitors
+app.get("/health", (req, res) => res.json({ status: "ok", service: "vybe-backend", time: new Date().toISOString() }));
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get("/api-docs.json", (req, res) => res.json(swaggerSpec));
+
 app.use("/api", generalLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -44,7 +49,7 @@ app.use("/api/organizer", organizerRoutes);
 app.use("/api/authority", authorityRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/chat", chatRoutes);                                       // ← ADDED
+app.use("/api/chat", chatRoutes);
 
 // Catch-all error handler - keeps stack traces out of API responses
 app.use((err, req, res, next) => {
@@ -58,11 +63,6 @@ connectDB().then(() => {
   app.listen(PORT, () => console.log(`VYBE backend running on port ${PORT}`));
 });
 
-
-// Simple health endpoint for uptime monitors
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", service: "vybe-backend", time: new Date().toISOString() });
-});
 
 /* =========================================================
    VYBE — AI SERVICE SELF-PING (keep-alive)
