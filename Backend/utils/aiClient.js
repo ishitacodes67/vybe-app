@@ -3,7 +3,7 @@
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
 
-const AI_TIMEOUT_MS = 90000; // 90 seconds — enough for cold start + inference
+const AI_TIMEOUT_MS = 25000; // 25 seconds — fast fail, backend retries once
 
 // Mongoose → AI service shape
 function toAiEvent(event) {

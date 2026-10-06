@@ -10,10 +10,26 @@ const { chatLimiter } = require("../middleware/rateLimiters");
 
 const router = express.Router();
 
+// ---------- Friendly fallback when the AI service is unavailable ----------
+// Returns real upcoming events so Vix never shows an empty "snag" screen.
+function buildFallbackReply(candidates) {
+  if (!candidates || candidates.length === 0) {
+    return {
+      reply: "I couldn't reach my brain just now, and there aren't any upcoming events to suggest yet. Check back soon!",
+      events: []
+    };
+  }
+  const top = [...candidates]
+    .sort((a, b) => (b.registeredCount || 0) - (a.registeredCount || 0))
+    .slice(0, 3);
+  const titles = top.map((e) => e.title).join(" · ");
+  return {
+    reply: `I'm running a little slow right now, but here's what's popular on campus: ${titles}. Try one of these!`,
+    events: top
+  };
+}
+
 // ---------- POST /api/chat ----------
-// Frontend sends { message, history?, contextEventIds? }
-// Backend: looks up user interests + current approved events, calls Python /chat,
-// returns { reply, recommendedEvents, recommendedEventIds }
 router.post("/", chatLimiter, verifyToken, async (req, res) => {
   try {
     const { message, history, contextEventIds } = req.body;
@@ -43,7 +59,6 @@ router.post("/", chatLimiter, verifyToken, async (req, res) => {
     };
     if (user.institution) eventQuery.institution = user.institution;
 
-    // If frontend passed specific event IDs (e.g. current screen), use those as candidates
     let candidates;
     if (Array.isArray(contextEventIds) && contextEventIds.length > 0) {
       const validIds = contextEventIds.filter((id) => mongoose.isValidObjectId(id));
@@ -58,43 +73,75 @@ router.post("/", chatLimiter, verifyToken, async (req, res) => {
         .lean();
     }
 
-    // Call Python /chat
-    const { reply, recommendedEventIds } = await getChatReply({
-      message: message.trim(),
-      user: {
-        interests: user.interests || [],
-        goals: user.goals || [],
-        registeredEventIds
-      },
-      currentEvents: candidates,
-      history: Array.isArray(history) ? history.slice(-6) : []
-    });
+    // --- Try the AI service with one quick retry ---
+    let aiResult = null;
+    let aiError = null;
 
-    // Fetch full details for the recommended IDs (in the same order)
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        aiResult = await getChatReply({
+          message: message.trim(),
+          user: {
+            interests: user.interests || [],
+            goals: user.goals || [],
+            registeredEventIds
+          },
+          currentEvents: candidates,
+          history: Array.isArray(history) ? history.slice(-6) : []
+        });
+        aiError = null;
+        break;
+      } catch (err) {
+        aiError = err;
+        console.warn(`[POST /api/chat] AI attempt ${attempt + 1} failed: ${err.message}`);
+        if (attempt === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
+      }
+    }
+
+    // --- AI failed both attempts: graceful fallback with real events ---
+    if (!aiResult) {
+      console.error("[POST /api/chat] AI unavailable, using fallback:", aiError?.message);
+      const fallback = buildFallbackReply(candidates);
+      return res.json({
+        reply: fallback.reply,
+        recommendedEventIds: fallback.events.map((e) => String(e._id)),
+        recommendedEvents: fallback.events,
+        fallback: true
+      });
+    }
+
+    // --- AI succeeded: fetch full event details in the ranked order ---
+    const { reply, recommendedEventIds } = aiResult;
     const recIds = (recommendedEventIds || []).filter((id) => mongoose.isValidObjectId(id));
+
     const events = await Event.find({ _id: { $in: recIds } })
       .populate("institution", "name")
       .populate("organizer", "name organizerProfile.orgName")
       .lean();
 
-    // Preserve Python's ranking order
     const orderMap = new Map(recIds.map((id, idx) => [String(id), idx]));
-    events.sort((a, b) => (orderMap.get(String(a._id)) ?? 999) - (orderMap.get(String(b._id)) ?? 999));
+    events.sort(
+      (a, b) =>
+        (orderMap.get(String(a._id)) ?? 999) -
+        (orderMap.get(String(b._id)) ?? 999)
+    );
 
-    res.json({
+    return res.json({
       reply,
       recommendedEventIds: recIds,
-      recommendedEvents: events
+      recommendedEvents: events,
+      fallback: false
     });
   } catch (error) {
     console.error("[POST /api/chat]", error);
-    res.status(500).json({
-      message: "Chat failed",
-      error: error.message,
-      // Graceful degradation: give the frontend something usable
-      reply: "I'm having trouble thinking right now. Try browsing events directly.",
+    // Last resort: never return a 500 that the frontend can't render.
+    return res.json({
+      reply: "Something went wrong on my side. Try Discover while I recover.",
       recommendedEventIds: [],
-      recommendedEvents: []
+      recommendedEvents: [],
+      fallback: true
     });
   }
 });
