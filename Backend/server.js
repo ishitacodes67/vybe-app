@@ -58,6 +58,12 @@ connectDB().then(() => {
   app.listen(PORT, () => console.log(`VYBE backend running on port ${PORT}`));
 });
 
+
+// Simple health endpoint for uptime monitors
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", service: "vybe-backend", time: new Date().toISOString() });
+});
+
 /* =========================================================
    VYBE — AI SERVICE SELF-PING (keep-alive)
    Backend pings the Python AI service every 10 minutes so
