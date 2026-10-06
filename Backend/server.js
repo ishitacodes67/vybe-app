@@ -57,3 +57,28 @@ const PORT = process.env.PORT || 5000;
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`VYBE backend running on port ${PORT}`));
 });
+
+/* =========================================================
+   VYBE — AI SERVICE SELF-PING (keep-alive)
+   Backend pings the Python AI service every 10 minutes so
+   Render never spins it down.
+   ========================================================= */
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "https://vybe-ai-jybe.onrender.com";
+const AI_PING_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+
+async function pingAiService() {
+  try {
+    const res = await fetch(`${AI_SERVICE_URL}/health`, {
+      method: "GET",
+      headers: { "User-Agent": "VYBE-Backend-KeepAlive/1.0" }
+    });
+    console.log(`[ai-keepalive] ping ${res.status} at ${new Date().toISOString()}`);
+  } catch (err) {
+    console.warn(`[ai-keepalive] ping failed: ${err.message}`);
+  }
+}
+
+pingAiService();
+setInterval(pingAiService, AI_PING_INTERVAL_MS);
+
+console.log(`[ai-keepalive] started — pinging ${AI_SERVICE_URL}/health every 10 min`);
