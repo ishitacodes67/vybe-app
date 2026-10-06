@@ -62,7 +62,7 @@ async def _call_groq(api_key: str, message: str, context: str, history: List[Dic
                 "model": GROQ_MODEL,
                 "messages": messages,
                 "temperature": 0.5,
-                "max_tokens": 800
+                "max_tokens": 350
             }
         )
         resp.raise_for_status()
