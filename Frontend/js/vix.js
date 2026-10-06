@@ -1,5 +1,5 @@
 /* =========================================================
-   VYBE — VIX (backend-wired + explore-more tab)
+   VYBE — VIX (backend-wired + explore-more tab + response cache)
    ========================================================= */
 
 (function () {
@@ -29,6 +29,25 @@
         social: "Social", networking: "Social", games: "Social", mixer: "Social"
     };
 
+    // ---------- Frontend response cache ----------
+    // Identical prompt within 2 minutes → return instantly, no network.
+    const FRONTEND_CACHE = new Map();
+    const FRONTEND_CACHE_TTL_MS = 2 * 60 * 1000;
+
+    function fcacheGet(key) {
+        const entry = FRONTEND_CACHE.get(key);
+        if (!entry) return null;
+        if (Date.now() - entry.ts > FRONTEND_CACHE_TTL_MS) {
+            FRONTEND_CACHE.delete(key);
+            return null;
+        }
+        return entry.value;
+    }
+
+    function fcacheSet(key, value) {
+        FRONTEND_CACHE.set(key, { ts: Date.now(), value });
+    }
+
     function guessCategory(text) {
         const lower = String(text || "").toLowerCase();
         for (const [keyword, category] of Object.entries(CATEGORY_KEYWORDS)) {
@@ -37,8 +56,7 @@
         return null;
     }
 
-    // Retry helper: retries once on transient failures (5xx / network).
-    // Does NOT retry on auth or validation errors (4xx).
+    // Retry once on transient (5xx / network) failures.
     async function chatWithRetry(prompt, history) {
         try {
             return await window.api.chat(prompt, history);
@@ -96,6 +114,13 @@
 
         const prompt = PROMPTS[type] || "What should I attend?";
 
+        // Frontend cache hit → instant render, no network at all
+        const cached = fcacheGet(prompt);
+        if (cached) {
+            renderVixResponse(response, cached.reply, cached.recommendedEvents || []);
+            return;
+        }
+
         response.innerHTML = `
             <strong>${escapeHTML(prompt)}</strong>
             <p style="opacity:.7;margin-top:8px;">Vix is thinking…</p>
@@ -111,24 +136,12 @@
         }
 
         try {
-            const { reply, recommendedEvents } = await chatWithRetry(prompt, []);
-            const events = Array.isArray(recommendedEvents) ? recommendedEvents : [];
+            const data = await chatWithRetry(prompt, []);
+            const reply = data.reply;
+            const events = Array.isArray(data.recommendedEvents) ? data.recommendedEvents : [];
 
-            if (events.length > 0) {
-                response.innerHTML = `
-                    <strong>${escapeHTML(reply || "Here's what I found.")}</strong>
-                    <div class="vix-event-list">
-                        ${events.map(renderEventCard).join("")}
-                    </div>
-                `;
-                response.querySelectorAll("[data-event-id]").forEach(button => {
-                    button.addEventListener("click", () => {
-                        window.location.href = `event-details.html?id=${encodeURIComponent(button.dataset.eventId)}`;
-                    });
-                });
-            } else {
-                await renderExploreState(response, reply, prompt);
-            }
+            fcacheSet(prompt, { reply, recommendedEvents: events });
+            renderVixResponse(response, reply, events);
         } catch (err) {
             console.error("[vix] chat failed:", err);
             const msg = err?.message || "Something went wrong.";
@@ -138,6 +151,24 @@
                 <p style="opacity:.7;margin-top:6px;">Try again in a few seconds, or browse events below.</p>
                 <a href="discover.html" class="vix-discover-link">Explore all events →</a>
             `;
+        }
+    }
+
+    function renderVixResponse(response, reply, events) {
+        if (events.length > 0) {
+            response.innerHTML = `
+                <strong>${escapeHTML(reply || "Here's what I found.")}</strong>
+                <div class="vix-event-list">
+                    ${events.map(renderEventCard).join("")}
+                </div>
+            `;
+            response.querySelectorAll("[data-event-id]").forEach(button => {
+                button.addEventListener("click", () => {
+                    window.location.href = `event-details.html?id=${encodeURIComponent(button.dataset.eventId)}`;
+                });
+            });
+        } else {
+            renderExploreState(response, reply, PROMPTS.recommend);
         }
     }
 
