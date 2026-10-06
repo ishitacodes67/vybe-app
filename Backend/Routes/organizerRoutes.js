@@ -5,6 +5,15 @@ const Registration = require("../models/Registration");
 require("../models/User");
 require("../models/Institution");
 const { verifyToken, requireRole } = require("../middleware/auth");
+const { createNotification } = require("../utils/notify");
+
+async function safeNotify(userId, title, message, type, link) {
+  try {
+    await createNotification(userId, { title, message, type, link });
+  } catch (err) {
+    console.error("[notify] failed:", err.message);
+  }
+}
 
 const router = express.Router();
 
@@ -228,9 +237,27 @@ router.patch("/events/:id/cancel", async (req, res) => {
       return res.status(400).json({ message: "This event is already cancelled" });
     }
 
-    event.status = "rejected";
+        event.status = "rejected";
     event.rejectionReason = req.body?.reason || "Cancelled by organizer";
     await event.save();
+
+    // Notify every confirmed or pending registrant
+    const regs = await Registration.find({
+      event: event._id,
+      status: { $in: ["confirmed", "pending"] }
+    }).select("user").lean();
+
+    await Promise.all(
+      regs.map((r) =>
+        safeNotify(
+          r.user,
+          "Event cancelled",
+          `"${event.title}" was cancelled by the organizer.`,
+          "warning",
+          `/events/${event._id}`
+        )
+      )
+    );
 
     res.json({ event });
   } catch (error) {

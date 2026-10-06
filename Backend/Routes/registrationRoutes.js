@@ -133,7 +133,7 @@ router.delete("/:eventId", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "This registration is already cancelled" });
     }
 
-    const wasConfirmed = registration.status === "confirmed";
+       const wasConfirmed = registration.status === "confirmed";
     registration.status = "cancelled";
     registration.cancelledAt = new Date();
     await registration.save();
@@ -142,6 +142,18 @@ router.delete("/:eventId", verifyToken, async (req, res) => {
       await Event.findByIdAndUpdate(req.params.eventId, {
         $inc: { registeredCount: -1 }
       });
+    }
+
+    // Notify the organizer that someone cancelled
+    const event = await Event.findById(req.params.eventId).select("title organizer");
+    if (event && event.organizer) {
+      await safeNotify(
+        event.organizer,
+        "Registration cancelled",
+        `A student cancelled their registration for "${event.title}".`,
+        "info",
+        `/organizer/events/${event._id}`
+      );
     }
 
     res.json({ message: "Registration cancelled", registration });
