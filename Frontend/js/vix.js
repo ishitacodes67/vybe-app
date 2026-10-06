@@ -1,26 +1,15 @@
 /* =========================================================
    VYBE — VIX (backend-wired + explore-more tab)
-   Calls /api/chat, renders reply + event cards.
-   When no events match, shows related events from the same
-   field the user asked about, so they can still register.
    ========================================================= */
 
 (function () {
     "use strict";
-
-    /* =====================================================
-       SUGGESTION → PROMPT MAPPING
-    ===================================================== */
 
     const PROMPTS = {
         recommend: "What should I attend this week?",
         upcoming: "What's happening soon on campus?",
         interests: "Show me events matching my interests."
     };
-
-    /* =====================================================
-       CATEGORY KEYWORDS — guess what field the user means
-    ===================================================== */
 
     const CATEGORY_KEYWORDS = {
         tech: "Tech", technology: "Tech", coding: "Tech", programming: "Tech",
@@ -48,9 +37,21 @@
         return null;
     }
 
-    /* =====================================================
-       PANEL
-    ===================================================== */
+    // Retry helper: retries once on transient failures (5xx / network).
+    // Does NOT retry on auth or validation errors (4xx).
+    async function chatWithRetry(prompt, history) {
+        try {
+            return await window.api.chat(prompt, history);
+        } catch (err) {
+            const status = err && err.status;
+            const isTransient = !status || (status >= 500 && status < 600);
+            if (!isTransient) throw err;
+
+            console.warn("[vix] transient failure, retrying once in 2s:", err.message);
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            return window.api.chat(prompt, history);
+        }
+    }
 
     function createPanel() {
         if (document.getElementById("vixPanel")) return;
@@ -61,30 +62,21 @@
 
         panel.innerHTML = `
             <div class="vix-panel-backdrop"></div>
-
             <div class="vix-panel-content" role="dialog" aria-modal="true" aria-label="Vix AI">
-
                 <button class="vix-close" id="vixClose" type="button" aria-label="Close Vix">×</button>
-
                 <div class="vix-panel-icon">✦</div>
-
                 <span class="vix-panel-eyebrow">VIX AI</span>
-
                 <h2>your slightly chaotic<br>campus AI friend.</h2>
-
                 <p class="vix-panel-intro">
                     Ask me what to attend, what's happening soon,
                     or what matches your interests.
                 </p>
-
                 <div class="vix-response" id="vixResponse"></div>
-
                 <div class="vix-suggestions">
                     <button type="button" data-vix-question="recommend">✦ What should I attend?</button>
                     <button type="button" data-vix-question="upcoming">⚡ What's happening soon?</button>
                     <button type="button" data-vix-question="interests">♡ Show my matches</button>
                 </div>
-
                 <a href="discover.html" class="vix-discover-link">Explore all events →</a>
             </div>
         `;
@@ -93,17 +85,10 @@
 
         document.getElementById("vixClose").addEventListener("click", closePanel);
         panel.querySelector(".vix-panel-backdrop").addEventListener("click", closePanel);
-
         panel.querySelectorAll("[data-vix-question]").forEach(button => {
-            button.addEventListener("click", () => {
-                handleSuggestion(button.dataset.vixQuestion);
-            });
+            button.addEventListener("click", () => handleSuggestion(button.dataset.vixQuestion));
         });
     }
-
-    /* =====================================================
-       SUGGESTION HANDLER
-    ===================================================== */
 
     async function handleSuggestion(type) {
         const response = document.getElementById("vixResponse");
@@ -111,84 +96,54 @@
 
         const prompt = PROMPTS[type] || "What should I attend?";
 
-        // ---- Loading state ----
         response.innerHTML = `
             <strong>${escapeHTML(prompt)}</strong>
-            <p style="opacity:.7;margin-top:8px;">Vix is thinking… <span style="opacity:.5;">(first reply can take up to 60s if the AI is waking up)</span></p>
+            <p style="opacity:.7;margin-top:8px;">Vix is thinking…</p>
         `;
 
-        // ---- Guard ----
         if (!window.api || !window.api.chat) {
-            response.innerHTML = `
-                <strong>Vix is unavailable.</strong>
-                <p>Please sign in again and refresh.</p>
-            `;
+            response.innerHTML = `<strong>Vix is unavailable.</strong><p>Please sign in again and refresh.</p>`;
             return;
         }
-
         if (!window.api.getToken()) {
-            response.innerHTML = `
-                <strong>Please sign in.</strong>
-                <p>Vix needs to know who you are before recommending events.</p>
-                <a href="member-login.html">Sign in →</a>
-            `;
+            response.innerHTML = `<strong>Please sign in.</strong><p>Vix needs to know who you are before recommending events.</p><a href="member-login.html">Sign in →</a>`;
             return;
         }
 
         try {
-            const { reply, recommendedEvents } = await window.api.chat(prompt, []);
-
+            const { reply, recommendedEvents } = await chatWithRetry(prompt, []);
             const events = Array.isArray(recommendedEvents) ? recommendedEvents : [];
 
             if (events.length > 0) {
-                /* ============================================
-                   HAPPY PATH — events matched
-                ============================================ */
                 response.innerHTML = `
                     <strong>${escapeHTML(reply || "Here's what I found.")}</strong>
                     <div class="vix-event-list">
                         ${events.map(renderEventCard).join("")}
                     </div>
                 `;
-
                 response.querySelectorAll("[data-event-id]").forEach(button => {
                     button.addEventListener("click", () => {
-                        const id = button.dataset.eventId;
-                        window.location.href = `event-details.html?id=${encodeURIComponent(id)}`;
+                        window.location.href = `event-details.html?id=${encodeURIComponent(button.dataset.eventId)}`;
                     });
                 });
-
             } else {
-                /* ============================================
-                   NO MATCH — show explore-more tab + related events
-                ============================================ */
                 await renderExploreState(response, reply, prompt);
             }
-
         } catch (err) {
             console.error("[vix] chat failed:", err);
             const msg = err?.message || "Something went wrong.";
             response.innerHTML = `
-                <strong>Vix hit a snag.</strong>
+                <strong>Vix is taking a quick break.</strong>
                 <p>${escapeHTML(msg)}</p>
-                <p style="opacity:.7;margin-top:6px;">Try again in a few seconds.</p>
+                <p style="opacity:.7;margin-top:6px;">Try again in a few seconds, or browse events below.</p>
+                <a href="discover.html" class="vix-discover-link">Explore all events →</a>
             `;
         }
     }
 
-    /* =====================================================
-       EXPLORE-MORE STATE
-       Triggered when Vix found no matches for the user's request.
-       Shows:
-         - LLM's reply text
-         - "Explore more →" tab
-         - Related events from the same field (or popular events)
-    ===================================================== */
-
     async function renderExploreState(response, reply, prompt) {
         const guessedCategory = guessCategory(prompt);
 
-        // Show the tab + loading state
         response.innerHTML = `
             <strong>${escapeHTML(reply || "Nothing matched your interests right now.")}</strong>
             <div class="vix-explore-tab">
@@ -205,58 +160,36 @@
         const listContainer = response.querySelector("#vixExploreList");
 
         try {
-            // Fetch related events
             let events = [];
             if (guessedCategory) {
                 events = await window.api.getEvents({ category: guessedCategory, when: "upcoming", limit: 6 });
             }
-
-            // Fallback: if no category guessed or nothing matched, get popular upcoming
             if (!events || events.length === 0) {
                 const all = await window.api.getEvents({ when: "upcoming", limit: 20 });
                 events = (all || [])
                     .sort((a, b) => (b.registeredCount || 0) - (a.registeredCount || 0))
                     .slice(0, 6);
             }
-
             if (!events || events.length === 0) {
-                listContainer.innerHTML = `
-                    <p style="opacity:.7;font-size:12px;padding:12px 0;">
-                        No events to show right now. Try <a href="discover.html">Discover</a>.
-                    </p>
-                `;
+                listContainer.innerHTML = `<p style="opacity:.7;font-size:12px;padding:12px 0;">No events to show. Try <a href="discover.html">Discover</a>.</p>`;
                 return;
             }
-
             listContainer.innerHTML = events.map(renderEventCard).join("");
-
-            // Wire click → event details
             listContainer.querySelectorAll("[data-event-id]").forEach(button => {
                 button.addEventListener("click", () => {
-                    const id = button.dataset.eventId;
-                    window.location.href = `event-details.html?id=${encodeURIComponent(id)}`;
+                    window.location.href = `event-details.html?id=${encodeURIComponent(button.dataset.eventId)}`;
                 });
             });
-
         } catch (err) {
             console.error("[vix] explore fetch failed:", err);
-            listContainer.innerHTML = `
-                <p style="opacity:.7;font-size:12px;padding:12px 0;">
-                    Couldn't load suggestions. Try <a href="discover.html">Discover</a>.
-                </p>
-            `;
+            listContainer.innerHTML = `<p style="opacity:.7;font-size:12px;padding:12px 0;">Couldn't load suggestions. Try <a href="discover.html">Discover</a>.</p>`;
         }
     }
-
-    /* =====================================================
-       EVENT CARD (matches vix-event-option CSS)
-    ===================================================== */
 
     function renderEventCard(event) {
         const id = event._id || event.id;
         const date = formatDate(event.date);
         const venue = event.venue ? ` · ${escapeHTML(event.venue)}` : "";
-
         return `
             <button type="button" class="vix-event-option" data-event-id="${id}">
                 <span>${escapeHTML(event.title || "")}</span>
@@ -264,10 +197,6 @@
             </button>
         `;
     }
-
-    /* =====================================================
-       OPEN / CLOSE
-    ===================================================== */
 
     function openPanel() {
         createPanel();
@@ -284,19 +213,13 @@
         document.body.classList.remove("vix-open");
     }
 
-    /* =====================================================
-       HELPERS
-    ===================================================== */
-
     function formatDate(date) {
         if (!date) return "";
         try {
             const d = new Date(`${date}T12:00:00`);
             if (isNaN(d.getTime())) return date;
             return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-        } catch {
-            return date;
-        }
+        } catch { return date; }
     }
 
     function escapeHTML(value) {
@@ -308,22 +231,13 @@
             .replaceAll("'", "&#039;");
     }
 
-    /* =====================================================
-       INIT + GLOBAL
-    ===================================================== */
-
     function init() {
         createPanel();
-
         document.querySelectorAll("[data-vix-open]").forEach(button => {
             button.addEventListener("click", openPanel);
         });
     }
 
-    window.VYBE_VIX = {
-        open: openPanel,
-        close: closePanel
-    };
-
+    window.VYBE_VIX = { open: openPanel, close: closePanel };
     document.addEventListener("DOMContentLoaded", init);
 })();
