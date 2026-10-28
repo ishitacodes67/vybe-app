@@ -292,6 +292,122 @@
             ).length;
     }
 
+
+    /* =====================================================
+       HOST / ORGANIZER COMPATIBILITY HELPERS
+       These keep the older Host pages working with the
+       current central storage layer.
+       ===================================================== */
+
+    function getOrganizer() {
+        const stored = read("vybeOrganizer", null);
+        if (stored && typeof stored === "object") return stored;
+
+        const user = getUser();
+        if (user && typeof user === "object") return user;
+
+        return {
+            id: "local-host",
+            name: "VYBE Host",
+            institution: "MIT",
+            role: "organizer"
+        };
+    }
+
+    function getOrganizerId() {
+        const organizer = getOrganizer();
+        return organizer.id || organizer._id || organizer.userId || "local-host";
+    }
+
+    function generateId(prefix = "VYBE") {
+        const stamp = Date.now().toString(36).toUpperCase();
+        const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+        return `${prefix}-${stamp}-${random}`;
+    }
+
+    function getEventById(eventId) {
+        if (!eventId) return null;
+
+        const organizerEvent = getOrganizerEvents().find(
+            event => String(event.id || event._id) === String(eventId)
+        );
+        if (organizerEvent) return organizerEvent;
+
+        const campusEvents = read("vybeEvents", []);
+        return Array.isArray(campusEvents)
+            ? campusEvents.find(event => String(event.id || event._id) === String(eventId)) || null
+            : null;
+    }
+
+    function saveOrganizerEvent(event) {
+        if (!event || typeof event !== "object") return false;
+
+        const events = getOrganizerEvents();
+        const eventId = event.id || event._id;
+        const existingIndex = events.findIndex(
+            item => String(item.id || item._id) === String(eventId)
+        );
+
+        if (existingIndex >= 0) events[existingIndex] = event;
+        else events.unshift(event);
+
+        setOrganizerEvents(events);
+
+        // The Authority review screen reads this shared prototype key.
+        const campusEvents = read("vybeEvents", []);
+        const allEvents = Array.isArray(campusEvents) ? campusEvents : [];
+        const campusIndex = allEvents.findIndex(
+            item => String(item.id || item._id) === String(eventId)
+        );
+        if (campusIndex >= 0) allEvents[campusIndex] = event;
+        else allEvents.unshift(event);
+        write("vybeEvents", allEvents);
+
+        return true;
+    }
+
+    function deleteOrganizerEvent(eventId) {
+        if (!eventId) return false;
+
+        setOrganizerEvents(
+            getOrganizerEvents().filter(
+                event => String(event.id || event._id) !== String(eventId)
+            )
+        );
+
+        const campusEvents = read("vybeEvents", []);
+        if (Array.isArray(campusEvents)) {
+            write("vybeEvents", campusEvents.filter(
+                event => String(event.id || event._id) !== String(eventId)
+            ));
+        }
+
+        return true;
+    }
+
+    function formatDate(value) {
+        if (!value) return "Date TBA";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return String(value);
+        return date.toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
+    function formatTime(value) {
+        if (!value) return "Time TBA";
+        const text = String(value);
+        const date = new Date(`1970-01-01T${text.length === 5 ? text : text.slice(0, 5)}:00`);
+        if (Number.isNaN(date.getTime())) return text;
+        return date.toLocaleTimeString("en-IN", {
+            hour: "numeric",
+            minute: "2-digit"
+        });
+    }
+
+
     function getOrganizerEvents() {
         const events = read(
             STORAGE_KEYS.ORGANIZER_EVENTS,
@@ -371,6 +487,15 @@
         markAllNotificationsRead,
         getUnreadNotificationCount,
 
+        getOrganizer,
+        getOrganizerId,
+        generateId,
+        getEventById,
+        saveOrganizerEvent,
+        deleteOrganizerEvent,
+        formatDate,
+        formatTime,
+
         getOrganizerEvents,
         setOrganizerEvents,
 
@@ -379,6 +504,9 @@
 
         clearSession
     };
+
+    // Backward-compatible alias used by the Host pages.
+    window.VYBEStorage = window.VYBE_STORAGE;
 
     console.log("VYBE Storage System initialized.");
 })();

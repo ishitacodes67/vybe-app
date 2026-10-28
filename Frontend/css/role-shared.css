@@ -1,0 +1,610 @@
+/* =========================================================
+   VYBE — SHARED HOST + AUTHORITY DESIGN SYSTEM
+   A light, editorial interface that keeps every role in one brand.
+   Loaded after role-specific CSS so existing interactions stay intact.
+   ========================================================= */
+
+:root {
+    --role-paper: #f5f1e9;
+    --role-surface: #ffffff;
+    --role-ink: #171717;
+    --role-muted: #77736d;
+    --role-line: #e5dfd5;
+    --role-violet: #7054ff;
+    --role-violet-soft: #eee9ff;
+    --role-acid: #dfff27;
+    --role-radius: 22px;
+    --role-shadow: 0 18px 50px rgba(24, 20, 40, .07);
+}
+
+.organizer-page,
+.authority-page {
+    background: var(--role-paper);
+    color: var(--role-ink);
+    font-family: var(--sans, Inter, Arial, sans-serif);
+}
+
+.organizer-page *,
+.authority-page * {
+    box-sizing: border-box;
+}
+
+.organizer-page a,
+.authority-page a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* One recognisable VYBE wordmark across Member, Host and Authority. */
+.organizer-sidebar > .brand,
+.authority-nav > .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    width: fit-content;
+    color: var(--role-ink) !important;
+    font-family: var(--sans, Inter, Arial, sans-serif);
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -.075em;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.organizer-sidebar > .brand span,
+.authority-nav > .brand span {
+    color: var(--role-violet) !important;
+    font-size: 1.1em;
+    line-height: 1;
+    margin-left: 2px;
+}
+
+.organizer-sidebar {
+    background: rgba(255, 255, 255, .88);
+    border-right: 1px solid var(--role-line);
+    box-shadow: 8px 0 35px rgba(24, 20, 40, .025);
+}
+
+.organizer-sidebar .host-label {
+    color: var(--role-violet);
+    letter-spacing: .16em;
+}
+
+.organizer-nav .nav-item {
+    border-radius: 13px;
+    color: #66616d;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+
+.organizer-nav .nav-item:hover {
+    background: #f4f0ff;
+    color: var(--role-ink);
+    transform: translateX(2px);
+}
+
+.organizer-nav .nav-item.active {
+    color: var(--role-ink);
+    background: var(--role-violet-soft);
+    box-shadow: inset 3px 0 0 var(--role-violet);
+}
+
+.organizer-main {
+    background:
+        radial-gradient(circle at 90% 2%, rgba(112, 84, 255, .08), transparent 27%),
+        var(--role-paper);
+}
+
+.organizer-topbar {
+    align-items: center;
+    margin-bottom: 42px;
+}
+
+.organizer-topbar h1,
+.authority-hero h1 {
+    color: var(--role-ink);
+    font-family: var(--serif, "Playfair Display", Georgia, serif);
+    font-weight: 600;
+    letter-spacing: -.065em;
+}
+
+.organizer-topbar h1 em,
+.authority-hero h1 span {
+    color: var(--role-violet);
+}
+
+.organizer-page .eyebrow,
+.authority-page .eyebrow,
+.authority-page .section-kicker {
+    color: var(--role-violet);
+    font-family: var(--mono, "DM Mono", monospace);
+    letter-spacing: .14em;
+}
+
+.host-intro {
+    padding: 26px 28px;
+    border: 1px solid #e4ddf9;
+    border-radius: var(--role-radius);
+    background: linear-gradient(115deg, #f0ebff 0%, #fff 75%);
+}
+
+.host-intro h2 {
+    color: var(--role-ink);
+    letter-spacing: -.045em;
+}
+
+.host-intro h2 span {
+    color: var(--role-violet);
+}
+
+.verification-chip {
+    border: 1px solid #d8cffb;
+    background: rgba(255, 255, 255, .78);
+    color: #5a42c8;
+    border-radius: 999px;
+}
+
+.stats-grid {
+    gap: 16px;
+}
+
+.organizer-page .stat-card {
+    border: 1px solid var(--role-line);
+    border-radius: 19px;
+    background: var(--role-surface);
+    box-shadow: 0 8px 28px rgba(24, 20, 40, .035);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.organizer-page .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--role-shadow);
+}
+
+.organizer-page .stat-label {
+    color: var(--role-muted);
+    font-family: var(--mono, "DM Mono", monospace);
+    letter-spacing: .1em;
+}
+
+.organizer-page .stat-card strong {
+    color: var(--role-ink);
+    letter-spacing: -.06em;
+}
+
+.organizer-page .stat-card.accent-stat {
+    background: var(--role-acid);
+    border-color: transparent;
+}
+
+.organizer-page .organizer-vix-card {
+    border: 1px solid #ddd4ff;
+    border-radius: var(--role-radius);
+    background: linear-gradient(120deg, #eee9ff 0%, #faf8ff 100%);
+}
+
+.organizer-page .vix-icon {
+    background: var(--role-violet);
+    color: #fff;
+    border-radius: 15px;
+}
+
+.organizer-page .vix-label {
+    color: var(--role-violet);
+    font-family: var(--mono, "DM Mono", monospace);
+    letter-spacing: .13em;
+}
+
+.organizer-page .events-section {
+    border-radius: var(--role-radius);
+}
+
+.organizer-page .event-tabs {
+    gap: 8px;
+}
+
+.organizer-page .event-tab {
+    border: 1px solid var(--role-line);
+    border-radius: 999px;
+    background: #fff;
+    color: #66616d;
+}
+
+.organizer-page .event-tab.active {
+    border-color: var(--role-ink);
+    background: var(--role-ink);
+    color: #fff;
+}
+
+.organizer-page .primary-button,
+.organizer-page .text-link {
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.organizer-page .primary-button {
+    border-radius: 999px;
+    background: var(--role-ink);
+    color: #fff;
+}
+
+.organizer-page .primary-button:hover {
+    background: var(--role-violet);
+    box-shadow: 0 10px 24px rgba(112, 84, 255, .2);
+    transform: translateY(-1px);
+}
+
+/* Authority uses the same light surfaces and violet/acid accents as Host. */
+.authority-page {
+    --authority-bg: var(--role-paper);
+    --authority-surface: #fff;
+    --authority-surface-2: #faf8f3;
+    --authority-text: var(--role-ink);
+    --authority-muted: var(--role-muted);
+    --authority-line: var(--role-line);
+    --authority-accent: var(--role-violet);
+    --authority-accent-soft: #eee9ff;
+    --authority-warning: #946200;
+    --authority-danger: #bd3546;
+    --authority-blue: #365fca;
+    --authority-radius: var(--role-radius);
+    background:
+        radial-gradient(circle at 90% 0%, rgba(112, 84, 255, .08), transparent 28%),
+        var(--role-paper);
+    color: var(--role-ink);
+}
+
+.authority-nav {
+    min-height: 78px;
+    background: rgba(250, 248, 243, .9);
+    border-bottom: 1px solid var(--role-line);
+    box-shadow: 0 5px 25px rgba(24, 20, 40, .025);
+}
+
+.authority-context {
+    color: #5f5a66;
+    font-size: .86rem;
+}
+
+.verification-dot {
+    background: #31a66a;
+    box-shadow: 0 0 0 4px rgba(49, 166, 106, .12);
+}
+
+.authority-avatar,
+.identity-avatar {
+    background: var(--role-violet-soft);
+    border: 1px solid #ddd4ff;
+    color: #5a42c8;
+}
+
+.authority-main {
+    padding-top: 58px;
+}
+
+.authority-hero {
+    align-items: center;
+    padding: 32px;
+    border: 1px solid #e4ddf9;
+    border-radius: 28px;
+    background: linear-gradient(120deg, #f0ebff 0%, #fff 70%);
+}
+
+.authority-hero h1 span {
+    color: var(--role-violet);
+}
+
+.authority-hero p {
+    color: #6c6673;
+}
+
+.authority-status-card {
+    background: #fff;
+    border-color: var(--role-line);
+    box-shadow: var(--role-shadow);
+}
+
+.authority-status-card .status-top {
+    color: #5a42c8;
+}
+
+.authority-status-card strong {
+    color: var(--role-ink);
+}
+
+.authority-status-card > span:last-child {
+    color: var(--role-muted);
+}
+
+.authority-stat,
+.authority-panel {
+    background: #fff;
+    border-color: var(--role-line);
+    box-shadow: 0 8px 28px rgba(24, 20, 40, .035);
+}
+
+.authority-stat {
+    border-radius: 19px;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.authority-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--role-shadow);
+}
+
+.authority-stat .stat-icon {
+    background: var(--role-violet-soft);
+    color: var(--role-violet);
+    border-radius: 12px;
+}
+
+.authority-stat.pending-stat {
+    background: var(--role-acid);
+    border-color: transparent;
+}
+
+.authority-stat.pending-stat .stat-icon {
+    background: rgba(23, 23, 23, .08);
+    color: var(--role-ink);
+}
+
+.authority-stat span,
+.authority-stat .stat-meta,
+.pulse-item span,
+.quick-action small,
+.identity-panel p {
+    color: var(--role-muted);
+}
+
+.authority-stat strong,
+.pulse-item strong,
+.panel-heading h2,
+.pulse-panel h3,
+.identity-panel h3 {
+    color: var(--role-ink);
+}
+
+.authority-panel {
+    border-radius: var(--role-radius);
+}
+
+.panel-heading p {
+    color: var(--role-muted);
+}
+
+.event-review-list > *,
+.event-review-list .review-card,
+.event-review-list .event-review-card {
+    border-radius: 16px;
+}
+
+.quick-action {
+    border-radius: 14px;
+    color: var(--role-ink);
+    transition: background .2s ease, transform .2s ease;
+}
+
+.quick-action:hover {
+    background: #f4f0ff;
+    transform: translateX(2px);
+}
+
+.quick-action > span:first-child {
+    color: var(--role-violet);
+}
+
+.identity-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+}
+
+.authority-toast {
+    box-shadow: var(--role-shadow);
+}
+
+/* Shared authentication panels: same typography, brighter role accents. */
+.auth-page .brand {
+    font-family: var(--sans, Inter, Arial, sans-serif);
+    font-weight: 800;
+    letter-spacing: -.075em;
+}
+
+.auth-page .brand span {
+    color: var(--role-violet);
+}
+
+.host-auth .auth-visual {
+    background: #eee9ff;
+    color: var(--role-ink);
+}
+
+.host-auth .auth-visual .brand,
+.authority-auth .auth-visual .brand {
+    color: var(--role-ink);
+}
+
+.host-auth .auth-kicker,
+.authority-auth .auth-kicker {
+    color: var(--role-violet);
+}
+
+.authority-auth .auth-visual {
+    background: var(--role-acid);
+    color: var(--role-ink);
+}
+
+.authority-auth .auth-visual .brand span {
+    color: var(--role-violet);
+}
+
+.auth-page .auth-form-section {
+    background:
+        radial-gradient(circle at 100% 0%, rgba(112, 84, 255, .07), transparent 35%),
+        var(--role-paper);
+}
+
+.auth-page .auth-form-wrap h2 {
+    color: var(--role-ink);
+    letter-spacing: -.06em;
+}
+
+.auth-page .auth-form-wrap h2 em {
+    color: var(--role-violet);
+}
+
+.auth-page .auth-submit {
+    border-radius: 999px;
+    background: var(--role-ink);
+    transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.auth-page .auth-submit:hover {
+    background: var(--role-violet);
+    box-shadow: 0 10px 24px rgba(112, 84, 255, .18);
+    transform: translateY(-1px);
+}
+
+.auth-page input {
+    border-radius: 12px;
+}
+
+/* Responsive refinements */
+@media (max-width: 1100px) {
+    .stats-grid,
+    .authority-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .authority-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .authority-status-card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 760px) {
+    .organizer-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .organizer-sidebar {
+        position: relative;
+        height: auto;
+        padding: 18px 20px;
+        border-right: 0;
+        border-bottom: 1px solid var(--role-line);
+    }
+
+    .organizer-sidebar .host-label,
+    .organizer-sidebar .sidebar-bottom {
+        display: none;
+    }
+
+    .organizer-nav {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .organizer-nav .nav-item {
+        padding: 10px 12px;
+        width: auto;
+    }
+
+    .organizer-main {
+        padding: 28px 18px 56px;
+    }
+
+    .organizer-topbar {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 26px;
+    }
+
+    .organizer-topbar .topbar-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .host-intro {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 22px;
+    }
+
+    .stats-grid,
+    .authority-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .authority-main {
+        width: min(100% - 32px, 1380px);
+        padding: 28px 0 60px;
+    }
+
+    .authority-nav {
+        padding: 0 18px;
+        gap: 12px;
+    }
+
+    .authority-context {
+        display: none;
+    }
+
+    .authority-hero {
+        padding: 22px;
+        margin-bottom: 24px;
+    }
+
+    .authority-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .authority-panel {
+        padding: 22px;
+    }
+
+    .authority-stat {
+        min-height: 125px;
+        padding: 17px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid,
+    .authority-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .organizer-page .stat-card,
+    .authority-stat {
+        padding: 15px;
+    }
+
+    .organizer-page .stat-card strong,
+    .authority-stat strong {
+        font-size: 1.8rem;
+    }
+
+    .authority-nav {
+        min-height: 68px;
+    }
+
+    .authority-avatar {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+
+/* Real API login feedback */
+.role-login-message { min-height: 1.4em; margin: 8px 0 12px; font-size: .88rem; color: #3b6651; line-height: 1.45; }
+.role-login-message.is-error { color: #b42318; }
+.auth-form input[aria-invalid="true"] { border-color: #b42318 !important; outline-color: #b42318; }
+.auth-form button[disabled] { opacity: .72; cursor: wait; }
