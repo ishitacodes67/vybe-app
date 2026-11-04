@@ -37,8 +37,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await window.api.authorityAnalytics();
             
             // --- BAR CHART ---
-            const catLabels = data.categories.map(c => c._id || 'Other');
-            const catData = data.categories.map(c => c.count);
+            let catLabels = data.categories.map(c => c._id || 'Other');
+            let catData = data.categories.map(c => c.count);
+            
+            // Fallback for empty data
+            if (catLabels.length === 0) {
+                catLabels = ["No Events Yet"];
+                catData = [0];
+            }
             
             new Chart(catCanvas.getContext('2d'), {
                 type: 'bar',
@@ -47,38 +53,28 @@ document.addEventListener("DOMContentLoaded", async () => {
                     datasets: [{
                         label: 'Events',
                         data: catData,
-                        backgroundColor: '#7c5cff', // VYBE Violet
+                        backgroundColor: '#7c5cff',
                         borderRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false } 
-                    },
+                    plugins: { legend: { display: false } },
                     scales: { 
-                        y: { 
-                            beginAtZero: true, 
-                            ticks: { stepSize: 1, color: '#666' },
-                            grid: { color: '#f0f0f0' }
-                        },
-                        x: { 
-                            ticks: { color: '#666' },
-                            grid: { display: false } 
-                        }
+                        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#666' }, grid: { color: '#f0f0f0' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
                     }
                 }
             });
 
             // --- LINE CHART ---
-            const regLabels = data.registrations.map(r => r._id);
-            const regData = data.registrations.map(r => r.count);
+            let regLabels = data.registrations.map(r => r._id);
+            let regData = data.registrations.map(r => r.count);
             
-            // Fallback if no registrations in the last 7 days
             if (regLabels.length === 0) {
-                regLabels.push(new Date().toISOString().slice(0,10));
-                regData.push(0);
+                regLabels = [new Date().toISOString().slice(0,10)];
+                regData = [0];
             }
             
             new Chart(regCanvas.getContext('2d'), {
@@ -88,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     datasets: [{
                         label: 'Registrations',
                         data: regData,
-                        borderColor: '#a3e635', // VYBE Acid
+                        borderColor: '#a3e635',
                         backgroundColor: 'rgba(163, 230, 53, 0.2)',
                         fill: true,
                         tension: 0.4,
@@ -100,28 +96,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false } 
-                    },
+                    plugins: { legend: { display: false } },
                     scales: { 
-                        y: { 
-                            beginAtZero: true, 
-                            ticks: { stepSize: 1, color: '#666' },
-                            grid: { color: '#f0f0f0' }
-                        },
-                        x: { 
-                            ticks: { color: '#666' },
-                            grid: { display: false } 
-                        }
+                        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#666' }, grid: { color: '#f0f0f0' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
                     }
                 }
             });
 
         } catch (err) {
             console.error("Failed to load analytics:", err);
-            // Show an error message inside the chart containers if the API fails
-            catCanvas.parentElement.innerHTML = `<div style="color: #d93025; font-size: 14px;">Failed to load chart data.</div>`;
-            regCanvas.parentElement.innerHTML = `<div style="color: #d93025; font-size: 14px;">Failed to load chart data.</div>`;
+            // Show the actual error message on screen so you can read it
+            catCanvas.parentElement.innerHTML = `<div style="color: #d93025; font-size: 14px;">Error: ${err.message}</div>`;
+            regCanvas.parentElement.innerHTML = `<div style="color: #d93025; font-size: 14px;">Error: ${err.message}</div>`;
         }
     }
 
