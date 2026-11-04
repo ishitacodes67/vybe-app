@@ -13,7 +13,8 @@ const router = express.Router();
 
 const ALLOWED_FIELDS = [
   "title", "category", "tags", "date", "endDate", "time", "venue",
-  "mode", "price", "registrationMode", "capacity", "description"
+  "mode", "price", "registrationMode", "capacity", "description",
+  "media" // <--- THIS WAS MISSING! Now images will be saved.
 ];
 
 function pickAllowed(body) {
@@ -63,7 +64,6 @@ function validateEventInput(body, { isUpdate = false } = {}) {
 }
 
 // ---------- GET /api/events ----------
-// Public. Lists approved events with optional filters.
 router.get("/", async (req, res) => {
   try {
     const { category, tags, search, when, mode, institution, limit, skip } = req.query;
@@ -110,8 +110,6 @@ router.get("/", async (req, res) => {
 });
 
 // ---------- GET /api/events/recommended ----------
-// Authenticated. Personalized feed via the Python AI service.
-// Only upcoming approved events; excludes ones the user already registered for.
 router.get("/recommended", verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -125,7 +123,6 @@ router.get("/recommended", verifyToken, async (req, res) => {
     };
     if (user.institution) query.institution = user.institution;
 
-    // Exclude events the user already has a confirmed/pending registration for.
     const userRegs = await Registration.find({
       user: user._id,
       status: { $in: ["confirmed", "pending"] }
@@ -174,7 +171,6 @@ router.get("/:id", async (req, res) => {
 });
 
 // ---------- POST /api/events ----------
-// Organizer or authority. New events start as "pending" for review.
 router.post(
   "/",
   verifyToken,
@@ -202,7 +198,6 @@ router.post(
 );
 
 // ---------- PATCH /api/events/:id ----------
-// Owner organizer or authority. Partial update. Organizer edits reset status to pending.
 router.patch("/:id", verifyToken, async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
@@ -243,7 +238,6 @@ router.patch("/:id", verifyToken, async (req, res) => {
 });
 
 // ---------- DELETE /api/events/:id ----------
-// Owner organizer or authority. Hard delete.
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
@@ -269,9 +263,6 @@ router.delete("/:id", verifyToken, async (req, res) => {
 });
 
 // ---------- GET /api/events/related/:id ----------
-// Returns events related to the given event — same category first, then
-// ranked by shared tags. Excludes the source event itself and any past events.
-// Public route (no auth required) — used by Vix explore cards and event details.
 router.get("/related/:id", async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
@@ -290,8 +281,6 @@ router.get("/related/:id", async (req, res) => {
       ? source.tags.map(t => String(t).toLowerCase())
       : [];
 
-    // Candidate pool: upcoming approved events in the same institution,
-    // excluding the source event
     const candidates = await Event.find({
       _id: { $ne: source._id },
       status: "approved",
@@ -302,25 +291,19 @@ router.get("/related/:id", async (req, res) => {
       .populate("organizer", "name organizerProfile.orgName")
       .lean();
 
-    // Score each candidate
     const scored = candidates.map(event => {
       let score = 0;
-
-      // Same category is worth a lot
       if (event.category === source.category) score += 10;
 
-      // Shared tags — 3 points each
       const eventTags = Array.isArray(event.tags)
         ? event.tags.map(t => String(t).toLowerCase())
         : [];
       const shared = eventTags.filter(t => sourceTags.includes(t)).length;
       score += shared * 3;
 
-      // Popularity nudge
       const registered = Number(event.registeredCount) || 0;
       score += Math.min(registered * 0.1, 2);
 
-      // Slight preference for closer dates
       const daysOut = Math.abs(
         (new Date(event.date) - new Date(source.date)) / (1000 * 60 * 60 * 24)
       );
@@ -329,7 +312,6 @@ router.get("/related/:id", async (req, res) => {
       return { ...event, score };
     });
 
-    // Sort descending, take top N
     const ranked = scored
       .sort((a, b) => b.score - a.score)
       .slice(0, limit);
@@ -340,4 +322,5 @@ router.get("/related/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch related events", error: error.message });
   }
 });
+
 module.exports = router;
