@@ -1,9 +1,14 @@
 # VYBE — College Event Platform
 
+
 A full-stack college event platform with AI-powered recommendations and a chatbot assistant (Vix).
 
-## Live URLs
+# 🎥 VYBE Demo Video
+[Click here to watch the 54-second demo video](vybe-demo.mp4.mp4)
 
+---
+## Live URLs
+# VYBE — College Event Platform with AI Assistant
 - **Frontend:** https://vybe-app-lemon-beta.vercel.app
 - **Backend API:** https://vybe-backend-0qa7.onrender.com
 - **AI Service:** https://vybe-ai-jybe.onrender.com
