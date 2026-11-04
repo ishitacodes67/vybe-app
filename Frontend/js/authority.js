@@ -36,11 +36,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const data = await window.api.authorityAnalytics();
             
-            // Bar Chart - Events by Category
+            // --- BAR CHART ---
             const catLabels = data.categories.map(c => c._id || 'Other');
             const catData = data.categories.map(c => c.count);
             
-            new Chart(catCanvas, {
+            new Chart(catCanvas.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: catLabels,
@@ -54,25 +54,34 @@ document.addEventListener("DOMContentLoaded", async () => {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false } 
+                    },
                     scales: { 
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                        x: { grid: { display: false } }
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { stepSize: 1, color: '#666' },
+                            grid: { color: '#f0f0f0' }
+                        },
+                        x: { 
+                            ticks: { color: '#666' },
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
 
-            // Line Chart - Registrations
+            // --- LINE CHART ---
             const regLabels = data.registrations.map(r => r._id);
             const regData = data.registrations.map(r => r.count);
             
-            // If there's no data, show a flat line
+            // Fallback if no registrations in the last 7 days
             if (regLabels.length === 0) {
                 regLabels.push(new Date().toISOString().slice(0,10));
                 regData.push(0);
             }
             
-            new Chart(regCanvas, {
+            new Chart(regCanvas.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: regLabels,
@@ -83,22 +92,36 @@ document.addEventListener("DOMContentLoaded", async () => {
                         backgroundColor: 'rgba(163, 230, 53, 0.2)',
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#a3e635'
+                        pointBackgroundColor: '#a3e635',
+                        pointBorderColor: '#111',
+                        pointRadius: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false } 
+                    },
                     scales: { 
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                        x: { grid: { display: false } }
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { stepSize: 1, color: '#666' },
+                            grid: { color: '#f0f0f0' }
+                        },
+                        x: { 
+                            ticks: { color: '#666' },
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
 
         } catch (err) {
             console.error("Failed to load analytics:", err);
+            // Show an error message inside the chart containers if the API fails
+            catCanvas.parentElement.innerHTML = `<div style="color: #d93025; font-size: 14px;">Failed to load chart data.</div>`;
+            regCanvas.parentElement.innerHTML = `<div style="color: #d93025; font-size: 14px;">Failed to load chart data.</div>`;
         }
     }
 
