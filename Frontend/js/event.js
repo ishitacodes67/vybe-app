@@ -122,13 +122,7 @@ async function loadOrganizerEvents(container) {
             return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const filterId = urlParams.get('id');
-        
-        let displayEvents = events;
-        if (filterId) {
-            displayEvents = events.filter(e => (e._id || e.id) === filterId);
-        }
+        // We removed the buggy ID filter here so it always shows your list!
 
         container.innerHTML = `
             <div style="margin-bottom: 30px;">
@@ -136,7 +130,7 @@ async function loadOrganizerEvents(container) {
                 <h1 style="font-family: var(--serif); font-size: 42px; margin-top: 10px;">What you're hosting.</h1>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
-                ${displayEvents.map(e => `
+                ${events.map(e => `
                     <div style="background: white; padding: 24px; border-radius: 20px; border: 1px solid #eaeaea; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
                         <div>
                             ${e.image ? `<img src="${e.image}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 16px;">` : ''}
