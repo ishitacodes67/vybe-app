@@ -188,6 +188,7 @@
 
     // ------- authority -------
     async authorityStats() { return request("/authority/stats"); },
+    async authorityAnalytics() { return request("/authority/analytics"); },
     async pendingEvents() {
       const data = await request("/authority/pending");
       return data.events;
