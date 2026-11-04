@@ -55,6 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
             submitBtn.innerHTML = "Submitting...";
             submitBtn.disabled = true;
 
+            const uploadedImageUrl = document.getElementById("eventImage").value.trim();
+
             const payload = {
                 title: document.getElementById("eventTitle").value.trim(),
                 description: document.getElementById("eventDescription").value.trim(),
@@ -65,7 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 capacity: parseInt(document.getElementById("eventCapacity").value, 10),
                 registrationMode: document.querySelector('input[name="registrationMode"]:checked').value === "Paid" ? "approval" : "first-come",
                 price: document.getElementById("eventPrice").value ? parseInt(document.getElementById("eventPrice").value, 10) : 0,
-                image: document.getElementById("eventImage").value.trim(),
+                
+                // Format the image for the backend schema
+                media: uploadedImageUrl ? [{ url: uploadedImageUrl, type: "image" }] : [],
+                
                 requirements: document.getElementById("eventRequirements").value.trim(),
                 contact: document.getElementById("eventContact").value.trim(),
                 instagram: document.getElementById("eventInstagram").value.trim()
@@ -114,7 +119,6 @@ async function loadOrganizerEvents(container) {
 
         if (filterId) {
             // MANAGE MODE
-            // Try to find the event by matching the real MongoDB ID, or fallback
             const event = events.find(e => String(e._id) === filterId || String(e.id) === filterId);
             
             if (!event) {
@@ -156,10 +160,12 @@ function renderListView(container, events) {
             <h1 style="font-family: var(--serif); font-size: 42px; margin-top: 10px;">What you're hosting.</h1>
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
-            ${events.map(e => `
+            ${events.map(e => {
+                let imageUrl = (e.media && e.media.length > 0) ? e.media[0].url : (e.image || "");
+                return `
                 <div style="background: white; padding: 24px; border-radius: 20px; border: 1px solid #eaeaea; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
-                        ${e.image ? `<img src="${e.image}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 16px;">` : ''}
+                        ${imageUrl ? `<img src="${imageUrl}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 16px;">` : `<div style="width: 100%; height: 160px; background: linear-gradient(135deg, #2c2c2c, #111); border-radius: 12px; margin-bottom: 16px;"></div>`}
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                             <h3 style="margin: 0; font-size: 20px; font-weight: 700;">${e.title}</h3>
                             <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; background: ${e.status === 'approved' ? '#e6f4ea' : e.status === 'pending' ? '#fff3cd' : '#fce8e6'}; color: ${e.status === 'approved' ? '#1e8e3e' : e.status === 'pending' ? '#856404' : '#d93025'}; font-size: 11px; font-weight: 800; text-transform: uppercase;">
@@ -174,7 +180,7 @@ function renderListView(container, events) {
                         <a href="event.html?id=${e._id}" style="color: var(--violet); font-weight: 700; font-size: 13px; text-decoration: none;">Manage →</a>
                     </div>
                 </div>
-            `).join('')}
+            `}).join('')}
         </div>
     `;
 }
@@ -185,11 +191,16 @@ async function renderManageView(container, event) {
         const regs = await window.api.getEventRegistrations(event._id);
         const pending = regs.filter(r => r.status === 'pending');
         const confirmed = regs.filter(r => r.status === 'confirmed');
+        
+        let imageUrl = (event.media && event.media.length > 0) ? event.media[0].url : (event.image || "");
 
         container.innerHTML = `
             <div style="margin-bottom: 30px;">
                 <a href="event.html" style="color: var(--violet); text-decoration: none; font-weight: 600; font-size: 14px;">← Back to all events</a>
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px;">
+                
+                ${imageUrl ? `<img src="${imageUrl}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 20px; margin-top: 20px; margin-bottom: 20px;">` : ''}
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div>
                         <h1 style="font-family: var(--serif); font-size: 42px; margin: 0;">${event.title}</h1>
                         <p style="color: #666; font-size: 16px; margin-top: 10px;">${event.date} at ${event.time} • ${event.venue}</p>

@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Get basic user info
+    // 1. Get User Info
     const user = window.api.getUser();
     const name = user?.name || "VYBE Host";
     const firstName = name.trim().split(/\s+/)[0] || "Host";
@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let allEvents = [];
     let currentFilter = "all";
 
+    // 2. Helper Functions
     function getEventStatus(event) {
         if (event.status === "pending") return "pending";
         if (event.status === "rejected") return "rejected";
@@ -32,6 +33,25 @@ document.addEventListener("DOMContentLoaded", function () {
         return "pending";
     }
 
+    function formatDate(dateStr) {
+        if (!dateStr) return "";
+        try {
+            const d = new Date(`${dateStr}T12:00:00`);
+            if (isNaN(d.getTime())) return dateStr;
+            return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+        } catch { return dateStr; }
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // 3. Render Functions
     function renderStats() {
         const totalEvents = document.getElementById("totalEvents");
         const upcomingEvents = document.getElementById("upcomingEvents");
@@ -79,9 +99,20 @@ document.addEventListener("DOMContentLoaded", function () {
             const card = document.createElement("article");
             card.className = "organizer-event-card";
 
-            // Use the real MongoDB _id for the manage link!
             const eventId = event._id || event.id;
-            const imageStyle = event.image ? `background-image:url("${event.image}")` : "";
+            
+            // Grab image from media array OR fallback image field
+            let imageUrl = "";
+            if (event.media && event.media.length > 0) {
+                imageUrl = event.media[0].url;
+            } else if (event.image) {
+                imageUrl = event.image;
+            }
+            
+            // If no image, use a dark gradient instead of flat black
+            const imageStyle = imageUrl 
+                ? `background-image:url("${imageUrl}"); background-size: cover; background-position: center;` 
+                : "background: linear-gradient(135deg, #2c2c2c, #111);";
 
             card.innerHTML = `
                 <div class="event-card-image" style="${imageStyle}">
@@ -115,16 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function formatDate(dateStr) {
-        if (!dateStr) return "";
-        try {
-            const d = new Date(`${dateStr}T12:00:00`);
-            if (isNaN(d.getTime())) return dateStr;
-            return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-        } catch { return dateStr; }
-    }
-
-    // Load data from API
+    // 4. Data Loading
     async function loadDashboard() {
         const refreshBtn = document.getElementById("refreshDashboard");
         if (refreshBtn) refreshBtn.style.transform = "rotate(360deg)";
@@ -143,7 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Filters
+    // 5. Event Listeners
     const tabs = document.querySelectorAll(".event-tab");
     tabs.forEach(tab => {
         tab.addEventListener("click", function () {
@@ -154,13 +176,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Refresh
     const refreshButton = document.getElementById("refreshDashboard");
     if (refreshButton) {
         refreshButton.addEventListener("click", loadDashboard);
     }
 
-    // Logout
     const logoutButton = document.getElementById("logoutButton");
     if (logoutButton) {
         logoutButton.addEventListener("click", function () {
@@ -171,15 +191,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function escapeHTML(value) {
-        return String(value ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    // Initial load
+    // Init
     loadDashboard();
 });
