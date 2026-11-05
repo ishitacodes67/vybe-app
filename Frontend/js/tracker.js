@@ -1,268 +1,44 @@
-/* =========================================================
-   VYBE — TRACKER (backend-wired)
-   Fetches /api/registrations/me and renders upcoming/past events.
-   Same UI structure as before — CSS unchanged.
-   ========================================================= */
-
+/* VYBE Tracker — one pass wallet, one registration calendar, one XP source. */
 document.addEventListener("DOMContentLoaded", async () => {
-    "use strict";
+  "use strict";
+  if (!window.api?.getUser?.() || !window.api.getToken()) { window.location.href = "member-login.html"; return; }
+  let user = window.api.getUser();
+  let remote = [];
+  try { remote = await window.api.myRegistrations(); user = await window.api.me().catch(() => user); } catch (error) { console.warn("[tracker] registrations", error); }
+  const local = window.VYBE_STATE?.localRegistrations() || [];
+  const seen = new Set();
+  const active = [...remote, ...local].filter(item => item?.status !== "cancelled" && item?.event).filter(item => { const id = window.VYBE_STATE?.eventId(item.event); if (seen.has(id)) return false; seen.add(id); return true; });
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = active.filter(item => isUpcoming(item.event.date)).sort((a,b) => String(a.event.date).localeCompare(String(b.event.date)));
+  const past = active.filter(item => !isUpcoming(item.event.date)).sort((a,b) => String(b.event.date).localeCompare(String(a.event.date)));
+  const xp = window.VYBE_STATE?.getXP(user, active) ?? Number(user.xp || active.length * 40);
 
-    // ---- Guard ----
-    if (!window.api) {
-        console.error("[tracker] window.api not found");
-        window.location.href = "member-login.html";
-        return;
-    }
+  text("heroXP", xp); text("monthXP", `+${xp}`); text("upcomingCount", `${upcoming.length} ${upcoming.length === 1 ? "event" : "events"}`); text("streakNumber", new Set(active.map(item => String(item.createdAt || item.event.date).slice(0,7))).size);
+  const progress = document.getElementById("xpProgress"); if (progress) progress.style.width = `${Math.max(8, (xp % 1000) / 10)}%`;
+  const stats = document.getElementById("trackerStats"); if (stats) stats.innerHTML = [[active.length,"events registered"],[upcoming.length,"up next"],[user.interests?.length || 0,"interests"],[xp,"total XP"]].map(([value,label]) => `<article class="tracker-stat"><strong>${value}</strong><span>${label}</span></article>`).join("");
 
-    const user = window.api.getUser();
-    if (!user || !window.api.getToken()) {
-        window.location.href = "member-login.html";
-        return;
-    }
+  renderUpcoming(); renderPasses(); renderActivity(); renderCalendar();
 
-    // ---- Fetch registrations ----
-    let registrations = [];
-    try {
-        registrations = await window.api.myRegistrations();
-    } catch (err) {
-        console.error("[tracker] failed to load registrations:", err);
-    }
-
-    // Filter out cancelled registrations
-    const active = (registrations || []).filter(r => r.status !== "cancelled");
-
-    // Split into upcoming vs past
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const upcoming = active
-        .filter(r => r.event && isUpcoming(r.event.date, today))
-        .sort((a, b) => String(a.event.date).localeCompare(String(b.event.date)));
-
-    const past = active
-        .filter(r => r.event && !isUpcoming(r.event.date, today))
-        .sort((a, b) => String(b.event.date).localeCompare(String(a.event.date)));
-
-    // ---- XP calculation ----
-    const xp = Number(user.xp) || (active.length * 40 + past.length * 60);
-
-    // ---- Hero XP ----
-    const heroXP = document.getElementById("heroXP");
-    if (heroXP) heroXP.textContent = xp;
-
-    // ---- Month XP ----
-    const monthXP = document.getElementById("monthXP");
-    if (monthXP) monthXP.textContent = `+${Math.max(xp, 0)}`;
-
-    // ---- XP progress bar ----
-    const xpProgress = document.getElementById("xpProgress");
-    if (xpProgress) {
-        const progress = Math.min((xp % 1000) / 10, 100);
-        xpProgress.style.width = `${progress || 18}%`;
-    }
-
-    // ---- Stats ----
-    const stats = document.getElementById("trackerStats");
-    if (stats) {
-        stats.innerHTML = `
-            <article class="tracker-stat">
-                <strong>${active.length}</strong>
-                <span>events registered</span>
-            </article>
-
-            <article class="tracker-stat">
-                <strong>${upcoming.length}</strong>
-                <span>up next</span>
-            </article>
-
-            <article class="tracker-stat">
-                <strong>${user.interests?.length || 0}</strong>
-                <span>interests</span>
-            </article>
-
-            <article class="tracker-stat">
-                <strong>${xp}</strong>
-                <span>total XP</span>
-            </article>
-        `;
-    }
-
-    // ---- Streak ----
-    const streakEl = document.getElementById("streakNumber");
-    if (streakEl) streakEl.textContent = calculateStreak(active);
-
-    // ---- Upcoming count label ----
-    const upcomingCount = document.getElementById("upcomingCount");
-    if (upcomingCount) {
-        upcomingCount.textContent = `${upcoming.length} ${upcoming.length === 1 ? "event" : "events"}`;
-    }
-
-    // ---- Render both sections ----
-    renderUpcoming();
-    renderActivity();
-
-    /* =====================================================
-       RENDER UPCOMING
-    ===================================================== */
-
-    function renderUpcoming() {
-        const container = document.getElementById("upcomingEvents");
-        if (!container) return;
-
-        if (!upcoming.length) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <h3>your calendar is suspiciously empty.</h3>
-                    <p>Go find something worth leaving your room for.</p>
-                    <a class="primary-button" href="discover.html">Discover events →</a>
-                </div>
-            `;
-            return;
-        }
-
-        container.innerHTML = upcoming.map(registration => {
-            const event = registration.event;
-            const id = event._id || event.id;
-
-            const statusLabel =
-                registration.status === "pending"
-                    ? "REQUEST PENDING"
-                    : "CONFIRMED";
-
-            return `
-                <article class="tracker-card" data-event-id="${id}" tabindex="0">
-                    <div class="tracker-card-image">
-                        <img
-                            src="${imageFor(event.category)}"
-                            alt="${escapeHTML(event.title)}"
-                        >
-                    </div>
-
-                    <div class="tracker-card-info">
-                        <span class="tracker-status">${statusLabel}</span>
-                        <h3>${escapeHTML(event.title)}</h3>
-                        <p>
-                            ${formatEventDate(event.date)}
-                            · ${escapeHTML(event.time || "")}
-                            · ${escapeHTML(event.venue || "")}
-                        </p>
-                    </div>
-
-                    <a href="event-details.html?id=${encodeURIComponent(id)}">VIEW →</a>
-                </article>
-            `;
-        }).join("");
-
-        // Card click → event details
-        container.querySelectorAll("[data-event-id]").forEach(card => {
-            card.addEventListener("click", e => {
-                if (e.target.closest("a")) return;
-                window.location.href = `event-details.html?id=${encodeURIComponent(card.dataset.eventId)}`;
-            });
-        });
-    }
-
-    /* =====================================================
-       RENDER ACTIVITY (past events)
-    ===================================================== */
-
-    function renderActivity() {
-        const container = document.getElementById("activityList");
-        if (!container) return;
-
-        if (!past.length) {
-            container.innerHTML = `
-                <article class="activity-item">
-                    <span class="activity-icon">✦</span>
-                    <div>
-                        <strong>Your VYBE story starts here.</strong>
-                        <p>Attend your first event and this space comes alive.</p>
-                    </div>
-                    <small>+20 XP</small>
-                </article>
-            `;
-            return;
-        }
-
-        container.innerHTML = past.map(registration => `
-            <article class="activity-item">
-                <span class="activity-icon">✓</span>
-                <div>
-                    <strong>Joined ${escapeHTML(registration.event.title)}</strong>
-                    <p>${formatEventDate(registration.event.date)}</p>
-                </div>
-                <small>+60 XP</small>
-            </article>
-        `).join("");
-    }
-
-    /* =====================================================
-       HELPERS
-    ===================================================== */
-
-    function isUpcoming(dateStr, today) {
-        if (!dateStr) return false;
-        try {
-            const d = new Date(`${dateStr}T00:00:00`);
-            return !isNaN(d.getTime()) && d >= today;
-        } catch {
-            return false;
-        }
-    }
-
-    function calculateStreak(items) {
-        if (!items.length) return 0;
-
-        const weeks = new Set();
-        items.forEach(item => {
-            const date = new Date(item.createdAt || item.event?.date);
-            if (isNaN(date.getTime())) return;
-
-            const firstDay = new Date(date);
-            firstDay.setDate(date.getDate() - date.getDay());
-            weeks.add(firstDay.toISOString().slice(0, 10));
-        });
-
-        return weeks.size;
-    }
-
-    function imageFor(category) {
-        const images = {
-            Tech: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=85",
-            Design: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&q=85",
-            Music: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=85",
-            Sports: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=85",
-            Business: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=800&q=85",
-            Culture: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=85",
-            Social: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=85",
-            Wellness: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=85",
-            Admin: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=800&q=85",
-            Other: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=85"
-        };
-        return images[category] || images.Culture;
-    }
-
-    function escapeHTML(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
-    function formatEventDate(dateStr) {
-        if (!dateStr) return "";
-        try {
-            const d = new Date(`${dateStr}T12:00:00`);
-            if (isNaN(d.getTime())) return dateStr;
-            return d.toLocaleDateString("en-IN", {
-                weekday: "short",
-                day: "numeric",
-                month: "short"
-            });
-        } catch {
-            return dateStr;
-        }
-    }
+  function renderUpcoming() {
+    const root = document.getElementById("upcomingEvents"); if (!root) return;
+    root.innerHTML = upcoming.length ? upcoming.map(item => eventCard(item)).join("") : `<div class="empty-state"><h3>your calendar is suspiciously empty.</h3><p>Go find something worth leaving your room for.</p><a class="primary-button" href="discover.html">Discover events →</a></div>`;
+  }
+  function eventCard(item) { const event=item.event, id=event._id||event.id; return `<article class="tracker-card" data-id="${esc(id)}"><div class="tracker-card-image"><img src="${esc(window.VYBE_EVENT_VISUALS?.src(event) || "")}" alt="${esc(event.title)}"></div><div class="tracker-card-info"><span class="tracker-status">${item.status === "pending" ? "REQUEST PENDING" : "PASS SAVED"}</span><h3>${esc(event.title)}</h3><p>${date(event.date)} · ${esc(event.time)} · ${esc(event.venue)}</p></div><a href="event-details.html?id=${encodeURIComponent(id)}">VIEW →</a></article>`; }
+  function renderPasses() {
+    const root = document.getElementById("passWallet"); if (!root) return;
+    root.innerHTML = active.length ? active.map(item => { const event=item.event,id=event._id||event.id; return `<button class="tracker-pass" type="button" data-pass-id="${esc(id)}"><span class="tracker-pass-top"><b>VYBE ✦</b><b>ENTRY PASS</b></span><strong class="tracker-pass-title">${esc(event.title)}</strong><span class="tracker-pass-venue">${esc(date(event.date))}<br>${esc(event.venue || "Venue TBA")}</span><span class="tracker-pass-date">${esc(event.time || "TIME TBA")}<b>${Number(event.price) ? `₹${Number(event.price)}` : "FREE"}</b></span><span class="tracker-pass-qr" aria-hidden="true"></span><i class="tracker-pass-hint">OPEN ↗</i></button>`; }).join("") : `<div class="empty-state"><h3>your pass wallet is ready.</h3><p>Save an event and its invitation will appear right here.</p><a class="primary-button" href="discover.html">Find a VYBE →</a></div>`;
+    root.querySelectorAll("[data-pass-id]").forEach(button => button.addEventListener("click", () => location.href = `event-details.html?id=${encodeURIComponent(button.dataset.passId)}`));
+  }
+  function renderActivity() { const root=document.getElementById("activityList"); if(!root)return; root.innerHTML=past.length ? past.map(item=>`<article class="activity-item"><span class="activity-icon">✓</span><div><strong>Joined ${esc(item.event.title)}</strong><p>${date(item.event.date)}</p></div><small>+60 XP</small></article>`).join("") : `<article class="activity-item"><span class="activity-icon">✦</span><div><strong>Your VYBE story starts here.</strong><p>Each pass you save, each feedback you share, grows your XP.</p></div><small>+40 XP</small></article>`; }
+  function renderCalendar() {
+    const grid=document.getElementById("registeredCalGrid"), label=document.getElementById("registeredCalMonth"), list=document.getElementById("registeredCalEvents"), count=document.getElementById("registeredCalendarCount"); if(!grid||!label||!list)return;
+    if(count) count.textContent=`${active.length} saved plan${active.length === 1 ? "" : "s"}`;
+    let cursor = upcoming[0]?.event?.date ? new Date(`${String(upcoming[0].event.date).slice(0,10)}T12:00:00`) : new Date(); cursor.setDate(1);
+    const draw=()=>{ const year=cursor.getFullYear(),month=cursor.getMonth(),first=new Date(year,month,1).getDay(), days=new Date(year,month+1,0).getDate(); label.textContent=cursor.toLocaleDateString("en-IN",{month:"long",year:"numeric"}); let html=["SUN","MON","TUE","WED","THU","FRI","SAT"].map(name=>`<span class="registered-cal-weekday">${name}</span>`).join(""); for(let index=0;index<first;index++)html+="<span></span>"; for(let day=1;day<=days;day++){const key=`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`,matches=active.filter(item=>String(item.event.date).slice(0,10)===key);html+=`<button class="registered-cal-day ${matches.length?"has-pass":""}" ${matches.length?`data-date="${key}"`:""} type="button"><b>${day}</b></button>`;} grid.innerHTML=html; grid.querySelectorAll("[data-date]").forEach(button=>button.addEventListener("click",()=>{grid.querySelectorAll(".is-selected").forEach(el=>el.classList.remove("is-selected"));button.classList.add("is-selected");const matches=active.filter(item=>String(item.event.date).slice(0,10)===button.dataset.date);list.innerHTML=matches.map(item=>`<button type="button" class="registered-cal-event" data-id="${esc(item.event._id||item.event.id)}"><span>${esc(item.event.time||"Time TBA")}</span><strong>${esc(item.event.title)}</strong><small>${esc(item.event.venue||"Venue TBA")}</small></button>`).join(""); list.querySelectorAll("[data-id]").forEach(card=>card.addEventListener("click",()=>location.href=`event-details.html?id=${encodeURIComponent(card.dataset.id)}`));})); };
+    document.getElementById("registeredCalPrev")?.addEventListener("click",()=>{cursor.setMonth(cursor.getMonth()-1);draw();}); document.getElementById("registeredCalNext")?.addEventListener("click",()=>{cursor.setMonth(cursor.getMonth()+1);draw();}); draw(); list.innerHTML=active.length?`<p class="registered-cal-empty">Select a lavender date to see your saved plan.</p>`:`<p class="registered-cal-empty">Only your registered events will appear here.</p>`;
+  }
+  function isUpcoming(value){const d=new Date(`${String(value).slice(0,10)}T00:00:00`);return !Number.isNaN(d.getTime())&&d>=today;}
+  function text(id,value){const el=document.getElementById(id);if(el)el.textContent=value;}
+  function date(value){const d=new Date(`${String(value).slice(0,10)}T12:00:00`);return Number.isNaN(d.getTime())?String(value||""):d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});}
+  function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
 });

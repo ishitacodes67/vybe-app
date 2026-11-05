@@ -51,16 +51,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.api.getEvents({ when: "upcoming" }).catch(() => [])
         ]);
 
-        renderFeatured(recommended.slice(0, 2));
+        const catalogue = window.VYBE_STATE?.displayEvents(all) || all;
+        const suggested = window.VYBE_STATE?.displayEvents(recommended) || recommended;
+        const featured = suggested.length >= 48 ? suggested : catalogue;
+        renderFeatured(featured.slice(0, 2));
 
         // Trending = most registered
-        const trending = [...all]
+        const trending = [...catalogue]
             .sort((a, b) => (b.registeredCount || 0) - (a.registeredCount || 0))
             .slice(0, 3);
         renderTrending(trending);
 
         // Dropped = soonest upcoming
-        const dropped = [...all]
+        const dropped = [...catalogue]
             .sort((a, b) => String(a.date).localeCompare(String(b.date)))
             .slice(0, 4);
         renderDropped(dropped);
@@ -131,7 +134,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 data-event-id="${id}"
                 tabindex="0"
             >
-                <img src="${imageFor(event.category)}" alt="${escapeHTML(event.title)}">
+                <img src="${eventImage(event)}" alt="${escapeHTML(event.title)}">
                 <div class="featured-content">
                     <div class="featured-top">
                         <span class="featured-category">${escapeHTML(event.category)}</span>
@@ -169,7 +172,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return `
             <article class="mini-event" data-event-id="${id}" tabindex="0">
                 <div class="mini-event-image">
-                    <img src="${imageFor(event.category)}" alt="${escapeHTML(event.title)}">
+                    <img src="${eventImage(event)}" alt="${escapeHTML(event.title)}">
                 </div>
                 <div class="mini-event-content">
                     <div class="mini-event-meta">
@@ -198,7 +201,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const id = event._id || event.id;
             return `
                 <article class="dropped-card" data-event-id="${id}" tabindex="0">
-                    <img src="${imageFor(event.category)}" alt="${escapeHTML(event.title)}">
+                    <img src="${eventImage(event)}" alt="${escapeHTML(event.title)}">
                     <div class="dropped-content">
                         <span class="category">${escapeHTML(event.category)}</span>
                         <h3>${escapeHTML(event.title)}</h3>
@@ -273,6 +276,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             Other: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=85"
         };
         return images[category] || images.Culture;
+    }
+
+    function eventImage(event) {
+        return window.VYBE_EVENT_VISUALS?.src(event) || imageFor(event.category);
     }
 
     function escapeHTML(value) {

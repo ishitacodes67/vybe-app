@@ -477,8 +477,9 @@ select:focus-visible {
 }
 
 .member-page .topbar {
+    /* One shared shell: page-specific colour may change, the brand never does. */
     width: min(1240px, calc(100% - 48px));
-    min-height: 76px;
+    min-height: 78px;
     margin: 0 auto;
 
     display: flex;
@@ -498,22 +499,29 @@ select:focus-visible {
     color: #111;
     text-decoration: none;
 
-    font-family: var(--sans);
-    font-size: 20px;
+    /* Use a local system face so it is identical even before web fonts load. */
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 21px;
     font-weight: 900;
-    letter-spacing: -.04em;
+    line-height: 1;
+    letter-spacing: -1.25px;
 }
 
 .member-page .topbar .brand span {
     color: #7c3aed;
     margin-left: 2px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: 1;
 }
 
 .member-page .topbar nav {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 28px;
+    gap: 26px;
 }
 
 .member-page .topbar nav a {
@@ -522,8 +530,11 @@ select:focus-visible {
     color: #777;
     text-decoration: none;
 
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
     font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.08px;
 
     transition:
         color .2s ease,
@@ -536,7 +547,7 @@ select:focus-visible {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: -8px;
+    bottom: -9px;
 
     height: 2px;
 
@@ -576,7 +587,7 @@ select:focus-visible {
     }
 
     .member-page .topbar .brand {
-        font-size: 18px;
+        font-size: 19px;
     }
 
     .member-page .topbar nav {

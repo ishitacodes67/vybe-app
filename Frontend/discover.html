@@ -63,8 +63,8 @@
         <div class="discover-hero-stats">
 
             <span>
-                <strong>12+</strong>
-                campus experiences
+                <strong>48+</strong>
+                ways to show up
             </span>
 
             <span>
@@ -89,8 +89,6 @@
                 placeholder="Search your next thing..."
             >
 
-            <kbd>⌘ K</kbd>
-
         </div>
 
 
@@ -100,42 +98,41 @@
                 <span>✦</span> All
             </button>
 
-            <button class="filter" data-filter="Tech">
-                <span>⌁</span> Tech
-            </button>
-
-            <button class="filter" data-filter="Design">
-                <span>◈</span> Design
-            </button>
-
-            <button class="filter" data-filter="Music">
-                <span>♫</span> Music
-            </button>
-
-            <button class="filter" data-filter="Sports">
-                <span>↯</span> Sports
-            </button>
-
-            <button class="filter" data-filter="Business">
-                <span>◎</span> Business
-            </button>
-
-            <button class="filter" data-filter="Culture">
-                <span>○</span> Culture
-            </button>
-
-            <button class="filter" data-filter="Social">
-                <span>∞</span> Social
-            </button>
-
-            <button class="filter" data-filter="Wellness">
-                <span>⌁</span> Wellness
-            </button>
-
         </div>
 
     </section>
 
+
+    <section class="vybe-folder-section" aria-labelledby="folderHeading">
+        <div class="vybe-section-heading">
+            <div><p class="eyebrow">OPEN A NEW TAB</p><h2 id="folderHeading">eight worlds.<br><em>which one today?</em></h2></div>
+            <p>Think of these as little campus folders. Open the one that feels like you right now.</p>
+        </div>
+        <div class="vybe-folder-grid" id="categoryFolderGrid"></div>
+    </section>
+
+    <section class="calendar-section vybe-calendar-section" aria-labelledby="calendarHeading">
+        <div class="vybe-section-heading">
+            <div><p class="eyebrow">MAKE A LITTLE ROOM</p><h2 id="calendarHeading">your plans,<br><em>in one place.</em></h2></div>
+            <div class="vybe-calendar-legend"><span></span> dates with events</div>
+        </div>
+        <div class="vybe-calendar-shell">
+            <div class="vybe-calendar-main">
+                <div class="vybe-calendar-toolbar">
+                    <button type="button" id="vybeCalPrev" aria-label="Previous month">←</button>
+                    <strong id="vybeCalendarMonth">Loading calendar</strong>
+                    <button type="button" id="vybeCalNext" aria-label="Next month">→</button>
+                </div>
+                <div class="vybe-calendar-grid" id="vybeCalendarGrid"></div>
+            </div>
+            <aside class="vybe-calendar-agenda">
+                <span class="eyebrow">YOUR DAY, YOUR VYBE</span>
+                <h3>Pick a date.</h3>
+                <p>Choose a marked day to see the events happening then.</p>
+                <div id="vybeCalendarEvents"><p class="vybe-cal-empty-note">Loading events…</p></div>
+            </aside>
+        </div>
+    </section>
 
     <section class="spotlight-section">
 
@@ -271,6 +268,9 @@
 
 
 <script src="js/api.js"></script>
+<script src="js/events-data.js"></script>
+<script src="js/vybe-state.js"></script>
+<script src="js/event-visuals.js"></script>
 <script src="js/discover.js"></script>
 <script src="js/vix.js"></script>
 <script src="js/cursor.js"></script>

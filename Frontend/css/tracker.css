@@ -590,10 +590,23 @@
     text-decoration: none;
 }
 
+/* PASSES + REGISTERED-ONLY CALENDAR */
+.pass-wallet { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+.tracker-pass { min-height:230px; padding:20px; border:0; border-radius:24px; color:#101010; text-align:left; cursor:pointer; overflow:hidden; position:relative; background:linear-gradient(145deg,#e7e0ff 0%,#fff 56%,#dfff27 180%); box-shadow:0 12px 28px rgba(22,18,48,.09); transition:transform .25s ease, box-shadow .25s ease; }
+.tracker-pass:nth-child(3n+2){background:linear-gradient(145deg,#ffe0c6,#fff 60%,#ffd5ea 180%)}
+.tracker-pass:nth-child(3n){background:linear-gradient(145deg,#cdf4ee,#fff 58%,#e7e0ff 180%)}
+.tracker-pass:hover{transform:rotate(-1deg) translateY(-5px);box-shadow:0 23px 42px rgba(22,18,48,.16)}
+.tracker-pass:after{content:"";position:absolute;inset:0 auto 0 67%;width:1px;border-left:1px dashed rgba(20,20,20,.35)}
+.tracker-pass-top,.tracker-pass-date{display:flex;justify-content:space-between;gap:8px;font:700 8px var(--mono);letter-spacing:.12em;text-transform:uppercase}.tracker-pass-title{display:block;max-width:75%;margin:45px 0 10px;font-size:clamp(20px,2.2vw,30px);line-height:.92;letter-spacing:-.06em}.tracker-pass-venue{display:block;max-width:73%;color:#605d56;font-size:11px}.tracker-pass-qr{position:absolute;right:17px;bottom:20px;width:52px;height:52px;display:grid;place-items:center;border:1px solid #111;background:repeating-linear-gradient(90deg,#111 0 3px,#fff 3px 6px),repeating-linear-gradient(#111 0 3px,#fff 3px 6px);mix-blend-mode:multiply}.tracker-pass-hint{position:absolute;right:10px;top:20px;writing-mode:vertical-rl;font:700 7px var(--mono);letter-spacing:.15em}
+.pass-wallet .empty-state{grid-column:1/-1}
+.registered-calendar{border:1px solid #dedad1;border-radius:28px;overflow:hidden;background:#fff}.registered-calendar-top{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid #ebe7df}.registered-calendar-top strong{font-size:17px;letter-spacing:-.04em}.registered-calendar-top button{width:32px;height:32px;border:1px solid #dedad1;border-radius:50%;background:#fff;cursor:pointer}.registered-calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);min-width:520px}.registered-calendar-grid>span,.registered-cal-day{min-height:72px;padding:10px;border-right:1px solid #f0ede8;border-bottom:1px solid #f0ede8}.registered-cal-weekday{min-height:auto!important;padding:10px!important;color:#8a857d;font:700 8px var(--mono);letter-spacing:.1em}.registered-cal-day{position:relative;background:#fff;text-align:left;font:600 12px var(--sans);cursor:default}.registered-cal-day.has-pass{background:#f1edff;cursor:pointer}.registered-cal-day.has-pass:after{content:"";position:absolute;width:7px;height:7px;right:10px;bottom:10px;border-radius:50%;background:#7054ff}.registered-cal-day.is-selected{outline:2px solid #111;outline-offset:-2px;background:#dfff27}.registered-calendar-events{min-height:80px;padding:14px;display:flex;flex-wrap:wrap;gap:10px;background:#faf9f6}.registered-cal-event{min-width:220px;flex:1;padding:13px;border:1px solid #dedad1;border-radius:14px;background:#fff;text-align:left;cursor:pointer}.registered-cal-event span,.registered-cal-event small{display:block;color:#77736d;font-size:9px}.registered-cal-event strong{display:block;margin:4px 0;font-size:13px}.registered-cal-empty{margin:8px;color:#77736d;font-size:11px}
+
 
 /* RESPONSIVE */
 
 @media (max-width: 800px) {
+
+    .pass-wallet { grid-template-columns:repeat(2, minmax(0,1fr)); }
 
     .tracker-hero {
         align-items: flex-start;
@@ -625,6 +638,9 @@
 }
 
 @media (max-width: 600px) {
+
+    .pass-wallet { grid-template-columns:1fr; }
+    .tracker-calendar-section { overflow-x:auto; }
 
     .tracker-main {
         width: calc(100% - 28px);
