@@ -1,0 +1,49 @@
+/* VYBE AUTHORITY — light editorial system aligned with member UI */
+:root {
+ --authority-bg:#f5f1e9; --authority-surface:#fff; --authority-surface-2:#fff;
+ --authority-text:#171717; --authority-muted:#77736f;
+ --authority-line:rgba(23,23,23,.10); --authority-accent:#7652ff;
+ --authority-accent-soft:rgba(118,82,255,.10); --authority-warning:#b7791f;
+ --authority-danger:#d94b55; --authority-blue:#7652ff;
+}
+.authority-page {
+ background:radial-gradient(circle at 85% 0%,rgba(118,82,255,.08),transparent 28%),#f5f1e9 !important;
+ color:#171717 !important; font-family:Inter,Arial,sans-serif !important;
+}
+.authority-nav { background:rgba(255,255,255,.88)!important; border-color:rgba(23,23,23,.1)!important; }
+.authority-nav .brand,.authority-nav .authority-context,.authority-nav-actions,
+.authority-nav .nav-icon-btn { color:#171717!important; }
+.authority-nav .brand span { color:#7652ff!important; }
+.authority-main { color:#171717!important; }
+.authority-page .authority-stat,.authority-page .authority-status-card,
+.authority-page .chart-card,.authority-page .pending-card,
+.authority-page .review-card,.authority-page .decision-card,
+.authority-page .event-review-card {
+ background:#fff!important; color:#171717!important;
+ border:1px solid rgba(23,23,23,.09)!important;
+ box-shadow:0 12px 35px rgba(35,25,10,.035);
+}
+.authority-page .authority-hero h1 span,
+.authority-page .eyebrow,.authority-page .section-kicker { color:#7652ff!important; }
+.authority-page .authority-stat p,.authority-page .authority-stat span,
+.authority-page .authority-status-card>span:last-child { color:#77736f!important; }
+.authority-page .verification-dot,.authority-page .live-pulse {
+ background:#7652ff!important; box-shadow:0 0 12px rgba(118,82,255,.35)!important;
+}
+.authority-page .review-btn,.authority-page .primary-button,
+.authority-page button.primary-button { background:#171717!important;color:#fff!important; }
+.authority-page input,.authority-page textarea { background:#fff!important;color:#171717!important; }
+.authority-page .authority-nav-actions a { color:#171717!important; }
+@media(max-width:760px) {
+ .authority-main { width:92%!important;padding:35px 0 65px!important; }
+ .authority-stats { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+ .authority-hero { flex-direction:column!important;align-items:flex-start!important; }
+}
+
+.authority-page .sidebar { background:rgba(255,255,255,.92)!important; border-right:1px solid rgba(23,23,23,.10)!important; color:#171717!important; }
+.authority-page .sidebar a,.authority-page .sidebar .brand { color:#171717!important; }
+.authority-page .sidebar .brand span,.authority-page .sidebar .brand-mark { color:#7652ff!important; }
+.authority-page .sidebar .brand-mark { background:#eee9ff!important; }
+.authority-page .sidebar .active,.authority-page .sidebar a.active { background:#eee9ff!important;color:#171717!important; }
+.authority-page .pending-item,.authority-page .chart-container { background:#fff!important;color:#171717!important; }
+.authority-page .pending-item p,.authority-page .muted { color:#77736f!important; }
