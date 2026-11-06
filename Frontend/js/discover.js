@@ -86,12 +86,13 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadEvents() {
         try {
             const events = await window.api.getEvents({ when: "upcoming" });
-            allEvents = Array.isArray(events) ? events : [];
+            allEvents = window.VYBE_STATE?.displayEvents(events) || (Array.isArray(events) ? events : VYBE_EVENTS);
         } catch (err) {
             console.error("[discover] failed to load events:", err);
-            allEvents = [];
+            allEvents = VYBE_EVENTS;
         }
         renderSpotlight();
+        window.dispatchEvent(new Event("vybe:events-updated"));
         syncChipUI();
         render();
     }
@@ -213,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         spotlight.innerHTML = `
             <article class="spotlight-card" data-event-id="${id}" tabindex="0">
-                <img src="${imageFor(event.category)}" alt="${escapeHTML(event.title)}">
+                <img src="${window.VYBE_EVENT_VISUALS.src(event)}" alt="${escapeHTML(event.title)}" loading="lazy">
                 <div class="spotlight-content">
                     <span class="category">${escapeHTML(event.category)}</span>
                     <h3>${escapeHTML(event.title)}</h3>
@@ -401,10 +402,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const seats = Math.max(capacity - registered, 0);
         const almostFull = seats > 0 && seats <= Math.ceil(capacity * 0.2);
 
+        const cover = window.VYBE_EVENT_VISUALS?.src(event) || "";
+        const coverFocus = window.VYBE_EVENT_VISUALS?.focus(event) || "center";
         return `
             <article class="discover-card" data-event-id="${id}" tabindex="0">
                 <div class="discover-card-image">
-                    <img src="${imageFor(event.category)}" alt="${escapeHTML(event.title)}">
+                    <img src="${escapeHTML(cover)}" alt="${escapeHTML(event.category || "Event")} event atmosphere" loading="lazy" style="--cover-focus:${coverFocus}">
                     <span class="card-floating-tag">${escapeHTML(event.category || "")}</span>
                     <span class="card-price">${formatPrice(event.price)}</span>
                 </div>
@@ -446,21 +449,6 @@ document.addEventListener("DOMContentLoaded", () => {
        HELPERS
     ===================================================== */
 
-    function imageFor(category) {
-        const images = {
-            Tech: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1000&q=85",
-            Design: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1000&q=85",
-            Music: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=85",
-            Sports: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1000&q=85",
-            Business: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1000&q=85",
-            Culture: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=85",
-            Social: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1000&q=85",
-            Wellness: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1000&q=85",
-            Admin: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1000&q=85",
-            Other: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=85"
-        };
-        return images[category] || images.Culture;
-    }
 
     function escapeHTML(value) {
         return String(value ?? "")
@@ -489,5 +477,63 @@ document.addEventListener("DOMContentLoaded", () => {
        INIT
     ===================================================== */
 
+    initCategoryFolders();
+    initEventCalendar();
     loadEvents();
+
+    function initCategoryFolders() {
+        const root = document.getElementById("categoryFolderGrid");
+        if (!root) return;
+        const categories = [
+            ["Tech", "⌁", "Build, experiment, ship"], ["Design", "◈", "Make ideas visible"],
+            ["Music", "♫", "Find your sound"], ["Sports", "↗", "Move with your people"],
+            ["Business", "◎", "Meet the next big thing"], ["Culture", "✳", "Stories, craft & expression"],
+            ["Social", "♡", "Come solo, leave connected"], ["Wellness", "☼", "Reset at your pace"]
+        ];
+        root.innerHTML = categories.map(([name, icon, note], index) => `
+            <button class="vybe-folder" type="button" data-folder-category="${name}" style="--folder-index:${index}">
+                <span class="vybe-folder-tab">${String(index + 1).padStart(2, "0")} / VYBE FILE</span>
+                <span class="vybe-folder-icon">${icon}</span><strong>${name}</strong><small>${note}</small><i>OPEN FOLDER ↗</i>
+            </button>`).join("");
+        root.querySelectorAll("[data-folder-category]").forEach(button => button.addEventListener("click", () => {
+            activeFilters = [button.dataset.folderCategory]; visibleCount = PAGE_SIZE; syncChipUI(); render();
+            document.querySelector(".discover-heading")?.scrollIntoView({behavior:"smooth",block:"start"});
+        }));
+    }
+
+    function initEventCalendar() {
+        const grid = document.getElementById("vybeCalendarGrid");
+        const label = document.getElementById("vybeCalendarMonth");
+        const eventList = document.getElementById("vybeCalendarEvents");
+        if (!grid || !label || !eventList) return;
+        let cursor = new Date(); cursor.setDate(1);
+        const monthNames = new Intl.DateTimeFormat("en-IN", {month:"long",year:"numeric"});
+        const renderCalendar = () => {
+            label.textContent = monthNames.format(cursor);
+            const year = cursor.getFullYear(), month = cursor.getMonth();
+            const first = new Date(year, month, 1).getDay();
+            const total = new Date(year, month + 1, 0).getDate();
+            const names = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+            let html = names.map(day => `<span class="vybe-cal-weekday">${day}</span>`).join("");
+            for(let i=0;i<first;i++) html += `<span class="vybe-cal-empty"></span>`;
+            for(let day=1;day<=total;day++) {
+                const key = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+                const matches = allEvents.filter(ev => String(ev.date || "").slice(0,10) === key);
+                html += `<button class="vybe-cal-day ${matches.length ? "has-events" : ""}" type="button" data-cal-date="${key}"><span>${day}</span>${matches.length ? `<i>${matches.length}</i>` : ""}</button>`;
+            }
+            grid.innerHTML = html;
+            grid.querySelectorAll("[data-cal-date]").forEach(btn => btn.addEventListener("click", () => {
+                const matches = allEvents.filter(ev => String(ev.date || "").slice(0,10) === btn.dataset.calDate);
+                grid.querySelectorAll(".is-selected").forEach(el => el.classList.remove("is-selected")); btn.classList.add("is-selected");
+                eventList.innerHTML = matches.length ? matches.map(ev => `<button type="button" class="vybe-cal-event" data-cal-event="${escapeHTML(ev._id || ev.id)}"><span>${escapeHTML(ev.time || "Time TBA")}</span><strong>${escapeHTML(ev.title)}</strong><small>${escapeHTML(ev.category || "Event")} · ${escapeHTML(ev.venue || "Venue TBA")}</small><b>VIEW ↗</b></button>`).join("") : `<p class="vybe-cal-empty-note">Nothing scheduled for this day yet. Keep the date open.</p>`;
+                eventList.querySelectorAll("[data-cal-event]").forEach(item => item.addEventListener("click", () => window.location.href = `event-details.html?id=${encodeURIComponent(item.dataset.calEvent)}`));
+            }));
+        };
+        document.getElementById("vybeCalPrev")?.addEventListener("click",()=>{cursor.setMonth(cursor.getMonth()-1);renderCalendar();});
+        document.getElementById("vybeCalNext")?.addEventListener("click",()=>{cursor.setMonth(cursor.getMonth()+1);renderCalendar();});
+        renderCalendar();
+        const firstEvent = allEvents[0];
+        eventList.innerHTML = firstEvent ? `<p class="vybe-cal-empty-note">Choose a marked date to see what is happening.</p>` : `<p class="vybe-cal-empty-note">Your calendar is waiting for its first plan.</p>`;
+        window.addEventListener("vybe:events-updated", renderCalendar);
+    }
 });

@@ -370,7 +370,7 @@
             notification.eventId
                 ? `
                     <a
-                        href="event-review.html?id=${encodeURIComponent(escapeHTML(notification.eventId))}"
+                        href="event-review.html"
                         class="notification-action"
                         data-event-id="${escapeHTML(notification.eventId)}"
                     >

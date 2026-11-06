@@ -1090,3 +1090,59 @@
         flex: 1 1 auto !important;
     }
 }
+
+/* =========================================================
+   VYBE EXPERIENCE LAYER — folders, live calendar, card polish
+   ========================================================= */
+.vybe-folder-section{margin:12px 0 76px}
+.vybe-section-heading{display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:25px}
+.vybe-section-heading h2{margin:7px 0 0;font-size:clamp(38px,5vw,62px);line-height:.9;letter-spacing:-.065em}
+.vybe-section-heading h2 em{font-family:var(--serif);font-weight:500;color:var(--violet)}
+.vybe-section-heading>p{max-width:330px;margin:0 0 5px;color:var(--muted);font-family:var(--serif);font-size:15px;line-height:1.55}
+.vybe-folder-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.vybe-folder{--folder-bg:#e6e1ff;position:relative;min-height:190px;padding:21px 20px 17px;text-align:left;overflow:visible;border:1px solid rgba(17,17,17,.1);border-radius:16px 16px 19px 19px;background:var(--folder-bg);color:#171717;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.vybe-folder:nth-child(2){--folder-bg:#ffe1c8}.vybe-folder:nth-child(3){--folder-bg:#f8d9e9}.vybe-folder:nth-child(4){--folder-bg:#dff0ce}.vybe-folder:nth-child(5){--folder-bg:#e8ddc7}.vybe-folder:nth-child(6){--folder-bg:#f6e5a9}.vybe-folder:nth-child(7){--folder-bg:#d8e9ed}.vybe-folder:nth-child(8){--folder-bg:#e3ddf7}
+.vybe-folder:before{content:"";position:absolute;top:-8px;left:17px;width:82px;height:12px;border-radius:8px 8px 0 0;background:var(--folder-bg);border:1px solid rgba(17,17,17,.1);border-bottom:0}
+.vybe-folder:hover{transform:translateY(-6px) rotate(-.5deg);box-shadow:0 15px 28px rgba(17,17,17,.09)}
+.vybe-folder-tab{font:500 8px var(--mono);letter-spacing:.12em;opacity:.62}
+.vybe-folder-icon{position:absolute;right:18px;top:18px;font-size:28px}
+.vybe-folder strong{display:block;margin-top:26px;font:600 29px/.95 var(--serif);letter-spacing:-.05em}
+.vybe-folder small{display:block;margin-top:7px;font-size:10px;color:#5f5a52}
+.vybe-folder i{display:block;margin-top:22px;font:500 8px var(--mono);font-style:normal;letter-spacing:.1em}
+.vybe-calendar-section{margin:0 0 80px;padding:42px 38px 36px;border-radius:28px;background:#e8e1ff}
+.vybe-calendar-legend{font:500 9px var(--mono);letter-spacing:.08em;color:#5f5486}
+.vybe-calendar-legend span{display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:50%;background:#7054ff}
+.vybe-calendar-shell{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(230px,.8fr);gap:18px}
+.vybe-calendar-main,.vybe-calendar-agenda{background:#fffdf9;border:1px solid rgba(17,17,17,.12);border-radius:18px;overflow:hidden}
+.vybe-calendar-toolbar{height:58px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e9e4dc}
+.vybe-calendar-toolbar strong{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.vybe-calendar-toolbar button{width:34px;height:34px;border-radius:50%;background:#f1edff;font-size:17px;cursor:pointer}
+.vybe-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:9px}
+.vybe-cal-weekday{text-align:center;padding:9px 2px;color:#888174;font:500 8px var(--mono);letter-spacing:.08em}
+.vybe-cal-empty{min-height:64px}
+.vybe-cal-day{position:relative;min-width:0;min-height:64px;margin:2px;border:1px solid transparent;border-radius:10px;background:#faf8f3;color:#26231f;text-align:left;padding:9px;font-size:11px;cursor:pointer;transition:background .2s,border .2s}
+.vybe-cal-day:hover{background:#f0ebff}
+.vybe-cal-day.has-events:after{content:"";position:absolute;left:9px;bottom:8px;width:7px;height:7px;border-radius:50%;background:#7054ff}
+.vybe-cal-day i{position:absolute;right:7px;top:6px;min-width:16px;height:16px;padding:2px 4px;border-radius:20px;background:#dfff27;font:500 8px var(--mono);font-style:normal;text-align:center}
+.vybe-cal-day.is-selected{border-color:#7054ff;background:#eee9ff;box-shadow:inset 0 0 0 1px #7054ff}
+.vybe-calendar-agenda{padding:24px}
+.vybe-calendar-agenda h3{margin:14px 0 7px;font:600 27px var(--serif);letter-spacing:-.04em}
+.vybe-calendar-agenda>p{font-size:11px;line-height:1.5;color:var(--muted)}
+.vybe-cal-empty-note{padding:16px 0;color:#817b72;font:13px/1.5 var(--serif)}
+.vybe-cal-event{width:100%;display:grid;gap:5px;margin-top:10px;padding:13px;border:1px solid #ebe6dd;border-radius:13px;background:#fff;text-align:left;cursor:pointer}
+.vybe-cal-event>span{font:500 8px var(--mono);color:#7054ff}
+.vybe-cal-event strong{font-size:12px}
+.vybe-cal-event small{color:#777;font-size:9px}
+.vybe-cal-event b{justify-self:end;font:500 8px var(--mono)}
+/* The image is the card's visual centre; title remains below, never duplicated in artwork. */
+.discover-card{min-height:0;border-radius:24px}
+.discover-card-image{height:auto;aspect-ratio:1.48/1;min-height:205px;background:#e9e4da}
+.discover-card-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:var(--cover-focus,center);position:absolute;inset:0}
+.discover-card-image:after{pointer-events:none}
+.discover-card-body{padding:19px 19px 17px}
+.discover-card-body h3{font-size:clamp(20px,2vw,25px);line-height:1.02;min-height:2.05em}
+.discover-card-body p{min-height:52px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.spotlight-card{min-height:430px}
+.spotlight-card>img{object-fit:cover;object-position:center}
+@media(max-width:1000px){.vybe-folder-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.vybe-calendar-shell{grid-template-columns:1fr}.vybe-calendar-agenda{display:grid;grid-template-columns:1fr 1.4fr;column-gap:18px}.vybe-calendar-agenda #vybeCalendarEvents{grid-column:2;grid-row:1/4}}
+@media(max-width:640px){.vybe-section-heading{align-items:flex-start;flex-direction:column}.vybe-section-heading h2{font-size:43px}.vybe-folder-grid{gap:10px}.vybe-folder{min-height:165px;padding:16px}.vybe-folder strong{font-size:25px}.vybe-folder i{margin-top:16px;font-size:7px}.vybe-calendar-section{padding:26px 14px 18px;border-radius:20px}.vybe-calendar-main{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}.vybe-calendar-toolbar{position:sticky;left:0;min-width:460px}.vybe-calendar-grid{min-width:460px;padding:5px}.vybe-cal-day{min-height:52px;padding:6px;font-size:10px}.vybe-cal-empty{min-height:52px}.vybe-cal-day i{right:3px;top:3px;min-width:14px;height:14px;font-size:7px}.vybe-calendar-agenda{display:block;padding:18px}.discover-card-image{aspect-ratio:1.25/1;min-height:190px}.discover-grid{grid-template-columns:1fr;gap:15px}.spotlight-card{min-height:380px}.spotlight-content{left:22px;right:22px;bottom:24px}.discover-hero-stats{gap:14px}}

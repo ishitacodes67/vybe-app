@@ -55,8 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const reviewTitle = document.getElementById('reviewTitle');
     if (reviewTitle) {
         const urlParams = new URLSearchParams(window.location.search);
-        const eventId = urlParams.get('id') || localStorage.getItem("vybeReviewEventId");
-        if (eventId) localStorage.removeItem("vybeReviewEventId");
+        const eventId = urlParams.get('id');
 
         if (!eventId) {
             alert("No event selected. Please go back to the dashboard and click 'Review' on an event.");

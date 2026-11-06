@@ -3,9 +3,13 @@
 // Usage from any page: const events = await window.api.getEvents();
 
 (function () {
-  // Point this at your Render backend. Switch to http://localhost:5000/api for local dev.
-  const API_BASE_URL = "https://vybe-backend-0qa7.onrender.com/api";
-
+  // Local development uses the local backend.
+// Vercel deployment uses the Render backend.
+const API_BASE_URL =
+  window.VYBE_API_BASE_URL ||
+  (["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ? "http://127.0.0.1:5000/api"
+    : "https://vybe-backend-0qa7.onrender.com/api");
   const TOKEN_KEY = "vybe_token";
   const USER_KEY = "vybe_user";
 

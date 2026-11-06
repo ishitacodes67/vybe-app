@@ -142,6 +142,32 @@
 
     </section>
 
+    <section class="tracker-section pass-section" id="passes">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">YOUR PASSES</p>
+                <h2>saved for<br><em>the good stuff.</em></h2>
+            </div>
+            <span>Tap a pass to open the full invitation</span>
+        </div>
+        <div id="passWallet" class="pass-wallet"></div>
+    </section>
+
+    <section class="tracker-section tracker-calendar-section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">YOUR CALENDAR</p>
+                <h2>only the plans<br><em>you said yes to.</em></h2>
+            </div>
+            <span id="registeredCalendarCount"></span>
+        </div>
+        <div class="registered-calendar">
+            <div class="registered-calendar-top"><button id="registeredCalPrev" type="button" aria-label="Previous month">←</button><strong id="registeredCalMonth"></strong><button id="registeredCalNext" type="button" aria-label="Next month">→</button></div>
+            <div id="registeredCalGrid" class="registered-calendar-grid"></div>
+            <div id="registeredCalEvents" class="registered-calendar-events"></div>
+        </div>
+    </section>
+
 
     <section class="tracker-section">
 
@@ -231,6 +257,8 @@
 
 <script src="js/api.js"></script>
 <script src="js/events-data.js"></script>
+<script src="js/vybe-state.js"></script>
+<script src="js/event-visuals.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/tracker.js"></script>
 <script src="js/vix.js"></script>
