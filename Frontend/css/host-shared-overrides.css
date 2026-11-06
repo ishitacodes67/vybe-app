@@ -1,0 +1,23 @@
+/* VYBE HOST CONSISTENCY PATCH */
+.organizer-sidebar .brand {
+  display:flex; align-items:center; gap:4px;
+  font-family:Inter,Arial,sans-serif; font-size:1.35rem;
+  font-weight:900; letter-spacing:-.07em; color:#171717;
+  text-decoration:none;
+}
+.organizer-sidebar .brand span { color:#7652ff; }
+.organizer-sidebar .nav-item.active { background:#eee9ff; color:#171717; }
+.organizer-sidebar .nav-item.active span { color:#7652ff; }
+.organizer-sidebar .sidebar-bottom { margin-top:auto; }
+.organizer-sidebar .host-mini-card { display:flex; }
+.organizer-sidebar .logout-button { display:block; }
+@media(max-width:760px) {
+ .organizer-shell { grid-template-columns:1fr; }
+ .organizer-sidebar { position:sticky; z-index:40; top:0; height:auto; padding:12px 16px; }
+ .organizer-sidebar .host-label { display:none; }
+ .organizer-sidebar .organizer-nav { display:flex; flex-wrap:wrap; gap:6px; }
+ .organizer-sidebar .nav-item { padding:9px 10px; }
+ .organizer-sidebar .sidebar-bottom { display:flex; align-items:center; gap:10px; margin-top:10px; }
+ .organizer-sidebar .host-mini-card { margin:0; padding:4px; }
+ .organizer-main { padding:24px 16px 60px; }
+}
